@@ -7,84 +7,100 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pump+Cardio">
 <meta name="theme-color" content="#0f1114">
-<meta name="app-version" content="pc-v5">
-<title>James – 30 min Pump + Cardio</title>
+<meta name="app-version" content="pc-v6">
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAADFBMVEUPERQqLzZPs6kAAABjcOYjAAACdElEQVR42u1XvW7bMBA+XWxA8OTBD6CxSF9CexcPSRAgi3e/BB/FUxEkQNFH0Esk8Ki9HTwJGgyqg34s3vFOFOomQMEbZFL89Pkjebw7AkSLFi1atGgfZ4n35d1yW+08A+h5t7wDgNVzGHq5bUeeQ9DJth86BKA3Q2s1jU7yS/swid6M2qsp9Jiak6NCzckpOne7RkXTrc1U9IagVyo6p6tgFDT3sUxBLxg6VdDrib1GXTYRjlNHIxOVDp1X+H5rPMLRJ/sVAN6NB4Ae2b8AAODdIxy57KZof3dcuOdc/u5+K/1cLhzqnjwV0O0kz0O/ZoibUfsbAAD8GPrNWw4A8LWQdTejdqnoToiQXkqmrMlp1LYKd7skBXOpVOZunF4pc6+p7E44ytwnp2dl7lzKCEbkLgKjT8In2U0zUzOJbAR9JsO1hF6IjKnEfSJAO50Bg3UXoVFzHcD4N0oaNl5eb5bB6FwGGT/3mQHrT9D92eiLV98DQPXz/5zlx6HT4IrDzPbYf6kbZ9VV4dyliLESt5lTD85ck0wfRikNeKMEgrr16XV2x/o+zty1RXXFlNrezM/cul8gSQMpXxIb9LW+WTVXb8i2oebQqPiJZbuXUlfWPmeyneK/LecvF+Lu9vrgpyqJlJSVEcg8E417X6x1H/wiXnQddPefPfmBn270uM/t6CnfMgaal2GBSK208B7AFyF1o1a2sqB04wy98UJiL3toqUQ1jq5nVRx2oq5ydXPhe+2cHgm4UmOVVYVQJVTKXo+DR00I424c8qepDHhUqBm3Q/40nV2PMrUHbXe0oZ7LLkTYx7A8Xz32j2jRokWLFu269gdqZIBsS3TG2wAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAADFBMVEUPERQqLzZPs6kAAABjcOYjAAACdElEQVR42u1XvW7bMBA+XWxA8OTBD6CxSF9CexcPSRAgi3e/BB/FUxEkQNFH0Esk8Ki9HTwJGgyqg34s3vFOFOomQMEbZFL89Pkjebw7AkSLFi1atGgfZ4n35d1yW+08A+h5t7wDgNVzGHq5bUeeQ9DJth86BKA3Q2s1jU7yS/swid6M2qsp9Jiak6NCzckpOne7RkXTrc1U9IagVyo6p6tgFDT3sUxBLxg6VdDrib1GXTYRjlNHIxOVDp1X+H5rPMLRJ/sVAN6NB4Ae2b8AAODdIxy57KZof3dcuOdc/u5+K/1cLhzqnjwV0O0kz0O/ZoibUfsbAAD8GPrNWw4A8LWQdTejdqnoToiQXkqmrMlp1LYKd7skBXOpVOZunF4pc6+p7E44ytwnp2dl7lzKCEbkLgKjT8In2U0zUzOJbAR9JsO1hF6IjKnEfSJAO50Bg3UXoVFzHcD4N0oaNl5eb5bB6FwGGT/3mQHrT9D92eiLV98DQPXz/5zlx6HT4IrDzPbYf6kbZ9VV4dyliLESt5lTD85ck0wfRikNeKMEgrr16XV2x/o+zty1RXXFlNrezM/cul8gSQMpXxIb9LW+WTVXb8i2oebQqPiJZbuXUlfWPmeyneK/LecvF+Lu9vrgpyqJlJSVEcg8E417X6x1H/wiXnQddPefPfmBn270uM/t6CnfMgaal2GBSK208B7AFyF1o1a2sqB04wy98UJiL3toqUQ1jq5nVRx2oq5ydXPhe+2cHgm4UmOVVYVQJVTKXo+DR00I424c8qepDHhUqBm3Q/40nV2PMrUHbXe0oZ7LLkTYx7A8Xz32j2jRokWLFu269gdqZIBsS3TG2wAAAABJRU5ErkJggg==">
+<link rel="manifest" href="manifest.json">
+<title>James – Pump + Cardio</title>
 <style>
-:root{--bg:#0f1114;--card:#181b20;--text:#f2f4f7;--muted:#9aa3ad;--line:#2a2f36;--accent:#4fb3a9}
+:root{--bg:#0d0f12;--card:#171a1f;--text:#f3f5f8;--muted:#98a2ad;--line:#272c33;--accent:#4fb3a9;--warm:#ff7a59}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--text);font:18px/1.5 system-ui,-apple-system,sans-serif;padding:calc(env(safe-area-inset-top) + 20px) 20px 150px}
-h1{font-size:26px;font-weight:700;margin:0 0 6px}
-.safe{color:var(--muted);margin:0 0 28px}.safe p{margin:0}.safe .stop{font-size:15px;margin-top:4px}
-h2{font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:36px 0 12px}
-.card{background:var(--card);border-radius:16px;padding:18px 20px;margin:0 0 12px}
+body{margin:0;background:radial-gradient(120% 60% at 50% 0,#16232a 0,var(--bg) 60%) fixed;color:var(--text);font:18px/1.5 system-ui,-apple-system,sans-serif;padding:calc(env(safe-area-inset-top) + 18px) calc(env(safe-area-inset-right) + 20px) 160px calc(env(safe-area-inset-left) + 20px)}
+header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+.kicker{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font-size:28px;line-height:1.15;font-weight:800;margin:2px 0 2px}
+#date{color:var(--muted);font-size:15px}
+.ring{margin-left:auto;position:relative;width:72px;height:72px;flex:none}
+.ring svg{transform:rotate(-90deg)}.ring circle{fill:none;stroke-width:7}.ring .bg{stroke:var(--line)}
+.ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .5s ease}
+.ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.tabs{display:flex;gap:6px;background:#14171c;border:1px solid var(--line);border-radius:14px;padding:4px;margin:0 0 18px}
+.tab{flex:1;min-height:46px;border-radius:10px;border:0;background:none;color:var(--muted);font:600 17px system-ui;transition:background .2s,color .2s}
+.tab.on{background:var(--accent);color:#0d0f12}
+.safe{color:var(--muted);margin:0 0 6px}.safe p{margin:0}.safe .stop{font-size:15px;margin-top:4px;color:#c9a39a}
+h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;margin:32px 0 12px}
+.card{background:var(--card);border:1px solid #1f242a;border-radius:18px;padding:18px 20px;margin:0 0 12px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.card.done{border-color:rgba(79,179,169,.45)}
 .name{font-size:20px;font-weight:700}.note{color:var(--muted);font-size:16px;margin-top:2px}
 .row{display:flex;align-items:center;gap:14px;margin-top:14px}
-.tick{width:56px;height:56px;border-radius:50%;border:2px solid var(--line);background:none;color:var(--muted);font:600 18px system-ui;padding:0}
-.tick.on{background:var(--accent);border-color:var(--accent);color:#0f1114}
-.addw{margin-left:auto;background:none;border:0;color:var(--accent);font:16px system-ui;padding:10px 0}
-.w{width:80px;font:18px system-ui;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;margin-left:auto}
-.btn{display:block;width:100%;min-height:56px;border-radius:14px;border:0;background:var(--accent);color:#0f1114;font:600 18px system-ui;margin-top:14px}
+.tick{width:56px;height:56px;border-radius:50%;border:2px solid var(--line);background:none;color:var(--muted);font:700 18px system-ui;padding:0;transition:transform .15s,background .2s,border-color .2s}
+.tick.on{background:var(--accent);border-color:var(--accent);color:#0d0f12}
+.tick:active,.btn:active,.tab:active{transform:scale(.94)}
+.addw{margin-left:auto;background:none;border:0;color:var(--accent);font:600 16px system-ui;padding:10px 0}
+.w{width:84px;font:18px system-ui;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;margin-left:auto}
+.btn{display:block;width:100%;min-height:56px;border-radius:14px;border:0;background:var(--accent);color:#0d0f12;font:700 18px system-ui;margin-top:14px;transition:transform .12s,opacity .2s}
 .btn.ghost{background:none;border:1px solid var(--line);color:var(--text)}
 .round{color:var(--muted);font-size:16px}
-details{margin-top:36px;color:var(--muted)}summary{font-size:16px;padding:12px 0}ul{padding-left:18px}
-#bar{position:fixed;left:0;right:0;bottom:0;background:#14171b;border-top:1px solid var(--line);padding:14px 20px calc(env(safe-area-inset-bottom) + 14px);display:none;align-items:center;gap:16px}
-#bar.show{display:flex}#ph{font-size:16px;color:var(--muted);font-weight:600;letter-spacing:.06em}
-#ph.work{color:#ff7a59}#ph.rest{color:var(--accent)}
-#time{font:700 44px system-ui;font-variant-numeric:tabular-nums;line-height:1}
-.tabs{display:flex;gap:8px;margin:0 0 20px}.tab{flex:1;min-height:48px;border-radius:12px;border:1px solid var(--line);background:none;color:var(--muted);font:600 17px system-ui}.tab.on{background:var(--accent);border-color:var(--accent);color:#0f1114}
-.f{width:100%;font:18px system-ui;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:6px}label.l{display:block;margin-top:14px;color:var(--muted);font-size:16px}
+.f{width:100%;font:18px system-ui;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:6px}
+label.l{display:block;margin-top:14px;color:var(--muted);font-size:16px}label.l:first-child{margin-top:0}
+details{margin-top:32px;color:var(--muted)}summary{font-size:16px;padding:12px 0}ul{padding-left:18px}li{margin:6px 0}
+#bar{position:fixed;left:0;right:0;bottom:0;background:rgba(20,23,28,.92);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:14px calc(env(safe-area-inset-right) + 20px) calc(env(safe-area-inset-bottom) + 14px) calc(env(safe-area-inset-left) + 20px);display:none;align-items:center;gap:16px}
+#bar.show{display:flex}#ph{font-size:15px;color:var(--muted);font-weight:700;letter-spacing:.08em}
+#ph.work{color:var(--warm)}#ph.rest{color:var(--accent)}
+#time{font:800 46px system-ui;font-variant-numeric:tabular-nums;line-height:1}
 #sub{font-size:14px;color:var(--muted)}#stop{margin-left:auto;width:auto;padding:0 22px;margin-top:0}
+#ov{position:fixed;inset:0;background:rgba(5,6,8,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px;z-index:9}
+#ov.show{display:flex}#ov .card{width:100%;max-width:380px;text-align:center;padding:28px 24px;animation:pop .3s ease}
+#ov .big{font-size:44px;font-weight:800;margin:8px 0}#ov .enc{color:var(--accent);font-weight:600;margin-top:12px}
+@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body>
-<h1>James – <span id="ttl">30 min Pump + Cardio</span></h1>
+<header><div><div class="kicker">Pump+Cardio</div><h1 id="ttl">Pump + Cardio</h1><div id="date"></div></div>
+<div class="ring"><svg width="72" height="72"><circle class="bg" cx="36" cy="36" r="31"/><circle class="fg" id="rg" cx="36" cy="36" r="31" stroke-dasharray="194.8" stroke-dashoffset="194.8"/></svg><span id="pct">0%</span></div></header>
 <div class="tabs"><button class="tab" id="tb_pump" onclick="tab('pump')">Pump + Cardio</button><button class="tab" id="tb_run" onclick="tab('run')">Easy Run</button></div>
-<div class="safe"><p>Moderate weights, breathe out every rep, no breath-holding or straining, stop 2 reps short of failure.</p>
+<div class="safe"><p id="safe1"></p>
 <p class="stop">Stop and get checked if you get a sudden or severe headache, any vision change, dizziness or feel sick.</p></div>
 <div id="v_pump">
-
 <h2>1 · Warm-up</h2>
-<div class="card"><div class="name">Easy rower</div><div class="note">4 minutes</div>
-<button class="btn" onclick="run('Warm-up',[['WARM-UP',240]])">Start 4:00</button></div>
-
+<div class="card" id="c_wu"><div class="name">Easy rower</div><div class="note">4 minutes</div>
+<button class="btn" onclick="run('Warm-up',[['WARM-UP',240]],null,'wu')">Start 4:00</button></div>
 <h2>2 · Pump circuit</h2>
 <div class="note" style="margin-bottom:6px">Aim for 6–7/10 effort. Can't get 12 smooth reps? Drop a step.</div>
 <div class="round">Round <span id="round">1</span> of 3 · 12–15 reps · ~60 s rest between rounds</div>
 <div id="exs" style="margin-top:12px"></div>
 <button class="btn" onclick="restRound()">Round done – rest 60 s</button>
-
 <h2>3 · Cardio</h2>
-<div class="card"><div class="name">Assault Runner intervals</div><div class="note">4 × 1 min brisk run / 1 min walk · 8 min total · rower if legs are cooked</div>
+<div class="card" id="c_cardio"><div class="name">Assault Runner intervals</div><div class="note">4 × 1 min brisk run / 1 min walk · 8 min total · rower if legs are cooked</div>
 <button class="btn" onclick="intervals()">Start intervals</button></div>
-
 <h2>4 · Cool-down</h2>
-<div class="card"><div class="name">Walk + stretch</div><div class="note">2 minutes</div>
-<button class="btn" onclick="run('Cool-down',[['COOL-DOWN',120]])">Start 2:00</button></div>
-
+<div class="card" id="c_cd"><div class="name">Walk + stretch</div><div class="note">2 minutes</div>
+<button class="btn" onclick="run('Cool-down',[['COOL-DOWN',120]],null,'cd')">Start 2:00</button></div>
 </div>
 <div id="v_run" hidden>
 <h2>1 · Warm-up</h2>
-<div class="card"><div class="name">Brisk walk on runner</div><div class="note">5 minutes</div>
-<button class="btn" onclick="run('Warm-up',[['WARM-UP',300]])">Start 5:00</button></div>
+<div class="card" id="c_rwu"><div class="name">Brisk walk on runner</div><div class="note">5 minutes</div>
+<button class="btn" onclick="run('Warm-up',[['WARM-UP',300]],null,'rwu')">Start 5:00</button></div>
 <h2>2 · Main</h2>
-<div class="card"><div class="name">Easy conversational jog</div><div class="note">15 minutes · walk 1 min whenever needed</div>
-<button class="btn" onclick="run('Easy jog',[['JOG',900]])">Start 15:00</button>
+<div class="card" id="c_rmain"><div class="name">Easy conversational jog</div><div class="note">15 minutes · walk 1 min whenever needed</div>
+<button class="btn" onclick="run('Easy jog',[['JOG',900]],null,'rmain')">Start 15:00</button>
 <button class="btn ghost" onclick="addBreak()">+1 walk break · <span id="brk">0</span></button></div>
 <h2>3 · Cool-down</h2>
-<div class="card"><div class="name">Walk + stretch</div><div class="note">5 minutes · calves, hamstrings, hips</div>
-<button class="btn" onclick="run('Cool-down',[['COOL-DOWN',300]])">Start 5:00</button></div>
+<div class="card" id="c_rcd"><div class="name">Walk + stretch</div><div class="note">5 minutes · calves, hamstrings, hips</div>
+<button class="btn" onclick="run('Cool-down',[['COOL-DOWN',300]],null,'rcd')">Start 5:00</button></div>
 <h2>Optional</h2>
 <div class="card"><label class="l">Distance (km)<input class="f" id="r_d" type="number" inputmode="decimal" step="0.01"></label>
 <label class="l">How it felt (1–10)<input class="f" id="r_f" type="number" inputmode="numeric" min="1" max="10"></label>
 <label class="l">Notes<textarea class="f" id="r_n" rows="3"></textarea></label></div>
 </div>
-<button class="btn" style="margin-top:36px" onclick="finish()">Finish workout</button>
+<button class="btn" style="margin-top:32px" onclick="finish()">Finish workout</button>
 <button class="btn ghost" onclick="resetDay()">Reset today</button>
 <details><summary>History</summary><ul id="hist"></ul></details>
-
 <div id="bar"><div><div id="ph">READY</div><div id="time">0:00</div><div id="sub"></div></div><button class="btn ghost" id="stop" onclick="stopT()">Stop</button></div>
+<div id="ov" onclick="if(event.target==this)closeOv()"><div class="card"><div class="kicker">Workout saved</div><div class="name" id="o_n" style="margin-top:6px"></div><div class="big" id="o_t"></div><div class="note" id="o_d"></div><div class="enc" id="o_e"></div><button class="btn" onclick="closeOv()">Done</button></div></div>
 <script>
 var EX=[["Dumbbell bench press","12–15 reps","16–20 kg each","16–20"],["Chest-supported dumbbell row","Face down on incline bench · 12–15 reps","14–18 kg each","14–18"],["Kettlebell goblet squat","12–15 reps","16–20 kg","16–20"],["Assisted pull-ups or dips","Feet on block · 8–10 controlled reps","Bodyweight (use block as needed)","BW"],["Seated dumbbell shoulder press","12–15 reps","10–14 kg each","10–14"],["Farmer's carry","30–40 m or 30 s · heavy but breathing steadily","20–24 kg each","20–24"]];
 var today=new Date().toISOString().slice(0,10),KEY="wo_"+today,start=Date.now();
-var st=JSON.parse(localStorage.getItem(KEY)||'{"t":{},"w":{},"r":1}');st.t=st.t||{};st.w=st.w||{};st.r=st.r||1;
+var st=JSON.parse(localStorage.getItem(KEY)||'{"t":{},"w":{},"r":1}');st.t=st.t||{};st.w=st.w||{};st.r=st.r||1;st.s=st.s||{};
 if(st.start)start=st.start;else{st.start=start;save();}
 function save(){localStorage.setItem(KEY,JSON.stringify(st));}
 function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
@@ -93,25 +109,37 @@ function render(){var h="";EX.forEach(function(e,i){h+='<div class="card"><div c
 for(var r=0;r<3;r++){var k=i+'_'+r;h+='<button class="tick'+(st.t[k]?' on':'')+'" data-k="'+k+'" aria-label="Round '+(r+1)+'">'+(st.t[k]?'✓':(r+1))+'</button>';}
 h+=st.w[i]?'<input class="w" type="number" inputmode="decimal" placeholder="'+e[3]+'" data-w="'+i+'" value="'+st.w[i]+'">':'<button class="addw" data-a="'+i+'">+ weight</button>';h+='</div></div>';});
 document.getElementById("exs").innerHTML=h;document.getElementById("round").textContent=st.r;
-document.querySelectorAll("[data-k]").forEach(function(b){b.onclick=function(){var k=b.dataset.k;st.t[k]=!st.t[k];save();b.classList.toggle("on",st.t[k]);b.textContent=st.t[k]?"✓":(+k.split("_")[1]+1);};});
+document.querySelectorAll("[data-k]").forEach(function(b){b.onclick=function(){var k=b.dataset.k;st.t[k]=!st.t[k];save();b.classList.toggle("on",st.t[k]);b.textContent=st.t[k]?"✓":(+k.split("_")[1]+1);prog();};});
 document.querySelectorAll("[data-w]").forEach(function(c){c.oninput=function(){st.w[c.dataset.w]=c.value;save();};});
-document.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){var i=b.dataset.a,inp=document.createElement("input");inp.className="w";inp.type="number";inp.inputMode="decimal";inp.placeholder=EX[i][3];inp.dataset.w=i;inp.oninput=function(){st.w[i]=inp.value;save();};b.replaceWith(inp);inp.focus();};});}
+document.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){var i=b.dataset.a,inp=document.createElement("input");inp.className="w";inp.type="number";inp.inputMode="decimal";inp.placeholder=EX[i][3];inp.dataset.w=i;inp.oninput=function(){st.w[i]=inp.value;save();};b.replaceWith(inp);inp.focus();};});prog();}
+var RK="wo_run_"+today,RSK="wo_runstart_"+today,rs=JSON.parse(localStorage.getItem(RK)||"{}");rs.b=rs.b||0;rs.s=rs.s||{};
+function rsave(){localStorage.setItem(RK,JSON.stringify(rs));}
+function rrender(){document.getElementById("brk").textContent=rs.b;["d","f","n"].forEach(function(k){var el=document.getElementById("r_"+k);el.value=rs[k]||"";el.oninput=function(){rs[k]=el.value;rsave();};});prog();}
+function addBreak(){rs.b++;rsave();document.getElementById("brk").textContent=rs.b;}
+function ticks(){return Object.keys(st.t).filter(function(k){return st.t[k];}).length;}
+function prog(){var d,t;if(cur=="run"){t=3;d=["rwu","rmain","rcd"].filter(function(k){return rs.s[k];}).length;}else{t=21;d=ticks()+["wu","cardio","cd"].filter(function(k){return st.s[k];}).length;}
+var p=Math.min(1,d/t);document.getElementById("rg").style.strokeDashoffset=194.8*(1-p);document.getElementById("pct").textContent=Math.round(p*100)+"%";
+["wu","cardio","cd"].forEach(function(k){document.getElementById("c_"+k).classList.toggle("done",!!st.s[k]);});["rwu","rmain","rcd"].forEach(function(k){document.getElementById("c_"+k).classList.toggle("done",!!rs.s[k]);});}
 var tm=null,bar=document.getElementById("bar"),phE=document.getElementById("ph"),tE=document.getElementById("time"),sE=document.getElementById("sub");
 function stopT(){if(tm)clearInterval(tm);tm=null;bar.classList.remove("show");}
-function run(label,segs,done){stopT();var i=0,end;bar.classList.add("show");
+function run(label,segs,done,sec){stopT();if(cur=="run"&&!localStorage.getItem(RSK))localStorage.setItem(RSK,String(Date.now()));var i=0,end;bar.classList.add("show");
 function seg(){var s=segs[i];end=Date.now()+s[1]*1000;phE.textContent=s[0];phE.className=s[0]=="WORK"?"work":(s[0]=="REST"?"rest":"");sE.textContent=s[2]||label;tE.textContent=fmt(s[1]);beep(s[0]=="REST"?523:988,0.4);}
 seg();tm=setInterval(function(){var l=Math.max(0,Math.round((end-Date.now())/1000));tE.textContent=fmt(l);if(l<=3&&l>0)beep(440,0.1);
-if(l<=0){i++;if(i>=segs.length){clearInterval(tm);tm=null;phE.textContent="DONE";phE.className="rest";sE.textContent=label;beep(988,0.8);done&&done();setTimeout(function(){if(!tm)bar.classList.remove("show");},4000);}else seg();}},250);}
+if(l<=0){i++;if(i>=segs.length){clearInterval(tm);tm=null;phE.textContent="DONE";phE.className="rest";sE.textContent=label;beep(988,0.8);if(sec){if(sec.charAt(0)=="r"){rs.s[sec]=1;rsave();}else{st.s[sec]=1;save();}prog();}done&&done();setTimeout(function(){if(!tm)bar.classList.remove("show");},4000);}else seg();}},250);}
 function restRound(){run("Round "+st.r+" of 3",[["REST",60]],function(){if(st.r<3){st.r++;save();document.getElementById("round").textContent=st.r;}});}
-function intervals(){var s=[];for(var k=1;k<=4;k++){s.push(["WORK",60,"Interval "+k+" of 4 · brisk run"]);s.push(["REST",60,"Interval "+k+" of 4 · walk"]);}run("Cardio",s);}
-var RK="wo_run_"+today,rs=JSON.parse(localStorage.getItem(RK)||"{}");rs.b=rs.b||0;if(!rs.start){rs.start=Date.now();}
-function rsave(){localStorage.setItem(RK,JSON.stringify(rs));}
-function rrender(){document.getElementById("brk").textContent=rs.b;["d","f","n"].forEach(function(k){var el=document.getElementById("r_"+k);el.value=rs[k]||"";el.oninput=function(){rs[k]=el.value;rsave();};});}
-function addBreak(){rs.b++;rsave();document.getElementById("brk").textContent=rs.b;}
+function intervals(){var s=[];for(var k=1;k<=4;k++){s.push(["WORK",60,"Interval "+k+" of 4 · brisk run"]);s.push(["REST",60,"Interval "+k+" of 4 · walk"]);}run("Cardio",s,null,"cardio");}
 var cur=localStorage.getItem("wo_tab")||"pump";
-function tab(t){cur=t;localStorage.setItem("wo_tab",t);document.getElementById("v_pump").hidden=t!="pump";document.getElementById("v_run").hidden=t!="run";document.getElementById("tb_pump").classList.toggle("on",t=="pump");document.getElementById("tb_run").classList.toggle("on",t=="run");document.getElementById("ttl").textContent=t=="run"?"Easy Run":"30 min Pump + Cardio";}
+var SAFE={pump:"Moderate weights, breathe out every rep, no breath-holding or straining, stop 2 reps short of failure.",run:"Easy conversational pace – you should be able to talk. Walk whenever you need to."};
+function tab(t){cur=t;localStorage.setItem("wo_tab",t);document.getElementById("v_pump").hidden=t!="pump";document.getElementById("v_run").hidden=t!="run";document.getElementById("tb_pump").classList.toggle("on",t=="pump");document.getElementById("tb_run").classList.toggle("on",t=="run");document.getElementById("ttl").textContent=t=="run"?"Easy Run":"Pump + Cardio";document.getElementById("safe1").textContent=SAFE[t];prog();}
 function hist(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");document.getElementById("hist").innerHTML=h.slice().reverse().map(function(e){var w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&EX[i];}).map(function(i){return EX[i][0]+": "+e.w[i]+" kg";}).join(", ");var x=[];if(e.km)x.push(e.km+" km");if(e.feel)x.push("felt "+e.feel+"/10");if(e.breaks)x.push(e.breaks+" walk breaks");if(e.notes)x.push(e.notes);if(x.length)w=(w?w+", ":"")+x.join(" · ");return "<li><b>"+e.date+"</b> · "+(e.name||"Pump + Cardio")+" – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+"</li>";}).join("")||"<li>No workouts yet</li>";}
-function finish(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");if(cur=="run"){rsave();h.push({name:"Easy Run",date:today,min:Math.round((Date.now()-rs.start)/60000),km:rs.d||"",feel:rs.f||"",notes:rs.n||"",breaks:rs.b});}else h.push({name:"Pump + Cardio",date:today,min:Math.round((Date.now()-start)/60000),w:st.w});localStorage.setItem("wo_log",JSON.stringify(h));hist();alert("Workout saved. Nice work!");}
-function resetDay(){if(cur=="run"){if(confirm("Reset today's run?")){rs={b:0,start:Date.now()};rsave();rrender();}return;}if(confirm("Reset today's ticks and weights?")){st={t:{},w:{},r:1,start:Date.now()};start=st.start;save();render();}}
+var ENC=["Strong work, James. That counts.","Showing up on a flat day is the win.","Nicely done – recover well.","Good session. Hydrate and rest up."];
+function finish(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]"),e,d;
+if(cur=="run"){rsave();var s0=+localStorage.getItem(RSK)||Date.now();e={name:"Easy Run",date:today,min:Math.round((Date.now()-s0)/60000),km:rs.d||"",feel:rs.f||"",notes:rs.n||"",breaks:rs.b};var x=[];if(e.km)x.push(e.km+" km");if(e.feel)x.push("felt "+e.feel+"/10");x.push(e.breaks+" walk breaks");d=x.join(" · ");}
+else{e={name:"Pump + Cardio",date:today,min:Math.round((Date.now()-start)/60000),w:st.w};d=ticks()+" of 18 sets ticked";}
+h.push(e);localStorage.setItem("wo_log",JSON.stringify(h));hist();
+document.getElementById("o_n").textContent=e.name;document.getElementById("o_t").textContent=e.min+" min";document.getElementById("o_d").textContent=d;document.getElementById("o_e").textContent=ENC[Math.floor(Math.random()*ENC.length)];document.getElementById("ov").classList.add("show");}
+function closeOv(){document.getElementById("ov").classList.remove("show");}
+function resetDay(){if(cur=="run"){if(confirm("Reset today's run?")){rs={b:0,s:{}};localStorage.removeItem(RSK);rsave();rrender();}return;}if(confirm("Reset today's ticks and weights?")){st={t:{},w:{},r:1,s:{},start:Date.now()};start=st.start;save();render();}}
+document.getElementById("date").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
 render();rrender();tab(cur);hist();
 </script></body></html>
