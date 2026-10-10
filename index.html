@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pump+Cardio">
+<meta name="theme-color" content="#111">
+<title>James – 30 min Pump + Cardio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111;color:#eee;font:17px -apple-system,system-ui,sans-serif;padding:env(safe-area-inset-top) 14px 40px}
+h1{font-size:22px;margin:16px 0}h2{font-size:19px;margin:0 0 8px}
+.card{background:#1d1d1f;border-radius:14px;padding:14px;margin:12px 0}
+.warn{background:#4a1515;border:2px solid #e44}.warn b{color:#ff8a8a}
+button{font-size:18px;min-height:52px;border:0;border-radius:12px;padding:10px 16px;background:#2a7de1;color:#fff;margin:4px 0;width:100%}
+button.sec{background:#333}button.red{background:#b22}
+.ex{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid #333}
+.ex .n{flex:1 1 100%}.ex label{display:flex;align-items:center;gap:4px}
+input[type=checkbox]{width:34px;height:34px}
+input[type=number]{width:90px;font-size:18px;min-height:44px;background:#000;color:#fff;border:1px solid #555;border-radius:8px;padding:4px}
+.t{font-size:44px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.ph{text-align:center;font-size:30px;font-weight:800}.work{color:#ff5a3c}.rest{color:#3cd27a}
+small{color:#aaa}li{margin:4px 0}
+</style></head><body>
+<h1>James – 30 min Pump + Cardio</h1>
+<div class="card warn">Moderate weights. <b>Breathe out every rep</b> – no breath-holding or straining. Stop each set 2 reps short of failure.<br><br><b>STOP and get checked</b> if you get a sudden/severe headache, any vision change, dizziness or feel sick.</div>
+
+<div class="card"><h2>1. Warm-up – 4 min easy rower</h2><div class="t" id="t_wu">4:00</div><button onclick="simple('wu',240)">Start / Stop 4:00</button></div>
+
+<div class="card"><h2>2. Pump circuit – 3 rounds, 12–15 reps</h2>
+<div>Round <span id="round">1</span> of 3</div><div id="exs"></div>
+<div class="t" id="t_rest">1:00</div><button onclick="restRound()">Round done – 60 s rest</button></div>
+
+<div class="card"><h2>3. Cardio – 8 min Assault Runner</h2><small>Rower if legs are cooked. 5 × (30 s brisk run / 60 s walk)</small>
+<div class="ph" id="ph">READY</div><div class="t" id="t_iv">0:30</div><div style="text-align:center" id="ivn">Interval 0/5</div>
+<button onclick="intervals()">Start / Stop intervals</button></div>
+
+<div class="card"><h2>4. Cool-down – 2 min walk + stretch</h2><div class="t" id="t_cd">2:00</div><button onclick="simple('cd',120)">Start / Stop 2:00</button></div>
+
+<div class="card"><button onclick="finish()">Finish workout</button><button class="red" onclick="resetDay()">Reset today</button></div>
+<div class="card"><h2>History</h2><ul id="hist"></ul></div>
+<script>
+var EX=["Dumbbell bench press","Chest-supported dumbbell row (face down on incline bench)","Kettlebell goblet squat","Assisted pull-ups (feet on block) or dips – 8–10 controlled reps","Seated dumbbell shoulder press","Farmer's carry 30–40 m or 30 s – heavy but breathing steadily"];
+var today=new Date().toISOString().slice(0,10),KEY="wo_"+today,start=Date.now();
+var st=JSON.parse(localStorage.getItem(KEY)||'{"t":{},"w":{},"r":1}');
+if(st.start)start=st.start;else{st.start=start;save();}
+function save(){localStorage.setItem(KEY,JSON.stringify(st));}
+function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+var ac;function beep(f,d){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f||880;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(d||0.25));}catch(e){}if(navigator.vibrate)navigator.vibrate(300);}
+function render(){var h="";EX.forEach(function(n,i){h+='<div class="ex"><div class="n">'+n+'</div>';for(var r=0;r<3;r++)h+='<label><input type="checkbox" data-k="'+i+'_'+r+'" '+(st.t[i+'_'+r]?'checked':'')+'>R'+(r+1)+'</label>';h+='<input type="number" inputmode="decimal" placeholder="kg" data-w="'+i+'" value="'+(st.w[i]||'')+'"></div>';});
+document.getElementById("exs").innerHTML=h;document.getElementById("round").textContent=st.r;
+document.querySelectorAll("[data-k]").forEach(function(c){c.onchange=function(){st.t[c.dataset.k]=c.checked;save();};});
+document.querySelectorAll("[data-w]").forEach(function(c){c.oninput=function(){st.w[c.dataset.w]=c.value;save();};});}
+var timers={};
+function countdown(id,secs,done){var el=document.getElementById("t_"+id);if(timers[id]){clearInterval(timers[id]);timers[id]=null;el.textContent=fmt(secs);return;}
+beep(660);var end=Date.now()+secs*1000;el.textContent=fmt(secs);timers[id]=setInterval(function(){var l=Math.max(0,Math.round((end-Date.now())/1000));el.textContent=fmt(l);if(l<=3&&l>0)beep(440,0.1);if(l<=0){clearInterval(timers[id]);timers[id]=null;beep(988,0.6);done&&done();}},250);}
+function simple(id,s){countdown(id,s);}
+function restRound(){if(timers.rest){countdown("rest",60);return;}countdown("rest",60,function(){if(st.r<3){st.r++;save();document.getElementById("round").textContent=st.r;}});}
+var iv=null;function intervals(){var ph=document.getElementById("ph"),t=document.getElementById("t_iv"),n=document.getElementById("ivn");
+if(iv){clearInterval(iv);iv=null;ph.textContent="READY";ph.className="ph";t.textContent="0:30";return;}
+var k=0,phase="WORK",end=Date.now()+30000;beep(988);
+function show(){ph.textContent=phase;ph.className="ph "+(phase=="WORK"?"work":"rest");n.textContent="Interval "+(k+1)+"/5";}
+show();iv=setInterval(function(){var l=Math.max(0,Math.round((end-Date.now())/1000));t.textContent=fmt(l);if(l<=3&&l>0)beep(440,0.1);
+if(l<=0){if(phase=="WORK"){phase="REST";end=Date.now()+60000;beep(523,0.5);}else{k++;if(k>=5){clearInterval(iv);iv=null;ph.textContent="DONE";ph.className="ph rest";beep(988,0.8);return;}phase="WORK";end=Date.now()+30000;beep(988,0.5);}show();}},250);}
+function hist(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");document.getElementById("hist").innerHTML=h.slice().reverse().map(function(e){var w=Object.keys(e.w||{}).filter(function(i){return e.w[i];}).map(function(i){return EX[i].split(" (")[0].split(" –")[0]+": "+e.w[i]+"kg";}).join(", ");return "<li><b>"+e.date+"</b> – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+"</li>";}).join("")||"<li><small>No workouts yet</small></li>";}
+function finish(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");h.push({date:today,min:Math.round((Date.now()-start)/60000),w:st.w});localStorage.setItem("wo_log",JSON.stringify(h));hist();alert("Workout saved. Nice work!");}
+function resetDay(){if(confirm("Reset today's ticks and weights?")){st={t:{},w:{},r:1,start:Date.now()};start=st.start;save();render();}}
+render();hist();
+</script></body></html>
