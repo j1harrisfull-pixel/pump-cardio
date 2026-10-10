@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pump+Cardio">
 <meta name="theme-color" content="#0f1114">
-<meta name="app-version" content="pc-v3">
+<meta name="app-version" content="pc-v4">
 <title>James – 30 min Pump + Cardio</title>
 <style>
 :root{--bg:#0f1114;--card:#181b20;--text:#f2f4f7;--muted:#9aa3ad;--line:#2a2f36;--accent:#4fb3a9}
@@ -42,6 +42,7 @@ details{margin-top:36px;color:var(--muted)}summary{font-size:16px;padding:12px 0
 <button class="btn" onclick="run('Warm-up',[['WARM-UP',240]])">Start 4:00</button></div>
 
 <h2>2 · Pump circuit</h2>
+<div class="note" style="margin-bottom:6px">Aim for 6–7/10 effort. Can't get 12 smooth reps? Drop a step.</div>
 <div class="round">Round <span id="round">1</span> of 3 · 12–15 reps · ~60 s rest between rounds</div>
 <div id="exs" style="margin-top:12px"></div>
 <button class="btn" onclick="restRound()">Round done – rest 60 s</button>
@@ -60,20 +61,20 @@ details{margin-top:36px;color:var(--muted)}summary{font-size:16px;padding:12px 0
 
 <div id="bar"><div><div id="ph">READY</div><div id="time">0:00</div><div id="sub"></div></div><button class="btn ghost" id="stop" onclick="stopT()">Stop</button></div>
 <script>
-var EX=[["Dumbbell bench press","12–15 reps"],["Chest-supported dumbbell row","Face down on incline bench · 12–15 reps"],["Kettlebell goblet squat","12–15 reps"],["Assisted pull-ups or dips","Feet on block · 8–10 controlled reps"],["Seated dumbbell shoulder press","12–15 reps"],["Farmer's carry","30–40 m or 30 s · heavy but breathing steadily"]];
+var EX=[["Dumbbell bench press","12–15 reps","16–20 kg each","16–20"],["Chest-supported dumbbell row","Face down on incline bench · 12–15 reps","14–18 kg each","14–18"],["Kettlebell goblet squat","12–15 reps","16–20 kg","16–20"],["Assisted pull-ups or dips","Feet on block · 8–10 controlled reps","Bodyweight (use block as needed)","BW"],["Seated dumbbell shoulder press","12–15 reps","10–14 kg each","10–14"],["Farmer's carry","30–40 m or 30 s · heavy but breathing steadily","20–24 kg each","20–24"]];
 var today=new Date().toISOString().slice(0,10),KEY="wo_"+today,start=Date.now();
 var st=JSON.parse(localStorage.getItem(KEY)||'{"t":{},"w":{},"r":1}');st.t=st.t||{};st.w=st.w||{};st.r=st.r||1;
 if(st.start)start=st.start;else{st.start=start;save();}
 function save(){localStorage.setItem(KEY,JSON.stringify(st));}
 function fmt(s){return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
 var ac;function beep(f,d){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f||880;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(d||0.25));}catch(e){}if(navigator.vibrate)navigator.vibrate(300);}
-function render(){var h="";EX.forEach(function(e,i){h+='<div class="card"><div class="name">'+e[0]+'</div><div class="note">'+e[1]+'</div><div class="row">';
+function render(){var h="";EX.forEach(function(e,i){h+='<div class="card"><div class="name">'+e[0]+'</div><div class="note">'+e[1]+'</div><div class="note">Suggested: '+e[2]+'</div><div class="row">';
 for(var r=0;r<3;r++){var k=i+'_'+r;h+='<button class="tick'+(st.t[k]?' on':'')+'" data-k="'+k+'" aria-label="Round '+(r+1)+'">'+(st.t[k]?'✓':(r+1))+'</button>';}
-h+=st.w[i]?'<input class="w" type="number" inputmode="decimal" placeholder="kg" data-w="'+i+'" value="'+st.w[i]+'">':'<button class="addw" data-a="'+i+'">+ weight</button>';h+='</div></div>';});
+h+=st.w[i]?'<input class="w" type="number" inputmode="decimal" placeholder="'+e[3]+'" data-w="'+i+'" value="'+st.w[i]+'">':'<button class="addw" data-a="'+i+'">+ weight</button>';h+='</div></div>';});
 document.getElementById("exs").innerHTML=h;document.getElementById("round").textContent=st.r;
 document.querySelectorAll("[data-k]").forEach(function(b){b.onclick=function(){var k=b.dataset.k;st.t[k]=!st.t[k];save();b.classList.toggle("on",st.t[k]);b.textContent=st.t[k]?"✓":(+k.split("_")[1]+1);};});
 document.querySelectorAll("[data-w]").forEach(function(c){c.oninput=function(){st.w[c.dataset.w]=c.value;save();};});
-document.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){var i=b.dataset.a,inp=document.createElement("input");inp.className="w";inp.type="number";inp.inputMode="decimal";inp.placeholder="kg";inp.dataset.w=i;inp.oninput=function(){st.w[i]=inp.value;save();};b.replaceWith(inp);inp.focus();};});}
+document.querySelectorAll("[data-a]").forEach(function(b){b.onclick=function(){var i=b.dataset.a,inp=document.createElement("input");inp.className="w";inp.type="number";inp.inputMode="decimal";inp.placeholder=EX[i][3];inp.dataset.w=i;inp.oninput=function(){st.w[i]=inp.value;save();};b.replaceWith(inp);inp.focus();};});}
 var tm=null,bar=document.getElementById("bar"),phE=document.getElementById("ph"),tE=document.getElementById("time"),sE=document.getElementById("sub");
 function stopT(){if(tm)clearInterval(tm);tm=null;bar.classList.remove("show");}
 function run(label,segs,done){stopT();var i=0,end;bar.classList.add("show");
