@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pump+Cardio">
 <meta name="theme-color" content="#0f1114">
-<meta name="app-version" content="pc-v2-minimal">
+<meta name="app-version" content="pc-v3">
 <title>James – 30 min Pump + Cardio</title>
 <style>
 :root{--bg:#0f1114;--card:#181b20;--text:#f2f4f7;--muted:#9aa3ad;--line:#2a2f36;--accent:#4fb3a9}
@@ -47,7 +47,7 @@ details{margin-top:36px;color:var(--muted)}summary{font-size:16px;padding:12px 0
 <button class="btn" onclick="restRound()">Round done – rest 60 s</button>
 
 <h2>3 · Cardio</h2>
-<div class="card"><div class="name">Assault Runner intervals</div><div class="note">5 × 30 s brisk run / 60 s walk · rower if legs are cooked</div>
+<div class="card"><div class="name">Assault Runner intervals</div><div class="note">4 × 1 min brisk run / 1 min walk · 8 min total · rower if legs are cooked</div>
 <button class="btn" onclick="intervals()">Start intervals</button></div>
 
 <h2>4 · Cool-down</h2>
@@ -81,7 +81,7 @@ function seg(){var s=segs[i];end=Date.now()+s[1]*1000;phE.textContent=s[0];phE.c
 seg();tm=setInterval(function(){var l=Math.max(0,Math.round((end-Date.now())/1000));tE.textContent=fmt(l);if(l<=3&&l>0)beep(440,0.1);
 if(l<=0){i++;if(i>=segs.length){clearInterval(tm);tm=null;phE.textContent="DONE";phE.className="rest";sE.textContent=label;beep(988,0.8);done&&done();setTimeout(function(){if(!tm)bar.classList.remove("show");},4000);}else seg();}},250);}
 function restRound(){run("Round "+st.r+" of 3",[["REST",60]],function(){if(st.r<3){st.r++;save();document.getElementById("round").textContent=st.r;}});}
-function intervals(){var s=[];for(var k=1;k<=5;k++){s.push(["WORK",30,"Interval "+k+" of 5 · brisk run"]);s.push(["REST",60,"Interval "+k+" of 5 · walk"]);}run("Cardio",s);}
+function intervals(){var s=[];for(var k=1;k<=4;k++){s.push(["WORK",60,"Interval "+k+" of 4 · brisk run"]);s.push(["REST",60,"Interval "+k+" of 4 · walk"]);}run("Cardio",s);}
 function hist(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");document.getElementById("hist").innerHTML=h.slice().reverse().map(function(e){var w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&EX[i];}).map(function(i){return EX[i][0]+": "+e.w[i]+" kg";}).join(", ");return "<li><b>"+e.date+"</b> – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+"</li>";}).join("")||"<li>No workouts yet</li>";}
 function finish(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");h.push({date:today,min:Math.round((Date.now()-start)/60000),w:st.w});localStorage.setItem("wo_log",JSON.stringify(h));hist();alert("Workout saved. Nice work!");}
 function resetDay(){if(confirm("Reset today's ticks and weights?")){st={t:{},w:{},r:1,start:Date.now()};start=st.start;save();render();}}
