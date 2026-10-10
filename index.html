@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pump+Cardio">
 <meta name="theme-color" content="#0f1114">
-<meta name="app-version" content="pc-v4">
+<meta name="app-version" content="pc-v5">
 <title>James – 30 min Pump + Cardio</title>
 <style>
 :root{--bg:#0f1114;--card:#181b20;--text:#f2f4f7;--muted:#9aa3ad;--line:#2a2f36;--accent:#4fb3a9}
@@ -31,11 +31,15 @@ details{margin-top:36px;color:var(--muted)}summary{font-size:16px;padding:12px 0
 #bar.show{display:flex}#ph{font-size:16px;color:var(--muted);font-weight:600;letter-spacing:.06em}
 #ph.work{color:#ff7a59}#ph.rest{color:var(--accent)}
 #time{font:700 44px system-ui;font-variant-numeric:tabular-nums;line-height:1}
+.tabs{display:flex;gap:8px;margin:0 0 20px}.tab{flex:1;min-height:48px;border-radius:12px;border:1px solid var(--line);background:none;color:var(--muted);font:600 17px system-ui}.tab.on{background:var(--accent);border-color:var(--accent);color:#0f1114}
+.f{width:100%;font:18px system-ui;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:6px}label.l{display:block;margin-top:14px;color:var(--muted);font-size:16px}
 #sub{font-size:14px;color:var(--muted)}#stop{margin-left:auto;width:auto;padding:0 22px;margin-top:0}
 </style></head><body>
-<h1>James – 30 min Pump + Cardio</h1>
+<h1>James – <span id="ttl">30 min Pump + Cardio</span></h1>
+<div class="tabs"><button class="tab" id="tb_pump" onclick="tab('pump')">Pump + Cardio</button><button class="tab" id="tb_run" onclick="tab('run')">Easy Run</button></div>
 <div class="safe"><p>Moderate weights, breathe out every rep, no breath-holding or straining, stop 2 reps short of failure.</p>
 <p class="stop">Stop and get checked if you get a sudden or severe headache, any vision change, dizziness or feel sick.</p></div>
+<div id="v_pump">
 
 <h2>1 · Warm-up</h2>
 <div class="card"><div class="name">Easy rower</div><div class="note">4 minutes</div>
@@ -55,6 +59,23 @@ details{margin-top:36px;color:var(--muted)}summary{font-size:16px;padding:12px 0
 <div class="card"><div class="name">Walk + stretch</div><div class="note">2 minutes</div>
 <button class="btn" onclick="run('Cool-down',[['COOL-DOWN',120]])">Start 2:00</button></div>
 
+</div>
+<div id="v_run" hidden>
+<h2>1 · Warm-up</h2>
+<div class="card"><div class="name">Brisk walk on runner</div><div class="note">5 minutes</div>
+<button class="btn" onclick="run('Warm-up',[['WARM-UP',300]])">Start 5:00</button></div>
+<h2>2 · Main</h2>
+<div class="card"><div class="name">Easy conversational jog</div><div class="note">15 minutes · walk 1 min whenever needed</div>
+<button class="btn" onclick="run('Easy jog',[['JOG',900]])">Start 15:00</button>
+<button class="btn ghost" onclick="addBreak()">+1 walk break · <span id="brk">0</span></button></div>
+<h2>3 · Cool-down</h2>
+<div class="card"><div class="name">Walk + stretch</div><div class="note">5 minutes · calves, hamstrings, hips</div>
+<button class="btn" onclick="run('Cool-down',[['COOL-DOWN',300]])">Start 5:00</button></div>
+<h2>Optional</h2>
+<div class="card"><label class="l">Distance (km)<input class="f" id="r_d" type="number" inputmode="decimal" step="0.01"></label>
+<label class="l">How it felt (1–10)<input class="f" id="r_f" type="number" inputmode="numeric" min="1" max="10"></label>
+<label class="l">Notes<textarea class="f" id="r_n" rows="3"></textarea></label></div>
+</div>
 <button class="btn" style="margin-top:36px" onclick="finish()">Finish workout</button>
 <button class="btn ghost" onclick="resetDay()">Reset today</button>
 <details><summary>History</summary><ul id="hist"></ul></details>
@@ -83,8 +104,14 @@ seg();tm=setInterval(function(){var l=Math.max(0,Math.round((end-Date.now())/100
 if(l<=0){i++;if(i>=segs.length){clearInterval(tm);tm=null;phE.textContent="DONE";phE.className="rest";sE.textContent=label;beep(988,0.8);done&&done();setTimeout(function(){if(!tm)bar.classList.remove("show");},4000);}else seg();}},250);}
 function restRound(){run("Round "+st.r+" of 3",[["REST",60]],function(){if(st.r<3){st.r++;save();document.getElementById("round").textContent=st.r;}});}
 function intervals(){var s=[];for(var k=1;k<=4;k++){s.push(["WORK",60,"Interval "+k+" of 4 · brisk run"]);s.push(["REST",60,"Interval "+k+" of 4 · walk"]);}run("Cardio",s);}
-function hist(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");document.getElementById("hist").innerHTML=h.slice().reverse().map(function(e){var w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&EX[i];}).map(function(i){return EX[i][0]+": "+e.w[i]+" kg";}).join(", ");return "<li><b>"+e.date+"</b> – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+"</li>";}).join("")||"<li>No workouts yet</li>";}
-function finish(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");h.push({date:today,min:Math.round((Date.now()-start)/60000),w:st.w});localStorage.setItem("wo_log",JSON.stringify(h));hist();alert("Workout saved. Nice work!");}
-function resetDay(){if(confirm("Reset today's ticks and weights?")){st={t:{},w:{},r:1,start:Date.now()};start=st.start;save();render();}}
-render();hist();
+var RK="wo_run_"+today,rs=JSON.parse(localStorage.getItem(RK)||"{}");rs.b=rs.b||0;if(!rs.start){rs.start=Date.now();}
+function rsave(){localStorage.setItem(RK,JSON.stringify(rs));}
+function rrender(){document.getElementById("brk").textContent=rs.b;["d","f","n"].forEach(function(k){var el=document.getElementById("r_"+k);el.value=rs[k]||"";el.oninput=function(){rs[k]=el.value;rsave();};});}
+function addBreak(){rs.b++;rsave();document.getElementById("brk").textContent=rs.b;}
+var cur=localStorage.getItem("wo_tab")||"pump";
+function tab(t){cur=t;localStorage.setItem("wo_tab",t);document.getElementById("v_pump").hidden=t!="pump";document.getElementById("v_run").hidden=t!="run";document.getElementById("tb_pump").classList.toggle("on",t=="pump");document.getElementById("tb_run").classList.toggle("on",t=="run");document.getElementById("ttl").textContent=t=="run"?"Easy Run":"30 min Pump + Cardio";}
+function hist(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");document.getElementById("hist").innerHTML=h.slice().reverse().map(function(e){var w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&EX[i];}).map(function(i){return EX[i][0]+": "+e.w[i]+" kg";}).join(", ");var x=[];if(e.km)x.push(e.km+" km");if(e.feel)x.push("felt "+e.feel+"/10");if(e.breaks)x.push(e.breaks+" walk breaks");if(e.notes)x.push(e.notes);if(x.length)w=(w?w+", ":"")+x.join(" · ");return "<li><b>"+e.date+"</b> · "+(e.name||"Pump + Cardio")+" – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+"</li>";}).join("")||"<li>No workouts yet</li>";}
+function finish(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");if(cur=="run"){rsave();h.push({name:"Easy Run",date:today,min:Math.round((Date.now()-rs.start)/60000),km:rs.d||"",feel:rs.f||"",notes:rs.n||"",breaks:rs.b});}else h.push({name:"Pump + Cardio",date:today,min:Math.round((Date.now()-start)/60000),w:st.w});localStorage.setItem("wo_log",JSON.stringify(h));hist();alert("Workout saved. Nice work!");}
+function resetDay(){if(cur=="run"){if(confirm("Reset today's run?")){rs={b:0,start:Date.now()};rsave();rrender();}return;}if(confirm("Reset today's ticks and weights?")){st={t:{},w:{},r:1,start:Date.now()};start=st.start;save();render();}}
+render();rrender();tab(cur);hist();
 </script></body></html>
