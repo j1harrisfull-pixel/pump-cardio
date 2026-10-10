@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pump+Cardio">
 <meta name="theme-color" content="#0f1114">
-<meta name="app-version" content="pc-v6">
+<meta name="app-version" content="pc-v7">
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAADFBMVEUPERQqLzZPs6kAAABjcOYjAAACdElEQVR42u1XvW7bMBA+XWxA8OTBD6CxSF9CexcPSRAgi3e/BB/FUxEkQNFH0Esk8Ki9HTwJGgyqg34s3vFOFOomQMEbZFL89Pkjebw7AkSLFi1atGgfZ4n35d1yW+08A+h5t7wDgNVzGHq5bUeeQ9DJth86BKA3Q2s1jU7yS/swid6M2qsp9Jiak6NCzckpOne7RkXTrc1U9IagVyo6p6tgFDT3sUxBLxg6VdDrib1GXTYRjlNHIxOVDp1X+H5rPMLRJ/sVAN6NB4Ae2b8AAODdIxy57KZof3dcuOdc/u5+K/1cLhzqnjwV0O0kz0O/ZoibUfsbAAD8GPrNWw4A8LWQdTejdqnoToiQXkqmrMlp1LYKd7skBXOpVOZunF4pc6+p7E44ytwnp2dl7lzKCEbkLgKjT8In2U0zUzOJbAR9JsO1hF6IjKnEfSJAO50Bg3UXoVFzHcD4N0oaNl5eb5bB6FwGGT/3mQHrT9D92eiLV98DQPXz/5zlx6HT4IrDzPbYf6kbZ9VV4dyliLESt5lTD85ck0wfRikNeKMEgrr16XV2x/o+zty1RXXFlNrezM/cul8gSQMpXxIb9LW+WTVXb8i2oebQqPiJZbuXUlfWPmeyneK/LecvF+Lu9vrgpyqJlJSVEcg8E417X6x1H/wiXnQddPefPfmBn270uM/t6CnfMgaal2GBSK208B7AFyF1o1a2sqB04wy98UJiL3toqUQ1jq5nVRx2oq5ydXPhe+2cHgm4UmOVVYVQJVTKXo+DR00I424c8qepDHhUqBm3Q/40nV2PMrUHbXe0oZ7LLkTYx7A8Xz32j2jRokWLFu269gdqZIBsS3TG2wAAAABJRU5ErkJggg==">
 <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0AgMAAABAo+6hAAAADFBMVEUPERQqLzZPs6kAAABjcOYjAAACdElEQVR42u1XvW7bMBA+XWxA8OTBD6CxSF9CexcPSRAgi3e/BB/FUxEkQNFH0Esk8Ki9HTwJGgyqg34s3vFOFOomQMEbZFL89Pkjebw7AkSLFi1atGgfZ4n35d1yW+08A+h5t7wDgNVzGHq5bUeeQ9DJth86BKA3Q2s1jU7yS/swid6M2qsp9Jiak6NCzckpOne7RkXTrc1U9IagVyo6p6tgFDT3sUxBLxg6VdDrib1GXTYRjlNHIxOVDp1X+H5rPMLRJ/sVAN6NB4Ae2b8AAODdIxy57KZof3dcuOdc/u5+K/1cLhzqnjwV0O0kz0O/ZoibUfsbAAD8GPrNWw4A8LWQdTejdqnoToiQXkqmrMlp1LYKd7skBXOpVOZunF4pc6+p7E44ytwnp2dl7lzKCEbkLgKjT8In2U0zUzOJbAR9JsO1hF6IjKnEfSJAO50Bg3UXoVFzHcD4N0oaNl5eb5bB6FwGGT/3mQHrT9D92eiLV98DQPXz/5zlx6HT4IrDzPbYf6kbZ9VV4dyliLESt5lTD85ck0wfRikNeKMEgrr16XV2x/o+zty1RXXFlNrezM/cul8gSQMpXxIb9LW+WTVXb8i2oebQqPiJZbuXUlfWPmeyneK/LecvF+Lu9vrgpyqJlJSVEcg8E417X6x1H/wiXnQddPefPfmBn270uM/t6CnfMgaal2GBSK208B7AFyF1o1a2sqB04wy98UJiL3toqUQ1jq5nVRx2oq5ydXPhe+2cHgm4UmOVVYVQJVTKXo+DR00I424c8qepDHhUqBm3Q/40nV2PMrUHbXe0oZ7LLkTYx7A8Xz32j2jRokWLFu269gdqZIBsS3TG2wAAAABJRU5ErkJggg==">
 <link rel="manifest" href="manifest.json">
@@ -52,14 +52,23 @@ details{margin-top:32px;color:var(--muted)}summary{font-size:16px;padding:12px 0
 #ov{position:fixed;inset:0;background:rgba(5,6,8,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px;z-index:9}
 #ov.show{display:flex}#ov .card{width:100%;max-width:380px;text-align:center;padding:28px 24px;animation:pop .3s ease}
 #ov .big{font-size:44px;font-weight:800;margin:8px 0}#ov .enc{color:var(--accent);font-weight:600;margin-top:12px}
+.week{display:flex;gap:5px;margin:0 0 16px}.day{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:7px 0 6px;text-align:center;color:var(--text);font:600 13px system-ui;position:relative;transition:transform .12s}
+.day .dn{color:var(--muted);font-size:11px;letter-spacing:.04em;text-transform:uppercase}.day .dd{font-size:18px;font-weight:800;line-height:1.3}.day .pl{font-size:11px;color:var(--muted)}
+.day.today{border-color:var(--accent);background:rgba(79,179,169,.12)}.day.sel{box-shadow:0 0 0 2px rgba(79,179,169,.5)}.day:active{transform:scale(.94)}
+.day .ok{position:absolute;top:-6px;right:-4px;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#0d0f12;font-size:11px;line-height:18px}
+.wk{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}.wk button{background:none;border:0;color:var(--accent);font:600 14px system-ui;padding:6px 0;letter-spacing:0;text-transform:none}
+.editing .day{border-style:dashed}.day{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body>
 <header><div><div class="kicker">Pump+Cardio</div><h1 id="ttl">Pump + Cardio</h1><div id="date"></div></div>
 <div class="ring"><svg width="72" height="72"><circle class="bg" cx="36" cy="36" r="31"/><circle class="fg" id="rg" cx="36" cy="36" r="31" stroke-dasharray="194.8" stroke-dashoffset="194.8"/></svg><span id="pct">0%</span></div></header>
+<div class="wk"><span>This week</span><button id="ed" onclick="toggleEdit()">Edit plan</button></div>
+<div class="week" id="week"></div>
 <div class="tabs"><button class="tab" id="tb_pump" onclick="tab('pump')">Pump + Cardio</button><button class="tab" id="tb_run" onclick="tab('run')">Easy Run</button></div>
 <div class="safe"><p id="safe1"></p>
 <p class="stop">Stop and get checked if you get a sudden or severe headache, any vision change, dizziness or feel sick.</p></div>
+<div id="v_rest" hidden><div class="card"><div class="name">Rest day</div><div class="note">Walk, stretch, sleep well.</div></div></div>
 <div id="v_pump">
 <h2>1 · Warm-up</h2>
 <div class="card" id="c_wu"><div class="name">Easy rower</div><div class="note">4 minutes</div>
@@ -99,7 +108,8 @@ details{margin-top:32px;color:var(--muted)}summary{font-size:16px;padding:12px 0
 <div id="ov" onclick="if(event.target==this)closeOv()"><div class="card"><div class="kicker">Workout saved</div><div class="name" id="o_n" style="margin-top:6px"></div><div class="big" id="o_t"></div><div class="note" id="o_d"></div><div class="enc" id="o_e"></div><button class="btn" onclick="closeOv()">Done</button></div></div>
 <script>
 var EX=[["Dumbbell bench press","12–15 reps","16–20 kg each","16–20"],["Chest-supported dumbbell row","Face down on incline bench · 12–15 reps","14–18 kg each","14–18"],["Kettlebell goblet squat","12–15 reps","16–20 kg","16–20"],["Assisted pull-ups or dips","Feet on block · 8–10 controlled reps","Bodyweight (use block as needed)","BW"],["Seated dumbbell shoulder press","12–15 reps","10–14 kg each","10–14"],["Farmer's carry","30–40 m or 30 s · heavy but breathing steadily","20–24 kg each","20–24"]];
-var today=new Date().toISOString().slice(0,10),KEY="wo_"+today,start=Date.now();
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+var today=ymd(new Date()),KEY="wo_"+today,start=Date.now();
 var st=JSON.parse(localStorage.getItem(KEY)||'{"t":{},"w":{},"r":1}');st.t=st.t||{};st.w=st.w||{};st.r=st.r||1;st.s=st.s||{};
 if(st.start)start=st.start;else{st.start=start;save();}
 function save(){localStorage.setItem(KEY,JSON.stringify(st));}
@@ -130,16 +140,25 @@ function restRound(){run("Round "+st.r+" of 3",[["REST",60]],function(){if(st.r<
 function intervals(){var s=[];for(var k=1;k<=4;k++){s.push(["WORK",60,"Interval "+k+" of 4 · brisk run"]);s.push(["REST",60,"Interval "+k+" of 4 · walk"]);}run("Cardio",s,null,"cardio");}
 var cur=localStorage.getItem("wo_tab")||"pump";
 var SAFE={pump:"Moderate weights, breathe out every rep, no breath-holding or straining, stop 2 reps short of failure.",run:"Easy conversational pace – you should be able to talk. Walk whenever you need to."};
-function tab(t){cur=t;localStorage.setItem("wo_tab",t);document.getElementById("v_pump").hidden=t!="pump";document.getElementById("v_run").hidden=t!="run";document.getElementById("tb_pump").classList.toggle("on",t=="pump");document.getElementById("tb_run").classList.toggle("on",t=="run");document.getElementById("ttl").textContent=t=="run"?"Easy Run":"Pump + Cardio";document.getElementById("safe1").textContent=SAFE[t];prog();}
+function tab(t){cur=t;document.getElementById("v_rest").hidden=true;localStorage.setItem("wo_tab",t);document.getElementById("v_pump").hidden=t!="pump";document.getElementById("v_run").hidden=t!="run";document.getElementById("tb_pump").classList.toggle("on",t=="pump");document.getElementById("tb_run").classList.toggle("on",t=="run");document.getElementById("ttl").textContent=t=="run"?"Easy Run":"Pump + Cardio";document.getElementById("safe1").textContent=SAFE[t];prog();}
 function hist(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]");document.getElementById("hist").innerHTML=h.slice().reverse().map(function(e){var w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&EX[i];}).map(function(i){return EX[i][0]+": "+e.w[i]+" kg";}).join(", ");var x=[];if(e.km)x.push(e.km+" km");if(e.feel)x.push("felt "+e.feel+"/10");if(e.breaks)x.push(e.breaks+" walk breaks");if(e.notes)x.push(e.notes);if(x.length)w=(w?w+", ":"")+x.join(" · ");return "<li><b>"+e.date+"</b> · "+(e.name||"Pump + Cardio")+" – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+"</li>";}).join("")||"<li>No workouts yet</li>";}
 var ENC=["Strong work, James. That counts.","Showing up on a flat day is the win.","Nicely done – recover well.","Good session. Hydrate and rest up."];
 function finish(){var h=JSON.parse(localStorage.getItem("wo_log")||"[]"),e,d;
 if(cur=="run"){rsave();var s0=+localStorage.getItem(RSK)||Date.now();e={name:"Easy Run",date:today,min:Math.round((Date.now()-s0)/60000),km:rs.d||"",feel:rs.f||"",notes:rs.n||"",breaks:rs.b};var x=[];if(e.km)x.push(e.km+" km");if(e.feel)x.push("felt "+e.feel+"/10");x.push(e.breaks+" walk breaks");d=x.join(" · ");}
 else{e={name:"Pump + Cardio",date:today,min:Math.round((Date.now()-start)/60000),w:st.w};d=ticks()+" of 18 sets ticked";}
-h.push(e);localStorage.setItem("wo_log",JSON.stringify(h));hist();
+h.push(e);localStorage.setItem("wo_log",JSON.stringify(h));hist();week();
 document.getElementById("o_n").textContent=e.name;document.getElementById("o_t").textContent=e.min+" min";document.getElementById("o_d").textContent=d;document.getElementById("o_e").textContent=ENC[Math.floor(Math.random()*ENC.length)];document.getElementById("ov").classList.add("show");}
 function closeOv(){document.getElementById("ov").classList.remove("show");}
 function resetDay(){if(cur=="run"){if(confirm("Reset today's run?")){rs={b:0,s:{}};localStorage.removeItem(RSK);rsave();rrender();}return;}if(confirm("Reset today's ticks and weights?")){st={t:{},w:{},r:1,s:{},start:Date.now()};start=st.start;save();render();}}
 document.getElementById("date").textContent=new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
-render();rrender();tab(cur);hist();
+var PAT=["Run","Rest","Pump","Run","Rest","Pump","Run"],DEFP={"2026-10-10":"Pump"},editing=false,selD=today;
+function plan(k){var o=JSON.parse(localStorage.getItem("wo_plan")||"{}");return o[k]||DEFP[k]||PAT[new Date(k+"T12:00:00").getDay()];}
+function setPlan(k,v){var o=JSON.parse(localStorage.getItem("wo_plan")||"{}");o[k]=v;localStorage.setItem("wo_plan",JSON.stringify(o));}
+function cyc(k){var n={Pump:"Run",Run:"Rest",Rest:"Pump"};setPlan(k,n[plan(k)]);week();if(k==selD)openDay(k);}
+function openDay(k){selD=k;var p=plan(k);if(p=="Rest"){document.getElementById("v_pump").hidden=true;document.getElementById("v_run").hidden=true;document.getElementById("v_rest").hidden=false;document.getElementById("ttl").textContent="Rest day";}else tab(p=="Run"?"run":"pump");week();}
+function toggleEdit(){editing=!editing;document.getElementById("ed").textContent=editing?"Done":"Edit plan";document.getElementById("week").classList.toggle("editing",editing);}
+function week(){var n=new Date(),m=new Date(n.getFullYear(),n.getMonth(),n.getDate()-((n.getDay()+6)%7)),lg=JSON.parse(localStorage.getItem("wo_log")||"[]"),done={},h="";lg.forEach(function(e){done[e.date]=1;});
+for(var i=0;i<7;i++){var d=new Date(m.getFullYear(),m.getMonth(),m.getDate()+i),k=ymd(d);h+='<button class="day'+(k==today?' today':'')+(k==selD?' sel':'')+'" data-d="'+k+'"><div class="dn">'+d.toLocaleDateString("en-GB",{weekday:"short"})+'</div><div class="dd">'+d.getDate()+'</div><div class="pl">'+plan(k)+'</div>'+(done[k]?'<span class="ok">✓</span>':'')+'</button>';}
+var w=document.getElementById("week");w.innerHTML=h;w.querySelectorAll(".day").forEach(function(b){var t,lp=false;b.onpointerdown=function(){lp=false;t=setTimeout(function(){lp=true;cyc(b.dataset.d);if(navigator.vibrate)navigator.vibrate(30);},550);};b.onpointerup=b.onpointerleave=function(){clearTimeout(t);};b.oncontextmenu=function(e){e.preventDefault();};b.onclick=function(){if(lp)return;if(editing)cyc(b.dataset.d);else openDay(b.dataset.d);};});}
+render();rrender();tab(cur);hist();openDay(today);
 </script></body></html>
