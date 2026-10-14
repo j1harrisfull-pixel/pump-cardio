@@ -1,4 +1,4 @@
-var V="pc-v23",A=["./","./index.html","./manifest.json"];
+var V="pc-v24",A=["./","./index.html","./manifest.json"];
 self.addEventListener("install",function(e){e.waitUntil(caches.open(V).then(function(c){return c.addAll(A);}));});
 self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!=V;}).map(function(k){return caches.delete(k);}));}).then(function(){return self.clients.claim();}));});
 self.addEventListener("message",function(e){if(e.data=="skip")self.skipWaiting();});
