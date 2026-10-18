@@ -24,7 +24,7 @@ src/app.js            all logic and session data (the script continues straight 
 scripts/build.sh      index.html = src/top.html + src/app.js
 scripts/bump.sh NN    pc-vOLD -> pc-vNN in src/top.html, sw.js, tests/test_sw.py
 scripts/test.sh [suite…]  build, serve the repo root on :8765, run the Playwright suites
-tests/test_*.py       Playwright (Python, sync API) suites at iPhone viewport 390×844
+tests/test_*.py       Playwright (Python, sync API) suites at iPhone viewport 390×844 (test_v28 = automated style-standard audit)
 docs/                 programme-week1.md, terminology-audit.md (test_v20 reads both), premium-apps-research.md
 app-style-standard.md layout standard + 159-deviation audit
 BRIEF.md              next job: acceptance criteria and the tests to update
@@ -39,25 +39,27 @@ BRIEF.md              next job: acceptance criteria and the tests to update
   - **`HAL`**: maps alternative names to HT keys. `hkey(name)` strips "(…)", " – …" and ", …" before the lookup.
   - Every move shown must resolve to a How-to; test_v18 checks this.
 - **`MV`**: reusable move lists for warm-up and cool-down flows.
-- **`SESS`**: `id -> {name, short (week-strip label), safe (safety line), g0 (tick-index offset: 100 for backups, 200 for quick), blocks:[…]}`. Block kinds:
-  - `{k:"timer", id, h, name, note, segs:[[PHASE, seconds, label], …], btn, list?, groups?, small?, flow?, counter?}`: a guided timer.
+- **`SESS`**: `id -> {name, short (week-strip label), safe (safety line), g0 (tick-index offset: 100 for backups, 200 for quick), was? (old names, see `ALIAS`), blocks:[…]}`. Block kinds:
+  - `{k:"timer", id, h, name, note, segs:[[PHASE, seconds, label], …], list?, groups?, small?, flow?, counter?}`: a guided timer. Since pc-v28 `h` is the §1 format (Warm-up, Intervals, Circuit × 2, Steady, Flow, Cool-down, Every 2:00 × N), `note` the fixed §2 instruction line and `small` (string or array) the small print. Button labels come from the renderer (`Start guided flow` / `Start guided timer` · m:ss).
     - PHASE is one of READY, WORK, REST, WARM-UP, EASY, STEADY, JOG, FLOW, STRETCH, MOBILITY, FINISH, …
     - A label containing `switch → right side` triggers the SWITCH SIDES cue.
-  - `{k:"ex", h, mode, win, n, rest, tid, items:[{x, lab, rp, side, tp (tempo e.g. "3011"), ru ("s" | "m"), sw, cue}], fill?, gn?}`: a strength block.
-    - `mode:"every"` (Every win s × n) and `mode:"emom"` (stations every win s) generate a guided timer (`b.timer`) through `bEvery` / `bEmom`.
-    - `mode:"sup"` has **no** timer; `b.est` is the estimated time and the rest timer starts when the last move of a round is ticked (`maybeRest`).
+  - `{k:"ex", h ("A · Superset"), mode:"sup", n, rr:[lo, hi], tid, items:[{x, lab, rp, side, tp (tempo e.g. "3011"), ru ("s" | "m"), sw, cue}], fill?, gn?}`: a strength or carry block (pc-v28: all of them).
+    - No guided timer and no header time: the header reads `N · A · Superset · 4 rounds`, the line `Each round: A1 → A2. Rest 60–90 s.`
+    - `b.rest` = middle of `rr`; the rest timer starts with it when the last move of a round is ticked (each tick for a one-move straight set) (`maybeRest`). `b.est` is the estimated time used in the `≈` day total.
+    - `mode:"every"` / `mode:"emom"` (`bEvery` / `bEmom`, guided `b.timer`) are kept for true EMOM blocks but unused; a strength block may only use them if every window leaves ≥15 s of real rest.
   - `{k:"fields"}` holds optional log fields; `{k:"rest"}` marks a rest day.
 - **Builders:**
   - `fl(id, h, name, note, moves, phase, dir)` builds flows. It merges "– left/– right" and "– each side" moves into cued halves, orders standing → kneeling → floor (warm-ups the reverse) using `posOf`, and adds GET READY only on a position change.
   - `iv` / `ivr` build intervals with no trailing rest.
   - `tm(...)` builds a single-segment timer.
-- **Totals:** a post-pass sets `S.tot` and `S.nt`. Displayed block times must equal the real timer totals (enforced by tests).
+- **Totals:** a post-pass sets `S.tot`, `S.nt` and `S.est` (strength estimates included, so the day note shows `≈ NN min`). Displayed block times must equal the real timer totals (enforced by tests).
 - **Calendar lookups** (date `YYYY-MM-DD` -> session id):
   - `PROG`: the week's main sessions.
   - **`OVR`**: one-day override of the main session (backups unchanged).
   - `BK`: backup for each day.
   - `QK`: quick option for each day.
   - `RI` / `RIN` / `RIS`: Run-instead block replacements, names and safety lines. Run-instead must keep identical segment totals; the code throws otherwise.
+  - `ALIAS`: renamed session → old names. `sameE` treats a log saved under an old name as that day's log, and updating it keeps the old name.
   - Legacy days up to `LEGACY_END` use `PAT` / `DEFP` / `LEG`.
 - **Resolution:** `sid(date)` resolves rest override (wo_plan) → quick (`wo_quick`) → backup (`wo_alt`) → main.
   - `S_(date)` returns the session, wrapped as a run view when Run instead is on.

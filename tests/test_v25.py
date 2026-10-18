@@ -68,8 +68,8 @@ with sync_playwright() as pw:
             if "guided" in lab: ok(f"{d}/{tid} button total = timer total",sec(mm.group(0))==tot,(lab,tot))
         ok(f"{d} no vibrate calls",p.evaluate("window.__vib")==0)
         c.close()
-    # ---- controls on Tue every 2:00
-    c,p=mk(b,dt.datetime(2026,10,13,8,0));p.locator('#sess [data-t="aemom"]').click();p.wait_for_timeout(50)
+    # ---- controls on Tue row intervals (the Every 2:00 A-block is a rest-timer superset from pc-v28)
+    c,p=mk(b,dt.datetime(2026,10,13,8,0));p.locator('#sess [data-t="afl"]').click();p.wait_for_timeout(50)
     ok("controls visible",all(p.locator(x).is_visible() for x in ("#tpause","#tback","#tnext","#stop")))
     p.clock.run_for(4000);p.click("#tpause");p.wait_for_timeout(50);a=T(p);ok("Pause → Resume label",p.locator("#tpause").inner_text()=="Resume")
     p.clock.run_for(10000);p.wait_for_timeout(30);ok("paused: time frozen",T(p)==a,(a,T(p)))
@@ -79,13 +79,13 @@ with sync_playwright() as pw:
     i1=st();p.click("#tnext");i2=st();ok("Next increments segment",i2==i1+1,(i1,i2))
     p.clock.run_for(5000);p.click("#tback");ok("Back >3 s in restarts segment",st()==i2)
     p.click("#tback");ok("Back again goes to previous",st()==i2-1)
-    p.click("#stop");ok("Stop hides bar, not done",p.locator("#bar.show").count()==0 and not (ls(p,"wo_2026-10-13") or {}).get("s",{}).get("aemom"))
+    p.click("#stop");ok("Stop hides bar, not done",p.locator("#bar.show").count()==0 and not (ls(p,"wo_2026-10-13") or {}).get("s",{}).get("afl"))
     # lock ask
-    p.locator('#sess [data-t="aemom"]').click();p.clock.run_for(1000);p.clock.fast_forward(20*60*1000);p.wait_for_timeout(400)
+    p.locator('#sess [data-t="afl"]').click();p.clock.run_for(1000);p.clock.fast_forward(20*60*1000);p.wait_for_timeout(400)
     ok("finished while locked → Mark done? ask",p.locator("#bar.ask").count()==1 and p.locator("#tqy").is_visible() and "LOCKED" in p.locator("#ph").inner_text())
-    p.click("#tqn");ok("Not done doesn't tick",not (ls(p,"wo_2026-10-13") or {}).get("s",{}).get("aemom") and p.locator("#bar.show").count()==0)
-    p.locator('#sess [data-t="aemom"]').click();p.clock.run_for(1000);p.clock.fast_forward(20*60*1000);p.wait_for_timeout(400);p.click("#tqy")
-    ok("Mark done ticks",(ls(p,"wo_2026-10-13") or {}).get("s",{}).get("aemom")==1)
+    p.click("#tqn");ok("Not done doesn't tick",not (ls(p,"wo_2026-10-13") or {}).get("s",{}).get("afl") and p.locator("#bar.show").count()==0)
+    p.locator('#sess [data-t="afl"]').click();p.clock.run_for(1000);p.clock.fast_forward(20*60*1000);p.wait_for_timeout(400);p.click("#tqy")
+    ok("Mark done ticks",(ls(p,"wo_2026-10-13") or {}).get("s",{}).get("afl")==1)
     # audio resume on visibility return
     r=p.evaluate("""async()=>{var C=window.AudioContext;var n=0,o=C.prototype.resume;C.prototype.resume=function(){n++;return o.apply(this,arguments)};
       Object.defineProperty(document,'visibilityState',{value:'visible',configurable:true});document.dispatchEvent(new Event('visibilitychange'));return n}""")
@@ -95,7 +95,8 @@ with sync_playwright() as pw:
     ok("no navigator.vibrate in app",".vibrate(" not in src)
     # ---- rest timer on strength block (Tue superset B)
     p.screenshot(path="/tmp/x.png")
-    sb=p.locator('#sess .gn.rx',has_text="after each round");ok("superset shows rest note",sb.count()>=1 and "rest timer starts" in sb.first.inner_text())
+    sb=p.locator('#sess .gn.rx',has_text="Each round: B1 → B2");ok("superset shows rest range + how the rest timer starts",sb.count()==1 and "Rest 60–90 s." in sb.first.inner_text() and "Tick the last move of a round to start the rest timer." in p.locator("#sess").inner_text())
+    ok("every strength/carry block lacks a guided timer",p.locator('#sess [data-t="aemom"],#sess [data-t="asb"],#sess [data-t="asc"]').count()==0)
     p.evaluate("()=>{window.__bp=[]}")
     for x in ("cs-row","hk-db-press"):
         p.locator(f'.card[data-x="{x}"] .pill').nth(0).click()

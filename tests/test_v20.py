@@ -78,16 +78,27 @@ with sync_playwright() as pw:
         bad=_r.findall(E+r"[\s]*[-–/]+[\s]*"+E+r"|"+E+r"\s*\(\s*"+E+r"\s*\)|"+r"\b(easy|steady|moderate|hard)[- ](easy|steady|moderate|hard)\b|steady-state",txt,_r.I)
         ok(f"v23 no combined effort terms in {nm}",not bad,bad[:3])
     ok("v23 bans steady-hard","steady-hard" not in src.lower() and "steady-hard" not in md.lower())
-    ok("v23 row intervals moderate pace","6 × 1:00 moderate pace, 24–26 s/m, RPE 7" in src)
+    ok("v23 row intervals moderate pace","Each round: 1:00 work · 1:00 rest. Moderate pace, RPE 7." in src and "Work 24–26 s/m" in src)
+    # pc-v28 bands: easy RPE 3–4 · steady RPE 5–6 · moderate RPE 7 (hard 8+ unused) in the app and both docs
+    B={"easy":(3,4),"steady":(5,6),"moderate":(7,7)}
+    for nm,txt in [("app",src),("md",md),("audit",open("docs/terminology-audit.md",encoding="utf8").read())]:
+        if nm!="app": txt=txt.split("## Superseded")[0].split("Relabelled under the bands")[0]  # the before → after table quotes old wording
+        bad=[]
+        for w,a,c in _r.findall(r"\b(easy|steady|moderate)\b(?:(?!\b(?:easy|steady|moderate)\b)[^.\n\"|]){0,40}?RPE (\d)(?:–(\d))?",txt,_r.I):
+            lo,hi=B[w.lower()];a=int(a);c=int(c or a)
+            if not(lo<=a and c<=hi): bad.append((w,a,c))
+        ok(f"v28 effort words match their band in {nm}",not bad,bad[:4])
+        ok(f"v28 no 'hard' effort in {nm}",not _r.search(r"\bhard (pace|run|effort|row)",txt,_r.I))
+    ok("v28 docs state the bands","easy RPE 3–4" in md and "steady RPE 5–6" in md and "moderate RPE 7" in md)
     ok("v22 md has no paces",not _r.search(r"/km|km/h|/500m|drag factor",md))
-    ok("v22 terms kept","Easy run (Zone 2)" in src and "steady run" in src and "power walk" in src and "recovery walk" in src and "Warm-up walk" in src and "24–26 s/m" in src and "damper 4–5" in src and "light paddle" in src and "2 RIR" in src)
+    ok("v22 terms kept","Zone 2 run" in src and "steady run" in src and "power walk" in src and "recovery walk" in src and "Warm-up walk" in src and "24–26 s/m" in src and "damper 4–5" in src and "light paddle" in src and "2 RIR" in src)
     # v23 run instead (Wed main row, Sun walk; Wed/Sat backups)
     p.clock.set_system_time(dt.datetime(2026,10,14,9,0));p.reload()
     p.click('button.day[data-d="2026-10-14"]');p.wait_for_timeout(250)
     ok("v23 Run instead visible Wed",p.locator("#ri").is_visible() and "Run instead" in p.locator("#ri").inner_text())
     t0=p.locator("#dnote").inner_text()
     p.click("#ri");p.wait_for_timeout(200)
-    ok("v23 Wed run version renders","Run/walk intervals 6 × (1:00 / 1:00)" in p.locator("#c_wiv").inner_text() and "moderate pace" in p.locator("#c_wiv").inner_text())
+    ok("v23 Wed run version renders","Run/walk intervals 6 × 1:00" in p.locator("#c_wiv").inner_text() and "moderate pace" in p.locator("#c_wiv").inner_text().lower())
     ok("v23 same total time",p.locator("#dnote").inner_text()==t0,(t0,p.locator("#dnote").inner_text()))
     ok("v23 back label","Back to row" in p.locator("#ri").inner_text())
     ok("v23 saved per day",ls(p,"wo_ri")=={"2026-10-14":1},ls(p,"wo_ri"))
@@ -95,7 +106,7 @@ with sync_playwright() as pw:
     p.click("#ri");p.wait_for_timeout(200);ok("v23 back to row","Row intervals" in p.locator("#c_wiv").inner_text())
     p.click("#close");p.click('button.day[data-d="2026-10-18"]');p.wait_for_timeout(250)
     ok("v23 Run instead on Sun",p.locator("#ri").is_visible());p.click("#ri");p.wait_for_timeout(200)
-    ok("v23 Sun easy run + walk-break counter","Easy run (Zone 2)" in p.locator("#c_swalk").inner_text() and p.locator("#brkb").count()==1)
+    ok("v23 Sun Zone 2 run + walk-break counter","Zone 2 run" in p.locator("#c_swalk").inner_text() and p.locator("#brkb").count()==1)
     p.click("#ri");p.click("#close");p.click('button.day[data-d="2026-10-13"]');p.wait_for_timeout(250)
     ok("v23 no Run instead on strength day",not p.locator("#ri").is_visible())
     RIc=p.evaluate("()=>{var S=__how.SESS,o=[];Object.keys(S).forEach(function(k){S[k].blocks.forEach(function(b){if(b.ri)o.push(k+'/'+b.id)})});return o}")

@@ -1,5 +1,5 @@
 # Pump + Cardio: session layout standard (draft for James's approval)
-*Written 17 Oct 2026 (pc-v27); approved by James 18 Oct 2026 with the effort bands in section 6. Not yet applied to the app; see BRIEF.md.*
+*Written 17 Oct 2026 (pc-v27); approved by James 18 Oct 2026 with the effort bands in section 6. Applied in pc-v28 with the BRIEF.md timer rework (strength headers show `N rounds`, rest as "Rest 60–90 s"); tests/test_v28.py re-runs the audit below and reports 0 deviations.*
 *Based on the patterns in premium-apps-research.md: TrainHeroic coach line at the top; Hevy/Strong one-line set rows with a rest timer that starts on tick; Ladder/Peloton "Now / Next" with moves and reps; Apple Fitness+ one big countdown; PM5 work/rest intervals; Functional Bodybuilding tempo chips.*
 
 ## 1. Block header: `N · [Letter ·] Format · Time`

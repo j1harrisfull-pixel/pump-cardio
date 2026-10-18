@@ -11,14 +11,14 @@ def page(b,t):
 def opend(p,d):
     if p.locator('#panel.open').count(): p.click('#close')
     p.click(f'button.day[data-d="{d}"]');p.wait_for_timeout(250)
-NEW=["easyrun12","strA","row","mob","strB","kb","walk"]
+NEW=["easyrun12","strA","row","mob","strB","kb","walk"];DAYS=["2026-10-%d"%x for x in range(12,19)]
 with sync_playwright() as pw:
     b=pw.chromium.launch(executable_path=CHROME,args=["--no-sandbox"])
     p=page(b,dt.datetime(2026,10,12,9,0))
     p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');
      localStorage.setItem('wo_wt',JSON.stringify({'goblet-squat':{'2026-10-10':'18'},'farmers-carry':{'2026-10-10':'22'},'cs-row':{'2026-10-10':'16'}}));}""");p.reload()
     # ---- data checks: timings and switch time
-    D=p.evaluate("""()=>{var S=__how.SESS,o={};%s.forEach(function(k){var s=S[k];o[k]={tot:s.tot,blocks:s.blocks.map(function(b){var t=b.timer||b;return{h:b.h||b.k,k:b.k,mode:b.mode||'',segs:t.segs||[],list:!!b.list}})}});return o;}""" % str(NEW))
+    D=p.evaluate("""()=>{var S=__how.SESS,o={};%s.forEach(function(k){var s=S[k];o[k]={tot:s.tot,blocks:s.blocks.map(function(b){var t=b.timer||b;return{h:b.h||b.k,k:b.k,mode:b.mode||'',segs:t.segs||[],list:!!b.list,est:b.est||0,items:(b.items||[]).length}})}});return o;}""" % str(NEW))
     for k,s in D.items():
         m=s["tot"]/60
         ok(f"{k} total {m:.1f} min within 15-38",(15<=m<=38) if k=="mob" else (30<=m<=38),m)
@@ -31,9 +31,9 @@ with sync_playwright() as pw:
             bad=[i for i in bad if "switch → right side" not in str(g[i][2])]
             ok(f"{k}/{bl['h']} switch time before every move",not bad,bad[:3])
             if bl["list"]: ok(f"{k}/{bl['h']} 10 s ready on position changes",all(x[1]>=10 for x in g if x[0]=="READY"))
-    sa=D["strA"]["blocks"][1]["segs"];ok("every 2:00 rounds = 120 s",all(sum(x[1] for x in sa[i:i+5])==120 for i in (0,5,10)),[x[1] for x in sa])
-    kb=D["kb"]["blocks"][2]["segs"];st=[kb[i:i+3] for i in range(0,len(kb),3)]
-    ok("Sat every 75 s = ready+work+rest, 20 s before farmers, no trailing rest",all(sum(x[1] for x in q)==75 for q in st[:-1]) and st[3][0][1]==20 and kb[-1][0]=="WORK" and len(kb)==35,[x[:2] for x in kb[:8]])
+    # pc-v28: strength A-blocks and the Sat KB/carry stations are rest-timer supersets (no guided timer, estimated time only)
+    for k,i in (("strA",1),("strB",1),("kb",1),("kb",2),("kb",3)):
+        bl=D[k]["blocks"][i];ok(f"{k} block {i} is a rest-timer superset",bl["mode"]=="sup" and not bl["segs"] and bl["est"]>0 and bl["items"]==2,bl["h"])
     wi=D["row"]["blocks"][2]["segs"];ok("row intervals 5 s ready, no trailing rest",wi[0]==["READY",5,wi[0][2]] and len(wi)==17 and wi[-1][0]=="WORK")
     ok("Sun walk 25:00",D["walk"]["blocks"][1]["segs"][0][1]==1500)
     ok("Thu 15:00",sum(x[1] for x in D["mob"]["blocks"][1]["segs"])==900)
@@ -43,10 +43,13 @@ with sync_playwright() as pw:
     ok("week strip names",all(pl(d)==v for d,v in exp.items()))
     p.click("#prev");ok("Sat 10 / Sun 11 unchanged",pl("2026-10-10")=="Pump" and pl("2026-10-11")=="Run");p.click("#next")
     p.click("#next");ok("19 Oct Soon",pl("2026-10-19")=="Soon");opend(p,"2026-10-19");ok("Plan coming Sunday","Plan coming Sunday" in p.locator("#sess").inner_text());p.click("#close");p.click("#prev")
-    for d,(t,c) in {"2026-10-12":("Easy Run","c_rmain"),"2026-10-13":("Strength A","c_aemom"),"2026-10-14":("Rower","c_wiv"),"2026-10-15":("Mobility","c_mob"),"2026-10-16":("Strength B","c_bemom"),"2026-10-17":("KB + Carry","c_kcirc"),"2026-10-18":("Long Walk","c_swalk")}.items():
+    for d,(t,c) in {"2026-10-12":("Zone 2 Run","c_rmain"),"2026-10-13":("Strength A","c_afl"),"2026-10-14":("Rower","c_wiv"),"2026-10-15":("Mobility","c_mob"),"2026-10-16":("Strength B","c_bfl"),"2026-10-17":("KB + Carry","c_kwu"),"2026-10-18":("Long Walk","c_swalk")}.items():
         opend(p,d);ok(f"{d} renders {t}",t in p.locator("#ttl").inner_text() and p.locator("#"+c).count()==1)
+        # exact guided times in "m:ss" headers + strength estimates ("N rounds" headers carry no time) = day total
         hs=p.locator("#sess h2").all_inner_texts();tot=sum(int(m.group(1))*60+int(m.group(2)) for x in hs for m in [re.search(r"(\d+):(\d\d)$",x)] if m)
-        mins=int(re.search(r"(\d+) min",p.locator("#dnote").inner_text()).group(1));ok(f"{d} labelled block times add up to header total",abs(tot/60-mins)<1,(tot,mins))
+        tot+=sum(bl["est"] for bl in D[NEW[DAYS.index(d)]]["blocks"] if bl["k"]=="ex")
+        ok(f"{d} strength headers show rounds, not time",all(re.search(r"\d+ ROUNDS$",x,re.I) for x in hs if re.search("superset|tri-set",x,re.I)),hs)
+        dn=p.locator("#dnote").inner_text();mins=int(re.search(r"(\d+) min",dn).group(1));ok(f"{d} labelled block times add up to header total",abs(tot/60-mins)<1 and (("≈" in dn)==any(bl["k"]=="ex" for bl in D[NEW[DAYS.index(d)]]["blocks"])),(tot,dn))
     opend(p,"2026-10-13")
     ok("compact: cue/Last hidden until More",not p.locator('.card[data-x="cs-row"] .mx').is_visible() and "Last: 16 kg (Sat 10 Oct)" in p.locator('.card[data-x="cs-row"]').text_content())
     hts=p.evaluate("[...document.querySelectorAll('#sess .card.ex')].map(c=>c.getBoundingClientRect().height)");ok("cards compact <=190px",max(hts)<=190,hts)
@@ -73,16 +76,15 @@ with sync_playwright() as pw:
     p.locator('.card[data-x="incline-db-press"] [data-a]').click();p.locator('.card[data-x="incline-db-press"] input').fill("14")
     p.locator('.card[data-x="incline-db-press"] .pill').nth(1).click();p.click('[data-st="-1"]');p.click('[data-st="-1"]');ok("edit done set again",ls(p,"wo_2026-10-13")["rp"][p.locator('.card[data-x="incline-db-press"] .pill').nth(1).get_attribute("data-k")]==4);p.click('[data-st="x"]')
     p.locator('.card[data-x="cs-row"] .pill').nth(0).click();p.click('[data-st="u"]');ok("undo unticks",not ls(p,"wo_2026-10-13")["t"].get(p.locator('.card[data-x="cs-row"] .pill').nth(0).get_attribute("data-k")))
-    # every 2:00 timer
-    p.click('[data-t="aemom"]');p.wait_for_timeout(60)
+    # guided timer walkthrough moves to the row intervals (the A-block is a rest-timer superset from pc-v28)
+    p.click('[data-t="afl"]');p.wait_for_timeout(60)
     ok("guided controls shown",all(p.locator(x).is_visible() for x in ("#tpause","#tback","#tnext","#stop")))
-    ok("GET READY first with Next",p.locator("#ph").inner_text()=="GET READY" and "Next: A1 Incline dumbbell press" in p.locator("#sub").inner_text() and p.locator("#time").inner_text()=="0:10")
-    p.clock.run_for(10500);p.wait_for_timeout(60);ok("WORK shows Now · Next",p.locator("#ph").inner_text()=="WORK" and "Next: A2 Incline prone Y-raise" in p.locator("#sub").inner_text(),p.locator("#sub").inner_text())
-    p.clock.run_for(35000);p.wait_for_timeout(60);ok("15 s switch before A2",p.locator("#ph").inner_text()=="GET READY" and p.locator("#time").inner_text()=="0:15")
+    ok("GET READY first with Next",p.locator("#ph").inner_text()=="GET READY" and "Next: Row · moderate pace" in p.locator("#sub").inner_text() and p.locator("#time").inner_text()=="0:10",p.locator("#sub").inner_text())
+    p.clock.run_for(10500);p.wait_for_timeout(60);ok("WORK shows Now · Next",p.locator("#ph").inner_text()=="WORK" and "Interval 1 of 3" in p.locator("#sub").inner_text() and "Next: Rest" in p.locator("#sub").inner_text(),p.locator("#sub").inner_text())
     p.evaluate("window.scrollTo(0,0)");p.screenshot(path="test-output/app-v18-b.png")
-    p.clock.run_for(45000);p.wait_for_timeout(60);ok("rest after A2 then next round",p.locator("#ph").inner_text()=="REST" and "Next: A1" in p.locator("#sub").inner_text())
+    p.clock.run_for(50000);p.wait_for_timeout(60);ok("rest after interval 1",p.locator("#ph").inner_text()=="REST" and p.locator("#time").inner_text()=="0:30")
     p.click("#stop")
-    ok("superset has no guided timer",p.locator('[data-t="asb"]').count()==0)
+    ok("supersets have no guided timer",p.locator('[data-t="asb"],[data-t="aemom"],[data-t="asc"]').count()==0)
     for x in ("cs-row","hk-db-press"):
         p.locator(f'.card[data-x="{x}"] .pill').nth(0).click()
         if p.locator(".step").count(): p.click('[data-st="x"]')
@@ -97,15 +99,18 @@ with sync_playwright() as pw:
     p=page(b,dt.datetime(2026,10,14,7,0));opend(p,"2026-10-14")
     p.click('[data-t="wiv"]');p.wait_for_timeout(60);ok("row 5 s ready",p.locator("#ph").inner_text()=="GET READY" and p.locator("#time").inner_text()=="0:05")
     p.clock.run_for(5500);p.wait_for_timeout(60);ok("row interval work","Interval 1/6" in p.locator("#sub").inner_text() and p.locator("#ph").inner_text()=="WORK")
-    p.clock.run_for(60000);p.wait_for_timeout(60);ok("row easy","light paddle 18–20 s/m" in p.locator("#sub").inner_text())
+    p.clock.run_for(60000);p.wait_for_timeout(60);ok("row rest","light paddle" in p.locator("#sub").inner_text())
     p.clock.run_for(700000);p.wait_for_timeout(100);ok("intervals done",ls(p,"wo_2026-10-14")["s"].get("wiv")==1)
     cs=lambda sel,prop:p.locator(sel).first.evaluate(f"e=>getComputedStyle(e).{prop}")
     ok("orange accent",cs(".btn","backgroundColor")=="rgb(255, 138, 61)" and cs(".day.today","borderColor")=="rgb(255, 138, 61)")
     p.fill("#r_d","2800");ok("row distance saved",ls(p,"wo_run_2026-10-14")["d"]=="2800");p.close()
-    p=page(b,dt.datetime(2026,10,17,9,0));opend(p,"2026-10-17");p.click('[data-t="kcirc"]');p.wait_for_timeout(60)
-    ok("EMOM ready 15 then swing",p.locator("#time").inner_text()=="0:15" and "B1 Kettlebell swing" in p.locator("#sub").inner_text())
-    p.clock.run_for(15500);p.wait_for_timeout(60);ok("swing 35 s work, next rest",p.locator("#time").inner_text() in("0:35","0:34") and "Next: Rest" in p.locator("#sub").inner_text(),(p.locator("#time").inner_text(),p.locator("#sub").inner_text()))
-    p.click("#stop");p.locator('.card[data-x="farmers-carry"] .pill').nth(0).click();p.click('[data-st="1"]');ok("metres step +5",ls(p,"wo_2026-10-17")["rp"][p.locator('.card[data-x="farmers-carry"] .pill').nth(0).get_attribute("data-k")]==35 and ls(p,"wo_wt")["farmers-carry"].get("2026-10-17")=="22")
+    p=page(b,dt.datetime(2026,10,17,9,0));opend(p,"2026-10-17")
+    ok("KB stations have no guided timer",p.locator('[data-t="kcirc"],[data-t="kemom"]').count()==0)
+    for x in ("kb-swing","kb-sumo-dl"):
+        p.locator(f'.card[data-x="{x}"] .pill').nth(0).click()
+        if p.locator(".step").count(): p.click('[data-st="x"]')
+    ok("swing + sumo round starts the 1:15 rest",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15");p.click("#rskip")
+    p.locator('.card[data-x="farmers-carry"] .pill').nth(0).click();p.click('[data-st="1"]');ok("metres step +5",ls(p,"wo_2026-10-17")["rp"][p.locator('.card[data-x="farmers-carry"] .pill').nth(0).get_attribute("data-k")]==35 and ls(p,"wo_wt")["farmers-carry"].get("2026-10-17")=="22")
     p.close()
     p=page(b,dt.datetime(2026,10,15,9,0));opend(p,"2026-10-15");p.click('[data-t="mob"]');p.wait_for_timeout(60)
     ok("flow starts with 10 s ready",p.locator("#ph").inner_text()=="GET READY" and "Shoulder CARs · left side" in p.locator("#sub").inner_text(),p.locator("#sub").inner_text())

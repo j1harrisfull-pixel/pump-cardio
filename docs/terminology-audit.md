@@ -1,4 +1,18 @@
-# Terminology audit (pc-v23)
+# Terminology audit (pc-v28)
+
+**pc-v28 change:** effort words use the approved non-overlapping bands (app-style-standard.md §6): **easy = RPE 3–4** (walks, warm-up and cool-down walks or rows, recovery), **steady = RPE 5–6** (Zone 2 runs, steady rows), **moderate = RPE 7** (all interval work), **hard = RPE 8+** (not used, medical). Every effort word in the app is written with an RPE from its band, and tests/test_v28.py checks this on all 19 session views. Relabelled under the bands:
+| Before (pc-v27) | Now (pc-v28) |
+|---|---|
+| "Easy run (Zone 2)", RPE 6 | **Zone 2 run**, steady pace, RPE 5–6 |
+| "Easy 24:00 row", Zone 2, RPE 5–6 | **Zone 2 row**, steady pace, RPE 5–6 |
+| "steady run, RPE 7" / "steady pace … RPE 6–7" interval work | **moderate pace, RPE 7** |
+| "Work 1:00 easy run, RPE 6" (Wed backup run instead) | **steady run**, RPE 5–6 |
+| warm-up and cool-down walks or rows with no RPE | **easy pace, RPE 3–4** |
+| "Sustainable pace", "Moderate effort, RPE 6–7" in strength safety lines | **RPE 6–7** with 2 RIR, no effort word |
+Stroke rate (s/m) and damper settings moved to small print. Move names spell out kettlebell and dumbbell; "Assisted pull-ups or dips" is now **Assisted pull-up (feet on block)**, with dips as the alternative in its How-to.
+
+## Superseded wording (pc-v22 and pc-v23, kept for the record)
+
 
 **pc-v23 change:** effort uses single words only: easy, steady, moderate, hard. There are no combined or hyphenated terms. "steady-hard" became **moderate** (RPE 7 row intervals). The Mon backup "Steady 24:00 row / Steady-state row" became **Easy 24:00 row**, because it was labelled steady but done at easy pace.
 
