@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+test-output/
+*.png
+.venv/
+node_modules/
+.DS_Store
