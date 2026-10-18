@@ -12,7 +12,7 @@ mkdir -p test-output
 $PY -m http.server 8765 >/dev/null 2>&1 & SRV=$!
 trap 'kill $SRV 2>/dev/null' EXIT
 sleep 1
-SUITES=${*:-test_app test_wt test_v18 test_v20 test_v24 test_v25 test_v26 test_v28 test_sw}
+SUITES=${*:-test_app test_wt test_v18 test_v20 test_v24 test_v25 test_v26 test_v28 test_v29 test_sw}
 fail=0
 for t in $SUITES; do
   echo "== $t"
