@@ -17,6 +17,8 @@ with sync_playwright() as pw:
        segs:s.blocks.map(function(b){var t=b.timer||b;return {h:b.h||b.k,s:t.segs||[]}}),
        noHow:ids.filter(function(x){return !H.X[x]||!H.HT[x]}),
        noHowMv:mv.filter(function(n){return !H.HT[H.hkey(String(n))]})}});return o}""")
+    ok("week-2 backups present (checked in test_v29)",all(("2026-10-%d"%x) in D for x in range(19,26)))
+    D={d:v for d,v in D.items() if d in DAYS}  # this suite covers week 1; week 2 rules live in test_v29
     ok("one backup per day Mon-Sun",sorted(D)==DAYS,sorted(D))
     ok("backups all distinct and differ from main",len({v["name"] for v in D.values()})==7 and all(v["name"]!=v["main"] for v in D.values()))
     for d,v in D.items():
@@ -110,7 +112,7 @@ with sync_playwright() as pw:
     p.click("#ri");p.click("#close");p.click('button.day[data-d="2026-10-13"]');p.wait_for_timeout(250)
     ok("v23 no Run instead on strength day",not p.locator("#ri").is_visible())
     RIc=p.evaluate("()=>{var S=__how.SESS,o=[];Object.keys(S).forEach(function(k){S[k].blocks.forEach(function(b){if(b.ri)o.push(k+'/'+b.id)})});return o}")
-    ok("v23 run versions on Wed/Sat/Sun blocks",sorted(RIc)==sorted(["row/wwu","row/wiv","row/wst","bk14/x14iv","bk17/x17fl","walk/swalk"]),RIc)
+    ok("v23 run versions on Wed/Sat/Sun blocks",sorted(RIc)==sorted(["row/wwu","row/wiv","row/wst","bk14/x14iv","bk17/x17fl","walk/swalk","bk21/x21row","bk24/x24row","walk25/w25walk"]),RIc)
     ok("no page errors",not errs,errs)
     b.close()
 print(f"{sum(res)}/{len(res)} passed")

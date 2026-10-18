@@ -133,3 +133,9 @@ Keep `index.html`, `sw.js` and `manifest.json` at the repo root: the installed P
 - Make **one commit per change** with a clear `pc-vNN: …` message.
 - **Never break saved logs** (see the compatibility rules above).
 - Don't add trackers, external scripts or network calls; the app must work offline.
+
+## Weekly sessions
+Weekly sessions are added by the Health & Fitness bot directly into the session data; Claude Code should not change session content unless asked, and must keep the session data format stable so weekly additions stay simple.
+
+- How a week is added today (pc-v29, week 2): one `// ==== WEEK N …` block in `src/app.js`, just above `// ---- backups`. It holds new `X` ids with `HT` How-to entries, `HAL` aliases, and `Object.assign(SESS,{…})` with that week's main sessions (`mob19`, `up20`, …) and backups (`bk19`…, `g0:100`). It's followed by date entries in `PROG` / `BK`, plus `Object.assign(RI/RIN/RIS,…)` for Run-instead versions. The weekly plan and rationale go in `docs/programme-weekN.md`; tests go in `tests/test_vNN.py` (copy `test_v29.py` and change `DAYS` / `VIEWS` / `W2P`).
+- **Future improvement (not done yet; only on request):** make weekly additions lower-touch with one clear `WEEKS` data section, e.g. `WEEKS["2026-10-19"]={days:{mon:{main:"mob19",backup:"bk19"},…}}`. `PROG`, `BK`, `QK` and the RI tables would be derived from it, and the test `DAYS` / `VIEWS` would be generated from it. Session ids and block ids must stay unchanged so saved logs keep working.
