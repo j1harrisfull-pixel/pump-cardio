@@ -42,7 +42,7 @@ with sync_playwright() as pw:
     exp={"2026-10-12":"Run","2026-10-13":"Upper","2026-10-14":"Row","2026-10-15":"Mobility","2026-10-16":"Lower","2026-10-17":"KB","2026-10-18":"Walk"}
     ok("week strip names",all(pl(d)==v for d,v in exp.items()))
     p.click("#prev");ok("Sat 10 / Sun 11 unchanged",pl("2026-10-10")=="Pump" and pl("2026-10-11")=="Run");p.click("#next")
-    p.click("#next");p.click("#next");ok("26 Oct Soon",pl("2026-10-26")=="Soon");opend(p,"2026-10-26");ok("Plan coming Sunday","Plan coming Sunday" in p.locator("#sess").inner_text());p.click("#close");p.click("#prev");p.click("#prev")
+    p.click("#next");p.click("#next");p.click("#next");ok("2 Nov Soon",pl("2026-11-02")=="Soon");opend(p,"2026-11-02");ok("Plan coming Sunday","Plan coming Sunday" in p.locator("#sess").inner_text());p.click("#close");p.click("#prev");p.click("#prev");p.click("#prev")
     for d,(t,c) in {"2026-10-12":("Zone 2 Run","c_rmain"),"2026-10-13":("Strength A","c_afl"),"2026-10-14":("Rower","c_wiv"),"2026-10-15":("Mobility","c_mob"),"2026-10-16":("Strength B","c_bfl"),"2026-10-17":("KB + Carry","c_kwu"),"2026-10-18":("Long Walk","c_swalk")}.items():
         opend(p,d);ok(f"{d} renders {t}",t in p.locator("#ttl").inner_text() and p.locator("#"+c).count()==1)
         # exact guided times in "m:ss" headers + strength estimates ("N rounds" headers carry no time) = day total

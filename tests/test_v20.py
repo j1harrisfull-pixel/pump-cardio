@@ -112,7 +112,7 @@ with sync_playwright() as pw:
     p.click("#ri");p.click("#close");p.click('button.day[data-d="2026-10-13"]');p.wait_for_timeout(250)
     ok("v23 no Run instead on strength day",not p.locator("#ri").is_visible())
     RIc=p.evaluate("()=>{var S=__how.SESS,o=[];Object.keys(S).forEach(function(k){S[k].blocks.forEach(function(b){if(b.ri)o.push(k+'/'+b.id)})});return o}")
-    ok("v23 run versions on Wed/Sat/Sun blocks",sorted(RIc)==sorted(["row/wwu","row/wiv","row/wst","bk14/x14iv","bk17/x17fl","walk/swalk","bk21/x21row","bk24/x24row","walk25/w25walk"]),RIc)
+    ok("v23 run versions on Wed/Sat/Sun blocks",sorted(RIc)==sorted(["row/wwu","row/wiv","row/wst","bk14/x14iv","bk17/x17fl","walk/swalk","bk21/x21row","bk24/x24row","walk25/w25walk","bk27/x27row","bk31/x31row","walk01/w01walk"]),RIc)
     ok("no page errors",not errs,errs)
     b.close()
 print(f"{sum(res)}/{len(res)} passed")

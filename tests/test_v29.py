@@ -179,7 +179,7 @@ with sync_playwright() as pw:
     txt=json.dumps({k:D[k] for k in W2})
     ok("medical: no barbell, back squat, conventional deadlift, snatch, inversion",not re.search(r"barbell|back squat|conventional|snatch|handstand|headstand|inverted|valsalva",txt,re.I))
     p.click("#next");p.wait_for_timeout(150)
-    ok("26 Oct still 'Soon'",p.locator('button.day[data-d="2026-10-26"] .pl').inner_text()=="Soon")
+    ok("week 3 follows (26 Oct = Upper)",p.locator('button.day[data-d="2026-10-26"] .pl').inner_text()=="Upper")
     c.close()
     # full guided run of every week-2 view
     for d,ty,tg in VIEWS:
