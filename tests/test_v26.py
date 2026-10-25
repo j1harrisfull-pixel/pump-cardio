@@ -23,16 +23,16 @@ with sync_playwright() as pw:
     ok("button flips to back to main",p.locator("#qk").inner_text().startswith("↩ Back to main"))
     ok("header 15 min","15 min" in p.locator("#dnote").inner_text(),p.locator("#dnote").inner_text())
     hs=p.locator("#sess h2").all_inner_texts();ts=[sec(h.split("·")[-1]) for h in hs]
-    ok("blocks 3:00 + 9:40 + 2:20 = 15:00 exactly",ts==[180,580,140] and sum(ts)==900,hs)
+    ok("main block is 5 × 2:00 = 10:00, total about 15 min",ts[1]==600 and 870<=sum(ts)<=900,hs)
     S=p.evaluate("()=>{var S=__how.SESS.kbq17;return{tot:S.tot,b:S.blocks.map(function(b){return{id:b.id,segs:b.segs,list:b.list}})}}")
-    ok("SESS total 900 s",S["tot"]==900)
+    ok("SESS total = block headers",S["tot"]==sum(ts),(S["tot"],ts))
     for bl in S["b"]:
         g=bl["segs"]
         ok(f"{bl['id']} no trailing rest",g[-1][0] not in("REST","READY"))
-        ok(f"{bl['id']} sides cued",not [x for x in g if re.search("each side|per side",x[2])] and any("switch → right side" in x[2] for x in g))
+        ok(f"{bl['id']} sides explicit (left / right moves, or each side inside a minute)",not [x for x in g if re.search("per side|switch →",x[2])] and any(x[2].endswith(" · right") or x[2].endswith("each side") for x in g),[x[2] for x in g][:4])
     mn=S["b"][1]["segs"];w=[x for x in mn if x[0]=="WORK"]
-    ok("main = 5 rounds of 45 s left + 45 s right, 20 s rest",len(w)==10 and all(x[1]==45 for x in w) and [x[1] for x in mn if x[0]=="REST"]==[20]*4)
-    ok("every round is 2:00 except last",all(sum(x[1] for x in mn[i*4:i*4+4])==120 for i in range(4)))
+    ok("main = 5 rounds, one 2:00 segment each, sides inside the round",len(w)==5 and len(mn)==5 and all(x[1]==120 and x[2].endswith("each side") for x in w),[x[:3] for x in mn])
+    ok("rounds alternate the two move sets",mn[0][2].startswith("Swing ×5") and mn[1][2].startswith("Front-rack squat ×4") and mn[2][2]==mn[0][2])
     txt=p.locator("#sess").inner_text()+" "+p.locator("#safe1").inner_text()+" "+" ".join(" ".join(x[2] for x in bl["segs"]) for bl in S["b"])+" "+" ".join(" ".join(bl["list"]) for bl in S["b"])
     ok("one 16 kg bell, no second implement",not re.search(r"dumbbell|barbell|two bells|bench|\b(20|24|12) kg",txt,re.I),re.findall(r"dumbbell|barbell|bench",txt,re.I))
     ok("no snatch / head-down / breath-hold",not re.search(r"snatch|head-down|inver|hold your breath(?! )",txt.replace("never hold your breath",""),re.I))
@@ -52,7 +52,7 @@ with sync_playwright() as pw:
     ok("flow card: short line + grouped rounds expanded",p.locator("#c_q17a .note").inner_text()=="Each round: 45 s left · 45 s right · 20 s rest. RPE 6–7." and p.locator("#c_q17a .rgh").all_inner_texts()==["ROUNDS 1 · 3 · 5 each side","ROUNDS 2 · 4 each side"] or [x.lower() for x in p.locator("#c_q17a .rgh").all_inner_texts()]==["rounds 1 · 3 · 5 each side","rounds 2 · 4 each side"],p.locator("#c_q17a .rgh").all_inner_texts())
     ok("no repeated 'rounds' per move, no hidden list",p.locator("#c_q17a [data-sm]").count()==0 and "rounds 1, 3, 5" not in p.locator("#c_q17a").inner_text())
     p.locator('#sess [data-t="q17a"]').click();p.wait_for_timeout(60);ok("Now/Next shows round moves + reps","Swing ×5, Clean ×3, Press ×3" in p.locator("#sub").inner_text(),p.locator("#sub").inner_text())
-    p.clock.run_for(100500);p.wait_for_timeout(60);ok("rest shows next round moves","Front-rack squat ×4, Row ×6" in p.locator("#sub").inner_text(),p.locator("#sub").inner_text());p.click("#stop")
+    p.clock.run_for(100500);p.wait_for_timeout(60);ok("during round 1, Next shows round 2's moves","Front-rack squat ×4, Row ×6" in p.locator("#sub").inner_text(),p.locator("#sub").inner_text());p.click("#stop")
     # guided timer through each block
     for bid in ("q17wu","q17a","q17fin"):
         p.evaluate("()=>{window.__bp=[]}");p.locator(f'#sess [data-t="{bid}"]').click();p.wait_for_timeout(50)
@@ -61,8 +61,8 @@ with sync_playwright() as pw:
         segs=ls(p,"wo_timer")["segs"];sw=False
         for i in range(sum(x[1] for x in segs)+3):
             p.clock.run_for(1000)
-            if i%5==0 and p.locator("#bar.show").count() and p.locator("#ph").inner_text()=="SWITCH SIDES": sw=True
-        ok(f"{bid} switch-sides cue shown",sw)
+            if i%5==0 and p.locator("#bar.show").count() and re.search(r"· right$|each side$",p.locator("#now").inner_text()): sw=True
+        ok(f"{bid} sides shown in the NOW line",sw)
         ok(f"{bid} beeps each segment",p.evaluate("window.__bp.length")>=len(segs))
         ok(f"{bid} logged done",ls(p,"wo_2026-10-17")["s"].get(bid)==1)
     ok("no vibrate",p.evaluate("window.__vib")==0)

@@ -36,7 +36,9 @@ with sync_playwright() as pw:
     ok("ring updates", p.locator("#pct").inner_text()=="10%", p.locator("#pct").inner_text())
     # timer warm-up with mocked clock
     p.locator('[data-t="wu"]').click(); p.wait_for_timeout(50)
-    ok("bar shows 4:00", p.locator("#bar.show").count()==1 and p.locator("#time").inner_text()=="4:00", p.locator("#time").inner_text())
+    ok("clock starts with the 10 s get-ready", p.locator("#bar.show").count()==1 and p.locator("#time").inner_text()=="0:10" and p.locator("#ph").inner_text()=="GET READY", p.locator("#time").inner_text())
+    p.clock.run_for(10000); p.wait_for_timeout(50)
+    ok("bar shows 4:00", p.locator("#time").inner_text() in ("4:00","3:59"), p.locator("#time").inner_text())
     p.clock.run_for(61000); p.wait_for_timeout(50)
     ok("timer 2:59 after 61s", p.locator("#time").inner_text() in ("2:59","3:00"), p.locator("#time").inner_text())
     ok("timer persisted", ls(p,"wo_timer")["id"]=="wu")
@@ -46,10 +48,10 @@ with sync_playwright() as pw:
     ok("timer done marks section", ls(p,"wo_2026-10-10")["s"].get("wu")==1 and ls(p,"wo_timer") is None)
     # cardio intervals + stop
     p.locator("button.day").nth(0).click(); p.wait_for_timeout(300)
-    p.locator('[data-t="cardio"]').click(); p.clock.run_for(65000); p.wait_for_timeout(50)
-    ok("cardio REST phase int 1", p.locator("#ph").inner_text()=="REST" and "Interval 1 of 4" in p.locator("#sub").inner_text())
+    p.locator('[data-t="cardio"]').click(); p.clock.run_for(75000); p.wait_for_timeout(50)
+    ok("cardio REST phase int 1", p.locator("#ph").inner_text()=="REST" and "Round 1 of 4" in p.locator("#cctr").inner_text() and "Rest · recovery walk" in p.locator("#now").inner_text(), p.locator("#bar").inner_text())
     p.clock.run_for(60000); p.wait_for_timeout(50)
-    ok("cardio WORK int 2", p.locator("#ph").inner_text()=="WORK" and "Interval 2 of 4" in p.locator("#sub").inner_text())
+    ok("cardio WORK int 2", p.locator("#ph").inner_text()=="WORK" and "Round 2 of 4" in p.locator("#cctr").inner_text() and p.locator("#now").inner_text()=="Run · 1:00 · moderate", p.locator("#bar").inner_text())
     p.locator("#stop").click(); ok("stop hides bar", p.locator("#bar.show").count()==0 and ls(p,"wo_timer") is None)
     # rest round advances counter
     p.locator('[data-t="rest:r"]').click(); p.clock.run_for(61000); p.wait_for_timeout(50)

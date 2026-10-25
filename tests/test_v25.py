@@ -23,7 +23,7 @@ def sec(s): m=re.match(r"(\d+):(\d\d)",s); return int(m.group(1))*60+int(m.group
 with sync_playwright() as pw:
     b=pw.chromium.launch(executable_path=CHROME,args=["--no-sandbox","--autoplay-policy=no-user-gesture-required"])
     c,p=mk(b,dt.datetime(2026,10,13,8,0))
-    D=p.evaluate("""()=>{var H=__how,S=H.SESS,o={};Object.keys(S).forEach(function(k){var s=S[k];o[k]={tot:s.tot,blocks:s.blocks.map(function(b){var t=b.timer||b;return{h:b.h||b.k,k:b.k,mode:b.mode||'',id:t.id||b.id||'',est:b.est||0,flow:!!(t.flow||b.flow),segs:(t.segs||[]).map(function(g){return g.concat([H.posOf(String(g[2]||''))])})}})}});return o;}""")
+    D=p.evaluate("""()=>{var H=__how,S=H.SESS,o={};Object.keys(S).forEach(function(k){var s=S[k];o[k]={tot:s.tot,blocks:s.blocks.map(function(b){var t=b.timer||b;return{h:b.h||b.k,k:b.k,mode:b.mode||'',id:t.id||b.id||'',est:b.est||0,flow:!!(t.flow||b.flow),segs:(t.segs||[]).map(function(g){return [g[0],g[1],g[2]||'',H.posOf(String(g[2]||'').replace(/ · .*$/,''))]})}})}});return o;}""")
     c.close()
     # ---- data: structure rules on every main + backup session
     for k,s in D.items():
@@ -32,17 +32,15 @@ with sync_playwright() as pw:
             if bl["mode"]=="sup": ok(f"{k}/{bl['h']} superset has no guided timer",not g and bl["est"]>0)
             if len(g)<2: continue
             ok(f"{k}/{bl['h']} no trailing rest",g[-1][0] not in("REST","READY"),g[-1])
-            sided=[x for x in g if re.search(r"each side|per side",str(x[2]))]
-            ok(f"{k}/{bl['h']} sided moves cued as left/switch",not sided,sided[:2])
+            sided=[x for x in g if re.search(r"per side|switch →",str(x[2]))]
+            ok(f"{k}/{bl['h']} sides written as left / right, no switch labels",not sided,sided[:2])
+            ok(f"{k}/{bl['h']} no READY prep segments",not [x for x in g if x[0]=="READY"])
             if bl["flow"]:
                 PRK={"S":3,"K":2,"Q":1,"F":0};wk=[x for x in g if x[0]!="READY"]
                 rk=[PRK[x[3][0]] for x in wk];dirn=1 if re.search("warm",bl["h"],re.I) else -1
                 ok(f"{k}/{bl['h']} flow positions monotonic (no floor/standing ping-pong)",all((rk[i+1]-rk[i])*dirn>=0 for i in range(len(rk)-1)),rk)
-                bad=[i for i in range(1,len(g)) if g[i][0]=="READY" and g[i+1][3]==g[i-1][3]] if len(g)>2 else []
-                miss=[i for i in range(1,len(g)) if g[i][0]!="READY" and g[i-1][0]!="READY" and g[i][3]!=g[i-1][3]]
-                ok(f"{k}/{bl['h']} GET READY only on position change",not bad and not miss,(bad,miss))
-            if bl["mode"]=="emom":
-                ok(f"{k}/{bl['h']} emom has work/rest split",any(x[0]=="REST" for x in g))
+            if re.match(r"EMOM|Every",bl["h"]):
+                ok(f"{k}/{bl['h']} EMOM: one WORK segment per minute, no timed rest",all(x[0]=="WORK" for x in g) and len({x[1] for x in g})==1,[x[:2] for x in g][:3])
     # ---- full session per day type: every guided block counts down + beeps, then logs done
     for alt in (False,True):
       for d,k in DAYS.items():
@@ -65,7 +63,7 @@ with sync_playwright() as pw:
             # displayed time = timer time
             lab=p.locator(f'#sess [data-t="{tid}"]').first.inner_text()
             mm=re.search(r"(\d+):(\d\d)",lab) or re.search(r"(\d+):(\d\d)"," ".join(hs))
-            if "guided" in lab: ok(f"{d}/{tid} button total = timer total",sec(mm.group(0))==tot,(lab,tot))
+            if "guided" in lab: ok(f"{d}/{tid} button total = timer total (+10 s get-ready)",sec(mm.group(0))==tot-10 and segs[0][0]=="READY" and segs[0][1]==10,(lab,tot))
         ok(f"{d} no vibrate calls",p.evaluate("window.__vib")==0)
         c.close()
     # ---- controls on Tue row intervals (the Every 2:00 A-block is a rest-timer superset from pc-v28)
@@ -99,32 +97,25 @@ with sync_playwright() as pw:
     ok("every strength/carry block lacks a guided timer",p.locator('#sess [data-t="aemom"],#sess [data-t="asb"],#sess [data-t="asc"]').count()==0)
     p.evaluate("()=>{window.__bp=[]}")
     for x in ("cs-row","hk-db-press"):
-        p.locator(f'.card[data-x="{x}"] .pill').nth(0).click()
-        if p.locator(".step").count(): p.click('[data-st="x"]')
-    ok("auto rest bar after round",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15")
+        p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(0).click()
+    ok("auto rest bar after round",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15" and p.locator("#rlab").inner_text().startswith("Next: set 2 · Chest-supported dumbbell row"),p.locator("#rlab").inner_text())
     p.click("#rp15");ok("+15 s",p.locator("#rtime").inner_text()=="1:30");p.click("#rm15");p.click("#rm15");ok("−15 s",p.locator("#rtime").inner_text()=="1:00")
     p.clock.run_for(61000);p.wait_for_timeout(50);ok("rest over: 0:00 + beeps + flash",p.locator("#rtime").inner_text()=="0:00" and "Rest over" in p.locator("#rlab").inner_text() and p.evaluate("window.__bp.length")>=4 and p.locator("#rbar.zero").count()==1)
     p.screenshot(path="/tmp/x2.png")
     p.clock.run_for(7000);p.wait_for_timeout(50);ok("rest bar auto-hides",p.locator("#rbar.show").count()==0)
-    p.locator('.card[data-x="cs-row"] .pill').nth(1).click()
-    if p.locator(".step").count(): p.click('[data-st="x"]')
+    p.locator('.srow[data-x="cs-row"] [data-tk]').nth(1).click()
     ok("no rest mid-round",p.locator("#rbar.show").count()==0)
-    p.locator('.card[data-x="hk-db-press"] .pill').nth(1).click()
-    if p.locator(".step").count(): p.click('[data-st="x"]')
+    p.locator('.srow[data-x="hk-db-press"] [data-tk]').nth(1).click()
     ok("rest after round 2",p.locator("#rbar.show").count()==1);p.click("#rskip");ok("Skip hides",p.locator("#rbar.show").count()==0)
-    p.locator('.card[data-x="cs-row"] .pill').nth(2).click()
-    if p.locator(".step").count(): p.click('[data-st="x"]')
-    p.locator('.card[data-x="hk-db-press"] .pill').nth(2).click()
-    if p.locator(".step").count(): p.click('[data-st="x"]')
+    p.locator('.srow[data-x="cs-row"] [data-tk]').nth(2).click()
+    p.locator('.srow[data-x="hk-db-press"] [data-tk]').nth(2).click()
     ok("no rest after final round",p.locator("#rbar.show").count()==0)
     # manual
     p.wait_for_timeout(300);ok("manual Rest timer button visible",p.locator("#rbtn").is_visible());p.click("#rbtn");ok("manual rest starts",p.locator("#rbar.show").count()==1);p.click("#rskip")
     # setting off
     p.locator("#autorest").uncheck();ok("autorest stored off",ls(p,"wo_autorest")==False)
-    p.locator('.card[data-x="cs-row"] .pill').nth(0).click()
-    if p.locator(".step").count(): p.click('[data-st="x"]')
-    p.locator('.card[data-x="cs-row"] .pill').nth(0).click()
-    if p.locator(".step").count(): p.click('[data-st="x"]')
+    p.locator('.srow[data-x="cs-row"] [data-tk]').nth(0).click()
+    p.locator('.srow[data-x="cs-row"] [data-tk]').nth(0).click()
     ok("autorest off: no bar on round complete",p.locator("#rbar.show").count()==0)
     c.close()
     ok("no page errors",not errs,errs[:3])

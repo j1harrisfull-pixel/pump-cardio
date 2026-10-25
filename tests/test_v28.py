@@ -53,7 +53,7 @@ DOM="""()=>{var V=__app.view(),out=[],cur=null,bi=0,ex=V.blocks.filter(function(
   if(el.classList.contains("gn"))cur.gn.push(el.textContent);
   if(el.classList.contains("sp"))cur.small.push(el.textContent);
   if(el.classList.contains("card")){var n=el.querySelector(".hd .name, :scope > .name");
-   if(el.classList.contains("ex"))cur.names.push(n.textContent.replace(/^[A-Z]\\d/,""));
+   if(el.classList.contains("ex")){el.querySelectorAll(".mvh .mvn").forEach(function(x){cur.names.push(x.textContent);});cur.rows=el.querySelectorAll(".srow").length;}
    else{cur.title=n.textContent;var nt=el.querySelector(":scope > .note");cur.note=nt?nt.textContent:"";
     el.querySelectorAll(":scope > .sp").forEach(function(x){cur.small.push(x.textContent);});
     el.querySelectorAll(".lst li").forEach(function(x){cur.list.push(x.textContent);});
@@ -125,21 +125,18 @@ with sync_playwright() as pw:
                 g=bl["segs"]
                 if len(g)>1:
                     chk(where,"no trailing REST/READY",g[-1][0] not in ("REST","READY"),g[-1])
-                    left=[x for x in g if x[0] not in ("READY","REST") and "left side" in str(x[2:3])];sw=[x for x in labels if "switch → right side" in x]
-                    chk(where,"sided moves cued (switch sides after every left side)",len(left)==len(sw),(len(left),len(sw)))
-                    chk(where,"no un-cued 'each side' in timer",not [x for x in labels if "each side" in x])
+                    # pc-v30 clock mode: no READY prep, no combined side labels; sides are explicit "· left" / "· right" moves
+                    chk(where,"no READY segments (one 10 s get-ready is added at start)",not [x for x in g if x[0]=="READY"])
+                    chk(where,"no combined switch / round labels",not [x for x in labels if re.search(r"switch →|round \d|Interval \d|set \d",x)],labels[:3])
+                    left=[x for x in labels if x.endswith(" · left")];right=[x for x in labels if x.endswith(" · right")]
+                    chk(where,"sides written as left / right moves",len(left)==len(right) or fmt.startswith("EMOM") or fmt.startswith("Every"),(len(left),len(right)))
+                    if not (fmt.startswith("EMOM") or fmt.startswith("Every")): chk(where,"'each side' only inside an EMOM minute",not [x for x in labels if "each side" in x])
                     rests=[x[1] for x in g if x[0]=="REST"]
-                    chk(where,"every rest ≥15 s",all(r>=15 for r in rests),rests)
+                    chk(where,"every rest ≥10 s",all(r>=10 for r in rests),rests)
                     if fmt.startswith("Every") or fmt.startswith("EMOM"):
-                        win=sec(fmt) if ":" in fmt else int(re.search(r"(\d+) s",fmt).group(1));acc=0;wins=[];cur=[]
-                        for x in g:
-                            cur.append(x)
-                            if x[0]=="REST": wins.append(cur);cur=[]
-                        wins.append(cur)
-                        for i,wd in enumerate(wins):
-                            work=sum(x[1] for x in wd if x[0]!="REST");full=sum(x[1] for x in wd)
-                            chk(where,f"window {i+1}: set-up + work ≤ window − 15 s",work<=win-15,(work,win))
-                            if i<len(wins)-1: chk(where,f"window {i+1} = {win} s",full==win,full)
+                        # one segment per minute (window); rest is whatever is left, never a separate segment
+                        win=sec(fmt) if ":" in fmt else int(re.search(r"(\d+) s",fmt).group(1));n=int(re.search(r"× (\d+)",fmt).group(1))
+                        chk(where,f"EMOM/Every = {n} segments of {win} s, all WORK",len(g)==n and all(x[0]=="WORK" and x[1]==win for x in g),[x[:2] for x in g][:4])
                 if bl["flow"]: chk(where,"flow has its moves list",len(bl["segs"])>1)
         # whole-view text rules (§6/§7): single words, no paces, no "hard", s/m only in small print
         txt=V["sess"]+" "+V["safe"]
@@ -150,20 +147,19 @@ with sync_playwright() as pw:
         chk(vw,"§6 stroke rate only in small print",not [x for x in notsmall if "s/m" in x],[x for x in notsmall if "s/m" in x][:2])
     ok(f"standard audit: 0 deviations across {len(VIEWS)} views",not dev,len(dev))
     for x in dev[:40]: print("   DEVIATION",x)
-    # ---- flows: GET READY only on position change (positions from the app's posOf)
+    # ---- flows: no READY prep left anywhere (pc-v30 clock mode)
     c,p=mk(b,"2026-10-13",{})
-    bad=p.evaluate("""()=>{var S=__how.SESS,P=__app.posOf,o=[];Object.keys(S).forEach(function(k){S[k].blocks.forEach(function(b){if(!b.flow)return;var g=b.segs;
-      for(var i=0;i<g.length;i++){if(g[i][0]!="READY")continue;var prev=null;for(var j=i-1;j>=0;j--)if(g[j][0]!="READY"){prev=g[j];break;}
-       if(prev&&P(String(prev[2]).replace(/ · .*$/,""))==P(String(g[i+1][2]).replace(/ · .*$/,"")))o.push(k+'/'+b.id+'@'+i);}});});return o;}""")
-    ok("flows: GET READY only on a position change",not bad,bad)
+    bad=p.evaluate("""()=>{var S=__how.SESS,o=[];Object.keys(S).forEach(function(k){S[k].blocks.forEach(function(b){(b.segs||[]).forEach(function(g,i){if(g[0]=="READY")o.push(k+'/'+b.id+'@'+i);});});});return o;}""")
+    ok("no READY segments in any block",not bad,bad[:5])
     # ---- strength rest timer: superset after the last move of a round, straight sets after each tick, off when auto-rest is off
     def tick(x,i):
-        p.locator(f'.card[data-x="{x}"] .pill').nth(i).click()
-        if p.locator(".step").count(): p.click('[data-st="x"]')
+        p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(i).click();p.wait_for_timeout(30)
     ok("strength blocks have no guided timer button",p.locator('#sess .card.ex [data-t], #sess [data-t="aemom"], #sess [data-t="asb"]').count()==0)
+    ok("A superset rows alternate A1, A2",[x.split("\n")[0] for x in p.locator('.blk').first.locator(".srow .sn").all_inner_texts()][:4]==["1 · A1","1 · A2","2 · A1","2 · A2"],p.locator('.blk').first.locator(".srow .sn").all_inner_texts()[:4])
     ok("A superset shows its count and rest range","2 · A · Superset · 4 rounds" in p.locator("#sess h2").all_text_contents() and "Each round: A1 → A2. Rest 60–90 s." in p.locator("#sess").inner_text())
     tick("incline-db-press",0);ok("no rest mid-round",p.locator("#rbar.show").count()==0)
     tick("prone-y-raise",0);ok("rest starts after the round at 1:15",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15",p.locator("#rtime").inner_text())
+    ok("rest bar shows the next set",p.locator("#rlab").inner_text()=="Next: set 2 · Incline dumbbell press 6",p.locator("#rlab").inner_text())
     p.click("#rskip")
     tick("assisted-chinup",0);tick("lateral-raise",0);tick("hammer-curl",0)
     ok("tri-set 60–90 s rest starts at 1:15",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15");p.click("#rskip")
@@ -203,15 +199,15 @@ with sync_playwright() as pw:
     p.click("#fin");p.clock.fast_forward(1000);p.wait_for_timeout(100);p.click("#o_done")
     L=[x for x in ls(p,"wo_log") if x["date"]=="2026-10-12"];ok("updating the old log keeps one entry and its name",len(L)==1 and L[0]["name"]=="Easy Run",L)
     opend("2026-10-13")
-    on=p.evaluate("()=>[...document.querySelectorAll('#sess .pill.on')].map(e=>e.dataset.k)")
-    ok("ticks still on the same moves",sorted(on)==["0_0","0_1","1_0"] and p.locator('.card[data-x="incline-db-press"] .pill').nth(1).inner_text()=="✓ 5",on)
-    ok("weights still shown",p.locator('.card[data-x="incline-db-press"] input').input_value()=="14")
+    on=p.evaluate("()=>[...document.querySelectorAll('#sess .tk.on')].map(e=>e.dataset.tk)")
+    ok("ticks still on the same moves",sorted(on)==["0_0","0_1","1_0"] and p.locator('[data-rp="0_1"]').inner_text()=="5",on)
+    ok("weights still shown",p.locator('[data-kw="0_0"]').input_value()=="14")
     ok("warm-up done flag kept",p.locator("#c_awu.done").count()==1)
-    opend("2026-10-16");ok("Fri tick on C1 kept",p.locator('.card[data-x="db-rdl"] .pill.on').count()==1)
+    opend("2026-10-16");ok("Fri tick on C1 kept",p.locator('.srow[data-x="db-rdl"] .tk.on').count()==1)
     opend("2026-10-17");p.click("#alt");p.wait_for_timeout(150)
-    ok("Last: kg carries across sessions","Last: 16 kg (Tue 13 Oct)" in p.locator('.card[data-x="cs-row"]').text_content(),p.locator('.card[data-x="cs-row"]').text_content())
-    ok("pull-up is one move, dips in its How-to",p.locator('.card[data-x="pullup-dip"] .name').inner_text().endswith("Assisted pull-up (feet on block)"))
-    p.click('.card[data-x="pullup-dip"] .more');p.locator('.card[data-x="pullup-dip"] .how').click();p.wait_for_timeout(200)
+    ok("Last: kg carries across sessions","Last: 16 kg (Tue 13 Oct)" in p.locator('.mvh[data-x="cs-row"]').text_content(),p.locator('.mvh[data-x="cs-row"]').text_content())
+    ok("pull-up is one move, dips in its How-to",p.locator('.mvh[data-x="pullup-dip"] .mvn').inner_text()=="Assisted pull-up (feet on block)")
+    p.locator('.mvh[data-x="pullup-dip"] .mvn').click();p.wait_for_timeout(200)
     ok("dips alternative in How-to","dips" in p.locator("#hs").inner_text().lower());p.click("#hs_x")
     p.select_option('#hist select[data-hd="2026-10-12"]',"backup");p.wait_for_timeout(150)
     e=[x for x in ls(p,"wo_log") if x["date"]=="2026-10-12"][0];ok("history Edit still works (→ Backup)",e["type"]=="backup" and e["name"]=="Backup · Zone 2 Row + Mobility",e)

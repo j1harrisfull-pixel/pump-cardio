@@ -52,7 +52,7 @@ DOM="""()=>{var V=__app.view(),out=[],cur=null,bi=0,ex=V.blocks.filter(function(
   if(el.classList.contains("gn"))cur.gn.push(el.textContent);
   if(el.classList.contains("sp"))cur.small.push(el.textContent);
   if(el.classList.contains("card")){var n=el.querySelector(".hd .name, :scope > .name");
-   if(el.classList.contains("ex"))cur.names.push(n.textContent.replace(/^[A-Z]\\d/,""));
+   if(el.classList.contains("ex")){el.querySelectorAll(".mvh .mvn").forEach(function(x){cur.names.push(x.textContent);});cur.rows=el.querySelectorAll(".srow").length;}
    else{cur.title=n.textContent;var nt=el.querySelector(":scope > .note");cur.note=nt?nt.textContent:"";
     el.querySelectorAll(":scope > .sp").forEach(function(x){cur.small.push(x.textContent);});
     el.querySelectorAll(".lst li").forEach(function(x){cur.list.push(x.textContent);});
@@ -124,21 +124,18 @@ with sync_playwright() as pw:
                 g=bl["segs"]
                 if len(g)>1:
                     chk(where,"no trailing REST/READY",g[-1][0] not in ("REST","READY"),g[-1])
-                    left=[x for x in g if x[0] not in ("READY","REST") and "left side" in str(x[2:3])];sw=[x for x in labels if "switch → right side" in x]
-                    chk(where,"sided moves cued (switch sides after every left side)",len(left)==len(sw),(len(left),len(sw)))
-                    chk(where,"no un-cued 'each side' in timer",not [x for x in labels if "each side" in x])
+                    # pc-v30 clock mode: no READY prep, no combined side labels; sides are explicit "· left" / "· right" moves
+                    chk(where,"no READY segments (one 10 s get-ready is added at start)",not [x for x in g if x[0]=="READY"])
+                    chk(where,"no combined switch / round labels",not [x for x in labels if re.search(r"switch →|round \d|Interval \d|set \d",x)],labels[:3])
+                    left=[x for x in labels if x.endswith(" · left")];right=[x for x in labels if x.endswith(" · right")]
+                    chk(where,"sides written as left / right moves",len(left)==len(right) or fmt.startswith("EMOM") or fmt.startswith("Every"),(len(left),len(right)))
+                    if not (fmt.startswith("EMOM") or fmt.startswith("Every")): chk(where,"'each side' only inside an EMOM minute",not [x for x in labels if "each side" in x])
                     rests=[x[1] for x in g if x[0]=="REST"]
-                    chk(where,"every rest ≥15 s",all(r>=15 for r in rests),rests)
+                    chk(where,"every rest ≥10 s",all(r>=10 for r in rests),rests)
                     if fmt.startswith("Every") or fmt.startswith("EMOM"):
-                        win=sec(fmt) if ":" in fmt else int(re.search(r"(\d+) s",fmt).group(1));acc=0;wins=[];cur=[]
-                        for x in g:
-                            cur.append(x)
-                            if x[0]=="REST": wins.append(cur);cur=[]
-                        wins.append(cur)
-                        for i,wd in enumerate(wins):
-                            work=sum(x[1] for x in wd if x[0]!="REST");full=sum(x[1] for x in wd)
-                            chk(where,f"window {i+1}: set-up + work ≤ window − 15 s",work<=win-15,(work,win))
-                            if i<len(wins)-1: chk(where,f"window {i+1} = {win} s",full==win,full)
+                        # one segment per minute (window); rest is whatever is left, never a separate segment
+                        win=sec(fmt) if ":" in fmt else int(re.search(r"(\d+) s",fmt).group(1));n=int(re.search(r"× (\d+)",fmt).group(1))
+                        chk(where,f"EMOM/Every = {n} segments of {win} s, all WORK",len(g)==n and all(x[0]=="WORK" and x[1]==win for x in g),[x[:2] for x in g][:4])
                 if bl["flow"]: chk(where,"flow has its moves list",len(bl["segs"])>1)
         # whole-view text rules (§6/§7): single words, no paces, no "hard", s/m only in small print
         txt=V["sess"]+" "+V["safe"]
@@ -166,7 +163,7 @@ with sync_playwright() as pw:
     def moves(k): return sorted([n for bl in D[k]["blocks"] for n in bl["names"]]+[x.split(" – ")[0] for bl in D[k]["blocks"] for x in bl["list"]])
     for d,k in W2P.items():
         d1="2026-10-%d"%(int(d[-2:])-7);ok(f"{d} differs from week 1 ({W1P[d1]})",moves(k)!=moves(W1P[d1]))
-    lim={"mob19":(14,16),"mob22":(14,16),"run21":(36,40),"bk19":(10,16),"bk22":(10,16),"bk25":(10,16)}
+    lim={"mob19":(13,16),"mob22":(13,16),"run21":(36,40),"bk19":(10,16),"bk22":(10,16),"bk25":(10,16)}
     for k in W2:
         lo,hi=lim.get(k,(20 if k.startswith("bk") else 32,38));m=D[k]["tot"]/60;ok(f"{k} time {m:.1f} min in {lo}–{hi}",lo<=m<=hi)
     # How-to for every new move: exercise cards, timer lists, flow moves

@@ -29,7 +29,7 @@ with sync_playwright() as pw:
     e=ls(p,"wo_log")[-1]; ok("log has weights by id", e["wt"]["db-bench"]=="20" and e["w"]["0"]=="20", e)
     # next day picks most recent
     p.click("#close"); p.click("#next"); p.click('button.day[data-d="2026-10-13"]'); p.wait_for_timeout(300)
-    ok("Tue cs-row carries Last from Pump", "Last: 16 kg (Sun 11 Oct)" in p.locator('#sess .card[data-x="cs-row"]').text_content())
+    ok("Tue cs-row carries Last from Pump", "Last: 16 kg (Sun 11 Oct)" in p.locator('#sess .mvh[data-x="cs-row"]').text_content())
     p.click("#close"); p.click("#prev"); p.click('button.day[data-d="2026-10-11"]'); p.wait_for_timeout(300)
     ok("same-day shows earlier last", "Last: 18 kg (Sat 10 Oct)" in p.locator("#sess .card[data-x]").nth(0).text_content() and p.locator('input[data-w="0"]').input_value()=="20")
     p.reload(); p.click('button.day[data-d="2026-10-11"]'); p.wait_for_timeout(300)

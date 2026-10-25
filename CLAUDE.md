@@ -6,7 +6,9 @@ https://j1harrisfull-pixel.github.io/pump-cardio/ (GitHub Pages, `main` branch, 
 
 - **Week strip:** Mon to Sun with the planned session for each day. Tap a day to open the session panel.
 - **Each day:** a **main** session, an optional **backup** (lower-energy) session, and on some days a **Run instead** variant or a **Quick option** (e.g. Sat 17 Oct "15-min KB Flow (16 kg)").
-- **Blocks:** warm-up flows, strength blocks (rep pills, kg entry, tempo chips, How-to sheets), guided timers (EMOM / Every 2:00 / intervals / flows) with Pause/Back/Next/Stop and beeps, and an auto rest timer for strength sets.
+- **Two screen types (pc-v30 workout mode, see BRIEF-workout-mode.md):**
+  - **List mode** for strength, supersets and carries: one card per block, rows of set | kg | reps | tick (supersets alternate B1, B2), tempo chips and How-to sheets. Ticking a set starts the rest bar (−15 s / +15 s / Skip, "Next: set 3 · Name 6 @ 60 kg"). No block timer.
+  - **Clock mode** for EMOM, Every, intervals, circuits, flows, steady pieces and AMRAP: one full-screen clock with the block name + counter, NOW (large), the clock (largest), NEXT (small), and Back / Pause / Next / Stop / Lock. One 10 s get-ready at the start, 3-2-1 + a long beep at each change, a double beep at the end.
 - **Logging:** "Finish workout" logs the day (name, type, weights, sets, km, feel, notes). History lets you change a logged day's type (Main / Backup / Run instead / Quick option).
 - **Offline:** works offline via `sw.js`, with an update prompt when a new version is deployed.
 
@@ -24,7 +26,7 @@ src/app.js            all logic and session data (the script continues straight 
 scripts/build.sh      index.html = src/top.html + src/app.js
 scripts/bump.sh NN    pc-vOLD -> pc-vNN in src/top.html, sw.js, tests/test_sw.py
 scripts/test.sh [suite…]  build, serve the repo root on :8765, run the Playwright suites
-tests/test_*.py       Playwright (Python, sync API) suites at iPhone viewport 390×844 (test_v28 = automated style-standard audit)
+tests/test_*.py       Playwright (Python, sync API) suites at iPhone viewport 390×844 (test_v28 = automated style-standard audit, test_v30 = workout mode)
 docs/                 programme-week1.md, terminology-audit.md (test_v20 reads both), premium-apps-research.md
 app-style-standard.md layout standard + 159-deviation audit
 BRIEF.md              next job: acceptance criteria and the tests to update
@@ -42,11 +44,15 @@ BRIEF.md              next job: acceptance criteria and the tests to update
 - **`SESS`**: `id -> {name, short (week-strip label), safe (safety line), g0 (tick-index offset: 100 for backups, 200 for quick), was? (old names, see `ALIAS`), blocks:[…]}`. Block kinds:
   - `{k:"timer", id, h, name, note, segs:[[PHASE, seconds, label], …], list?, groups?, small?, flow?, counter?}`: a guided timer. Since pc-v28 `h` is the §1 format (Warm-up, Intervals, Circuit × 2, Steady, Flow, Cool-down, Every 2:00 × N), `note` the fixed §2 instruction line and `small` (string or array) the small print. Button labels come from the renderer (`Start guided flow` / `Start guided timer` · m:ss).
     - PHASE is one of READY, WORK, REST, WARM-UP, EASY, STEADY, JOG, FLOW, STRETCH, MOBILITY, FINISH, …
-    - A label containing `switch → right side` triggers the SWITCH SIDES cue.
-  - `{k:"ex", h ("A · Superset"), mode:"sup", n, rr:[lo, hi], tid, items:[{x, lab, rp, side, tp (tempo e.g. "3011"), ru ("s" | "m"), sw, cue}], fill?, gn?}`: a strength or carry block (pc-v28: all of them).
+    - **`clk(b, segs)` normalises every guided block in the post-pass**, so session data keeps its existing format (READY set-ups, "– left side · round 2/4" labels, `iv`/`ivr`/`core`/`fl` builders all still work):
+      - EMOM / Every blocks (`h` "EMOM 60 s × N" / "Every 2:00 × N") become one `WORK` segment per window; sides go inside the minute ("· left", "· right" or "· each side"); rest is never timed and the last window is full length.
+      - Other blocks drop READY prep (the first one, and every one in flows); a READY between moves becomes or joins a `REST`. Labels lose "Interval k of n" / "round r/n" / "switch →" text and sides read "Name · left" / "Name · right".
+      - Interval work labels become `Machine · m:ss · effort` (e.g. "Row · 0:50 · moderate"). Segments carry the round number as an optional 4th element.
+      - `b.amrap` (with `list`) gives an AMRAP: one countdown, the whole round as NOW, a "+1 round" button and a score sheet at the end (`wo_<date>.sc[id] = {r, kg, e}`).
+  - `{k:"ex", h ("A · Superset"), mode:"sup", n, rr:[lo, hi], tid, items:[{x, lab, rp, side, tp (tempo e.g. "3011"), ru ("s" | "m"), sw, cue}], fill?, gn?}`: a strength or carry block, rendered in list mode by `listBlock`.
     - No guided timer and no header time: the header reads `N · A · Superset · 4 rounds`, the line `Each round: A1 → A2. Rest 60–90 s.`
-    - `b.rest` = middle of `rr`; the rest timer starts with it when the last move of a round is ticked (each tick for a one-move straight set) (`maybeRest`). `b.est` is the estimated time used in the `≈` day total.
-    - `mode:"every"` / `mode:"emom"` (`bEvery` / `bEmom`, guided `b.timer`) are kept for true EMOM blocks but unused; a strength block may only use them if every window leaves ≥15 s of real rest.
+    - `b.rest` = middle of `rr`; the rest timer starts with it when the last move of a round is ticked (each tick for a one-move straight set) (`maybeRest`). `b.est` (`bEst`, no segments) is the estimated time used in the `≈` day total.
+    - `mode:"emom"` / `mode:"every"` build a clock from the items (`bEmom` / `bEvery`: one `WORK` segment per minute / round, label "Name × reps [each side]"). Unused so far.
   - `{k:"fields"}` holds optional log fields; `{k:"rest"}` marks a rest day.
 - **Builders:**
   - `fl(id, h, name, note, moves, phase, dir)` builds flows. It merges "– left/– right" and "– each side" moves into cued halves, orders standing → kneeling → floor (warm-ups the reverse) using `posOf`, and adds GET READY only on a position change.
@@ -65,7 +71,7 @@ BRIEF.md              next job: acceptance criteria and the tests to update
   - `S_(date)` returns the session, wrapped as a run view when Run instead is on.
   - `curType(date)` returns `main`, `backup`, `run` or `quick`.
   - `typeOpts` / `setType` drive the history Edit dropdown.
-- **Timer engine:** timestamp-based (`T.t0`, pause stores `T.pa`). `setInterval(loop, 250)` only renders.
+- **Timer engine:** timestamp-based (`T.t0`, pause stores `T.pa`). `setInterval(loop, 250)` only renders. `startT` prepends one `["READY",10,"Get ready"]` (`T.pre`); the header time and block total exclude it. `ctr()` writes the top line (Minute x of N, Round x of N, or elapsed of total).
   - A gap over 2.5 s after the end (phone locked) shows "FINISHED WHILE LOCKED · Mark done / Not done".
   - Audio uses one AudioContext, resumed on every tap and on `visibilitychange`. It handles the iOS "interrupted" state. `beep()` also pushes to `window.__bp` for tests.
   - **Never rely on `navigator.vibrate`**: iOS has no vibration API.
@@ -74,8 +80,8 @@ BRIEF.md              next job: acceptance criteria and the tests to update
 ### localStorage keys (all JSON). Compatibility rules
 | Key | Content |
 |---|---|
-| `wo_log` | array of logged days `{date, name, type: main/backup/run/quick, sid, min, sets, of, w, wt, rp, km, feel, notes, breaks, ri, custom, mig}` |
-| `wo_<date>` | that day's ticks/state `{t: {"gi_round": true}, w, r, s: {timerId: 1}, start}` |
+| `wo_log` | array of logged days `{date, name, type: main/backup/run/quick, sid, min, sets, of, w, wt, rp: {id: {v, u, k?}}, sc?, km, feel, notes, breaks, ri, custom, mig}` (`rp[id].k` per-set kg and `sc` AMRAP scores are optional, pc-v30) |
+| `wo_<date>` | that day's ticks/state `{t: {"gi_round": true}, rp: {"gi_round": reps}, kg?: {"gi_round": "kg"}, w, r, s: {timerId: 1}, sc?: {timerId: {r, kg, e}}, start}` (`kg` and `sc` are optional, pc-v30) |
 | `wo_run_<date>`, `wo_runstart_<date>` | run-day counters (walk breaks) and start time |
 | `wo_wt` | weights `{exerciseId: {date: "kg"}}` (feeds "Last: 16 kg") |
 | `wo_alt`, `wo_ri`, `wo_quick` | per-day `{date: 1}` toggles for backup / run instead / quick option |
@@ -138,4 +144,5 @@ Keep `index.html`, `sw.js` and `manifest.json` at the repo root: the installed P
 Weekly sessions are added by the Health & Fitness bot directly into the session data; Claude Code should not change session content unless asked, and must keep the session data format stable so weekly additions stay simple.
 
 - How a week is added today (pc-v29, week 2): one `// ==== WEEK N …` block in `src/app.js`, just above `// ---- backups`. It holds new `X` ids with `HT` How-to entries, `HAL` aliases, and `Object.assign(SESS,{…})` with that week's main sessions (`mob19`, `up20`, …) and backups (`bk19`…, `g0:100`). It's followed by date entries in `PROG` / `BK`, plus `Object.assign(RI/RIN/RIS,…)` for Run-instead versions. The weekly plan and rationale go in `docs/programme-weekN.md`; tests go in `tests/test_vNN.py` (copy `test_v29.py` and change `DAYS` / `VIEWS` / `W2P`).
+- **Writing timed blocks (pc-v30):** EMOMs use `h:"EMOM 60 s × N"` with 2–3 moves rotating by minute, one task per minute that fits in about 30–40 s; the same rotation every round; sides alternate by minute or are "× n each side" inside one minute (see BRIEF-workout-mode.md). Old-style segments still load: `clk()` converts them.
 - **Future improvement (not done yet; only on request):** make weekly additions lower-touch with one clear `WEEKS` data section, e.g. `WEEKS["2026-10-19"]={days:{mon:{main:"mob19",backup:"bk19"},…}}`. `PROG`, `BK`, `QK` and the RI tables would be derived from it, and the test `DAYS` / `VIEWS` would be generated from it. Session ids and block ids must stay unchanged so saved logs keep working.

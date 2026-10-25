@@ -29,7 +29,7 @@ with sync_playwright() as pw:
         for bl in v["segs"]:
             g=bl["s"]
             if len(g)<2: continue
-            ok(f"{v['k']}/{bl['h']} starts with READY",g[0][0]=="READY")
+            ok(f"{v['k']}/{bl['h']} has no READY prep (pc-v30: one 10 s get-ready at start)",not [x for x in g if x[0]=="READY"])
             bad=[i for i in range(1,len(g)) if g[i][0] not in("READY","REST") and g[i-1][0] not in("READY","REST") and g[i][2]!=g[i-1][2] and not(g[i-1][0]=="WORK")]
             if any(x[0] in ("STRETCH","MOBILITY","FLOW") for x in g): bad=[]  # flows: READY only on position change (test_v25)
             ok(f"{v['k']}/{bl['h']} switch time between moves",not bad,bad[:3])
@@ -39,7 +39,7 @@ with sync_playwright() as pw:
     ok("toggle label",p.locator("#alt").inner_text().startswith("Use backup session: Upper (KB"),p.locator("#alt").inner_text())
     p.screenshot(path="test-output/app-v20.png")
     p.click("#alt");p.wait_for_timeout(200)
-    ok("backup renders",p.locator("#ttl").inner_text()==D["2026-10-13"]["name"] and p.locator('.card[data-x="kb-floor-press"]').count()==1)
+    ok("backup renders",p.locator("#ttl").inner_text()==D["2026-10-13"]["name"] and p.locator('.mvh[data-x="kb-floor-press"]').count()==1)
     ok("back label",p.locator("#alt").inner_text().startswith("↩ Back to main"))
     ok("saved per day",ls(p,"wo_alt").get("2026-10-13") and not ls(p,"wo_alt").get("2026-10-14"))
     p.reload();p.click('button.day[data-d="2026-10-13"]');p.wait_for_timeout(250)
