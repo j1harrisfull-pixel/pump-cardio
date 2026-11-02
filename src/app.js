@@ -380,17 +380,89 @@ bk31:{name:"Backup · Zone 2 Row + Circuit",short:"Row",g0:100,safe:"No kettlebe
 bk01:{name:"Backup · Easy Walk + Long Stretch",short:"Stretch",g0:100,safe:"Lowest energy option. Easy walk, then long gentle holds – no forcing, no head-down positions. Easy pace, RPE 3–4.",blocks:[
  tm("x01walk","Steady","Easy walk (Zone 1)","Easy walk, RPE 3–4.",480,"EASY"),
  fl("x01fl","Flow","Long-hold stretch","Gentle holds, no forcing.",[["Doorway/rack chest stretch – each side",80],["Half-kneeling hip flexor with reach – each side",80],["Lying figure-4 stretch – each side",80],["Slow breathing lying on back",120]],"MOBILITY")]}});
+// ==== WEEK 4 · Mon 2 – Sun 8 Nov 2026 (added by the Health & Fitness bot; rationale in docs/programme-week4.md) ====
+// Mon 2 = the easy 5 km James ran today; Upper moves to Tue, Lower + second pull + carry on Thu.
+// Sat 7 EMOM: minute 1 complex left, minute 2 complex right, minute 3 swings + goblet squats – 5 rounds, sides alternate by minute
+function k07(){var s=[],C="Complex",n=5;for(var r=1;r<=n;r++){var t=" · round "+r+"/"+n;s.push(["READY",5,C+" · left side"+t]);s.push(["WORK",40,C+" · left side"+t]);s.push(["REST",15,"Rest · switch hands"]);
+ s.push(["READY",5,C+" · switch → right side"+t]);s.push(["WORK",40,C+" · right side"+t]);s.push(["REST",15,"Rest · swings next"]);
+ s.push(["READY",5,"Swing ×15 + goblet squat ×5"+t]);s.push(["WORK",40,"Swing ×15 + goblet squat ×5"+t]);if(r<n)s.push(["REST",15,"Rest · complex next"]);}return s;}
+Object.assign(SESS,{
+run02:{name:"Easy 5 km Run",short:"Run",safe:"Done today: easy 5 km. Log it with Finish workout. Conversational, walk whenever needed. Easy pace, RPE 3–4.",blocks:[
+ fl("r02wu","Warm-up","Dynamic stretch – run","",[["Leg swings – front to back",40],["Leg swings – side to side",40],["Ankle rocks – each side",60],["Standing hip CARs – each side",60]],"WARM-UP"),
+ tm("r02w","Warm-up","Warm-up walk","Easy walk, RPE 3–4.",120,"WARM-UP"),
+ tm("r02run","Steady","Easy run 5 km","Easy run, RPE 3–4.",1860,"JOG",{counter:1,small:["5 km at an easy, chatty effort – the time is a guide.","1:00 walk break whenever needed: tap +1 walk break."]}),
+ tm("r02cd","Cool-down","Cool-down walk","Easy walk, RPE 3–4.",120,"COOL-DOWN",{small:"Then stretch calves, hamstrings and hips."}),{k:"fields"}]},
+up03:{name:"Strength A4 · Upper",short:"Upper",safe:"Top of the range last week, so a little more weight. Still RPE 6–7: breathe out on every rep, no grinding, stop 2 reps short (2 RIR).",blocks:[
+ fl("u03wu","Warm-up","Shoulder prep – upper","No forcing.",[["Shoulder CARs – each side",60],["Broomstick pass-throughs",40],["Wall slides",40],["Cat-cow, slow",40]],"WARM-UP"),
+ {k:"ex",h:"A · Straight sets",mode:"sup",n:4,rr:[90,120],unit:"Set",tid:"u03a",items:[{x:"db-bench",lab:"A1",rp:6,tp:"3110",cue:"You hit 8 last week: add 2 kg each hand, back to 6. Next week build to 8 again."}]},
+ {k:"ex",h:"B · Superset",mode:"sup",n:3,rr:[60,90],unit:"Set",tid:"u03b",items:[{x:"assisted-chinup",lab:"B1",rp:7,tp:"3010",cue:"7 reps (was 6), same help from the block."},{x:"cs-row",lab:"B2",rp:10,tp:"2011",sw:15,cue:"You hit 12 last week: add 2 kg each hand, 10 reps."}]},
+ {k:"ex",h:"C · Superset",mode:"sup",n:2,rr:[45,75],unit:"Round",tid:"u03c",items:[{x:"db-shoulder-press",lab:"C1",rp:10,tp:"2011",cue:"Seated, back supported, ribs down, breathe out as you press."},{x:"farmers-carry",lab:"C2",rp:50,ru:"m",sw:15,cue:"Same 50 m, 2 kg heavier each hand. Tall, short steps, breathe."}]},
+ {k:"timer",id:"u03fl",h:"Intervals",name:"Row intervals 6 × 0:40 / 0:30",note:"Each round: 0:40 work · 0:30 rest. Moderate pace, RPE 7.",small:["10 s longer than last week. Work 24–26 s/m · damper 4–5.",NOREST],segs:[["READY",10,"Row · moderate pace"]].concat(iv(6,40,30,"moderate pace","light paddle"))},
+ fl("u03cd","Cool-down","Active stretch – upper","Breathe out into each stretch.",[["Doorway/rack chest stretch – each side",60],["Seated lat reach at bench – each side",60]])]},
+mob04:{name:"Recovery · Spine + Hips Flow",short:"Mobility",rest:1,safe:"Recovery day. Slow controlled moves and gentle holds – no head-down positions, no forcing, breathe slowly.",blocks:[
+ {k:"rest",name:"Recovery day",note:"Rest, or do the optional 15-min flow. Walk, hydrate, sleep well."},
+ fl("m04","Flow","Spine + hips flow","After Tuesday's upper day. 10 s set-up only on position changes.",[["Wrist CARs – each side",60],["Shoulder CARs – each side",80],["Hip CARs (standing, hold rack) – each side",80],["Supported deep squat hold (hold rack)",70],["Couch stretch – each side",80],["Seated lat reach at bench – each side",80],["Cat-cow, slow",60],["Thoracic open book – each side",80],["90/90 hip switches",60],["Slow breathing lying on back",180]],"MOBILITY")]},
+lo05:{name:"Strength B4 · Lower + Pull",short:"Lower",safe:"No heavy spinal loading. More reps, same weight, RPE 6–7, no grinding. Breathe out on the effort, stop 2 reps short (2 RIR).",blocks:[
+ fl("l05wu","Warm-up","Hip prep – lower","No forcing.",[["Ankle rocks – each side",60],["Bodyweight squat, slow",40],["World's greatest stretch – each side",60],["Glute bridge, slow",40]],"WARM-UP"),
+ {k:"ex",h:"A · Straight sets",mode:"sup",n:3,rr:[60,90],unit:"Set",tid:"l05a",items:[{x:"rfess",lab:"A1",rp:10,side:1,tp:"3110",cue:"Same weight as last Thursday, 10 reps each side (was 8). All left, then all right."}]},
+ {k:"ex",h:"B · Superset",mode:"sup",n:3,rr:[60,90],unit:"Set",tid:"l05b",items:[{x:"db-rdl",lab:"B1",rp:12,tp:"3111",cue:"Same dumbbells, 12 reps (was 10). Head above hips. At 12 smooth, add 2 kg next week."},{x:"kb-sa-row",lab:"B2",rp:10,side:1,tp:"2011",sw:15,cue:"16 kg bell, hand on bench, pull to the hip. All left, then all right."}]},
+ {k:"ex",h:"C · Superset",mode:"sup",n:2,rr:[45,75],unit:"Round",tid:"l05c",items:[{x:"suitcase-carry",lab:"C1",rp:40,ru:"m",cue:"16 kg bell: 40 m in one hand, then switch hands. Stand tall, don't lean."},{x:"dead-bug",lab:"C2",rp:6,side:1,tp:"2020",sw:15,cue:"Low back flat, slow exhale as you reach."}]},
+ {k:"timer",id:"l05fl",h:"Steady",name:"Easy row 3:00",note:"Easy pace, RPE 3–4.",small:"18–20 s/m · damper 4–5 · flush the legs.",segs:[["READY",10,"Easy row"],["EASY",180,"Easy row · easy pace"]]},
+ fl("l05cd","Cool-down","Active stretch – lower","Breathe out into each stretch.",[["Couch stretch – each side",60],["Lying figure-4 stretch – each side",60]])]},
+mob06:{name:"Recovery · Legs + Breathe Flow",short:"Mobility",rest:1,safe:"Recovery day. Slow controlled moves and gentle holds – no head-down positions, no forcing, breathe slowly.",blocks:[
+ {k:"rest",name:"Recovery day",note:"Rest, or do the optional 15-min flow. Fresh legs for Saturday."},
+ fl("m06","Flow","Legs + breathe flow","Gentle hips and calves. 10 s set-up only on position changes.",[["Ankle CARs – each side",80],["Leg swings – front to back",60],["Calf stretch on block – each side",80],["Half-kneeling hip flexor with reach – each side",80],["Bird-dog, slow",60],["Glute bridge, slow",60],["Side-lying windmill – each side",80],["Lying figure-4 stretch – each side",80],["90/90 hold with lift-offs – each side",80],["Slow breathing lying on back",150]],"MOBILITY")]},
+kb07:{name:"KB EMOM 15 · Round 2 + Run",short:"KB",safe:"One 16 kg kettlebell. Breathe out on every clean, press and swing; never hold your breath. Smooth reps at RPE 6–7, no grinding (2 RIR).",blocks:[
+ fl("k07wu","Warm-up","Kettlebell warm-up","Slow and smooth with the 16 kg bell.",[["Kettlebell halo, slow, alternate direction",40],["Kettlebell hip hinge drill",40],["Prying goblet squat",50],["World's greatest stretch – each side",60]],"WARM-UP","up"),
+ {k:"timer",id:"k07a",h:"EMOM 60 s × 15",name:"Single-bell EMOM",note:"Each 60 s: complex left · complex right · swings.",small:["Complex = clean ×3, front-rack squat ×3, press ×3.",NOREST],segs:k07(),list:["Kettlebell clean – ×3 each side","Front-rack squat – ×3 each side","Single-arm press – ×3 each side","Kettlebell swing – ×15","Kettlebell goblet squat – ×5"]},
+ tm("k07run","Steady","Zone 2 run","Steady pace, Zone 2, RPE 5–6.",720,"JOG",{counter:1,small:"Outside or Assault Runner. 1:00 walk break whenever needed."}),
+ fl("k07cd","Cool-down","Active stretch","Breathe out into each stretch.",[["Couch stretch – each side",60],["Calf stretch on block – each side",60],["Thoracic open book – each side",60]])]},
+walk08:{name:"Hill Walk 32 + Stretch",short:"Walk",safe:"Two minutes longer than last Sunday: hills or incline, still able to talk. Steady pace, RPE 5–6.",blocks:[
+ tm("w08walk","Steady","Hill walk (Zone 2)","Steady walk, RPE 5–6.",1920,"STEADY",{small:"Hills outside, or incline on the Assault Runner."}),
+ fl("w08st","Cool-down","Stretch","Breathe out into each stretch.",[["Calf stretch on block – each side",60],["Half-kneeling hip flexor with reach – each side",60],["Lying figure-4 stretch – each side",60],["Slow breathing lying on back",60]]),{k:"fields"}]},
+// ---- week-4 backups (g0 100)
+bk02:{name:"Backup · Easy Row + Stretch",short:"Row",g0:100,safe:"No running. Easy row with nasal breathing, then gentle stretches. Easy pace, RPE 3–4.",blocks:[
+ {k:"timer",id:"x02row",h:"Steady",name:"Easy row",note:"Easy pace, RPE 3–4.",small:"20:00 at 18–20 s/m · damper 4–5.",segs:[["READY",10,"Easy row"],["EASY",1200,"Easy row · easy pace"]]},
+ fl("x02st","Cool-down","Stretch","Gentle, no forcing.",[["Couch stretch – each side",60],["Thoracic open book – each side",60],["Slow breathing lying on back",90]],"MOBILITY"),{k:"fields",dist:"Distance (m, from PM5)"}]},
+bk03:{name:"Backup · Upper (16 kg KB + Bars)",short:"Upper",g0:100,safe:"Less kit: the 16 kg kettlebell plus the bench and bars. RPE 6–7, breathe out on every press and pull, stop 2 reps short (2 RIR).",blocks:[
+ fl("x03wu","Warm-up","Dynamic stretch – upper","No forcing.",MV.up),
+ {k:"ex",h:"A · Superset",mode:"sup",n:3,rr:[60,90],unit:"Set",tid:"x03a",items:[{x:"kb-floor-press",lab:"A1",rp:8,side:1,tp:"3010",cue:"16 kg bell, elbow touches down softly. All left, then all right."},{x:"scap-pullup",lab:"A2",rp:8,tp:"2011",sw:15,cue:"Hang, pull shoulders down, elbows straight."}]},
+ {k:"ex",h:"B · Superset",mode:"sup",n:2,rr:[45,75],unit:"Set",tid:"x03b",items:[{x:"incline-pushup",lab:"B1",rp:12,tp:"2010",cue:"Hands on the bench, body straight."},{x:"farmers-carry",lab:"B2",rp:40,ru:"m",sw:15,cue:"Two dumbbells, tall, short steps."}]},
+ {k:"timer",id:"x03fl",h:"Intervals",name:"Row intervals 5 × 0:30 / 0:30",note:"Each round: 0:30 work · 0:30 rest. Moderate pace, RPE 7.",small:["Work 22–24 s/m · rest light paddle · damper 4–5.",NOREST],segs:[["READY",10,"Row · moderate pace"]].concat(iv(5,30,30,"moderate pace","light paddle"))},
+ fl("x03cd","Cool-down","Active stretch","Breathe out into each stretch.",MV.cdu)]},
+bk04:{name:"Backup · Recovery Walk",short:"Walk",g0:100,safe:"Recovery day. Zone 1 walk with nasal breathing. Easy pace, RPE 3–4.",blocks:[
+ tm("x04walk","Steady","Recovery walk (Zone 1)","Easy walk, RPE 3–4.",900,"EASY",{small:"Outside if you can."})]},
+bk05:{name:"Backup · Lower + Pull (Light)",short:"Lower",g0:100,safe:"Lower energy, light loads, no spinal loading. RPE 6, breathe out on the effort, hold the rack for balance.",blocks:[
+ fl("x05wu","Warm-up","Dynamic stretch – lower","No forcing.",MV.low),
+ {k:"ex",h:"A · Superset",mode:"sup",n:3,rr:[60,90],unit:"Set",tid:"x05a",items:[{x:"goblet-squat",lab:"A1",rp:10,tp:"3011",cue:"16 kg bell at your chest, 3 s down."},{x:"kb-sa-row",lab:"A2",rp:8,side:1,tp:"2011",sw:15,cue:"16 kg bell, hand on bench. All left, then all right."}]},
+ {k:"ex",h:"B · Superset",mode:"sup",n:2,rr:[45,75],unit:"Round",tid:"x05b",items:[{x:"glute-bridge",lab:"B1",rp:12,tp:"2011",cue:"On the floor, squeeze at the top."},{x:"suitcase-carry",lab:"B2",rp:30,ru:"m",sw:15,cue:"16 kg bell, switch hands at 30 m."}]},
+ fl("x05cd","Cool-down","Active stretch","Breathe out into each stretch.",MV.cd)]},
+bk06:{name:"Backup · Easy Row 12",short:"Row",g0:100,safe:"Recovery day. Very light rowing, nasal breathing. Easy pace, RPE 3–4.",blocks:[
+ {k:"timer",id:"x06row",h:"Steady",name:"Easy row",note:"Easy pace, RPE 3–4.",small:"12:00 at 18–20 s/m · damper 3–4.",segs:[["READY",10,"Easy row"],["EASY",720,"Easy row · easy pace"]]},
+ fl("x06br","Cool-down","Down-regulate","Slow, calm breathing.",[["Calf stretch on block – each side",60],["Slow breathing lying on back",90]],"MOBILITY")]},
+bk07:{name:"Backup · Zone 2 Row + Floor Core",short:"Row",g0:100,safe:"No kettlebell. Zone 2 row then light floor core; breathe out on every effort. Steady pace, RPE 5–6.",blocks:[
+ fl("x07wu","Warm-up","Dynamic stretch – full body","",MV.full),
+ {k:"timer",id:"x07row",h:"Steady",name:"Zone 2 row",note:"Steady pace, Zone 2, RPE 5–6.",small:"16:00 at 18–20 s/m · damper 4–5.",segs:[["READY",10,"Zone 2 row"],["STEADY",960,"Zone 2 row · steady pace"]]},
+ {k:"timer",id:"x07c",h:"Circuit × 2",name:"Floor core",note:"Each round: 30–40 s per move · 30 s rest.",small:"Exhale slowly, no breath-holding.",segs:core(2,[["Glute bridge @2011",40,15],["Dead bug @3030",40,15],["Bird-dog @2121, alternate",30,15]],30),list:["Glute bridge @2011 – 40 s","Dead bug @3030 – 40 s","Bird-dog @2121 – 30 s"]},
+ fl("x07cd","Cool-down","Active stretch","",MV.cd),{k:"fields",dist:"Distance (m, from PM5)"}]},
+bk08:{name:"Backup · Easy Walk + Stretch",short:"Walk",g0:100,safe:"Lowest energy option. Easy walk, then gentle holds – no forcing, no head-down positions. Easy pace, RPE 3–4.",blocks:[
+ tm("x08walk","Steady","Easy walk (Zone 1)","Easy walk, RPE 3–4.",600,"EASY"),
+ fl("x08fl","Flow","Gentle stretch","Gentle holds, no forcing.",[["Doorway/rack chest stretch – each side",80],["Couch stretch – each side",80],["Slow breathing lying on back",120]],"MOBILITY")]}});
+HAL["Kettlebell goblet squat"]="goblet-squat";
 // ---- backups: date -> backup session id (one per day)
 var BK={"2026-10-12":"bk12","2026-10-13":"bk13","2026-10-14":"bk14","2026-10-15":"bk15","2026-10-16":"bk16","2026-10-17":"bk17","2026-10-18":"bk18",
  "2026-10-19":"bk19","2026-10-20":"bk20","2026-10-21":"bk21","2026-10-22":"bk22","2026-10-23":"bk23","2026-10-24":"bk24","2026-10-25":"bk25",
- "2026-10-26":"bk26","2026-10-27":"bk27","2026-10-28":"bk28","2026-10-29":"bk29","2026-10-30":"bk30","2026-10-31":"bk31","2026-11-01":"bk01"};
+ "2026-10-26":"bk26","2026-10-27":"bk27","2026-10-28":"bk28","2026-10-29":"bk29","2026-10-30":"bk30","2026-10-31":"bk31","2026-11-01":"bk01",
+ "2026-11-02":"bk02","2026-11-03":"bk03","2026-11-04":"bk04","2026-11-05":"bk05","2026-11-06":"bk06","2026-11-07":"bk07","2026-11-08":"bk08"};
 // ---- one-day overrides: date -> session id. Replaces only that day's main session (backups unchanged). Example: OVR["2026-10-16"]="bk16";
 var OVR={};
 var PROG={"2026-10-12":"easyrun12","2026-10-13":"strA","2026-10-14":"row","2026-10-15":"mob","2026-10-16":"strB","2026-10-17":"kb","2026-10-18":"walk",
  // week 2
  "2026-10-19":"mob19","2026-10-20":"up20","2026-10-21":"run21","2026-10-22":"mob22","2026-10-23":"lo23","2026-10-24":"kb24","2026-10-25":"walk25",
  // week 3
- "2026-10-26":"up26","2026-10-27":"run27","2026-10-28":"mob28","2026-10-29":"lo29","2026-10-30":"mob30","2026-10-31":"kb31","2026-11-01":"walk01"};
+ "2026-10-26":"up26","2026-10-27":"run27","2026-10-28":"mob28","2026-10-29":"lo29","2026-10-30":"mob30","2026-10-31":"kb31","2026-11-01":"walk01",
+ // week 4
+ "2026-11-02":"run02","2026-11-03":"up03","2026-11-04":"mob04","2026-11-05":"lo05","2026-11-06":"mob06","2026-11-07":"kb07","2026-11-08":"walk08"};
 var LEGACY_END="2026-10-11",PAT=["Run","Rest","Pump","Run","Rest","Pump","Run"],DEFP={"2026-10-10":"Pump"},LEG={Pump:"pump",Run:"easyrun",Rest:"rest0"};
 var ENC=["Strong work, James. That counts.","Showing up on a flat day is the win.","Nicely done – recover well.","Good session. Hydrate and rest up."];
 // prepare item global indices
@@ -412,6 +484,10 @@ Object.assign(RI,{
  bk27:{x27row:{name:"Zone 2 run",note:"Steady pace, Zone 2, RPE 5–6.",small:"1:00 walk break whenever needed: tap +1 walk break.",segs:[["READY",10,"Zone 2 run"],["STEADY",1440,"Zone 2 run"]],counter:1}},
  bk31:{x31row:{name:"Zone 2 run",note:"Steady pace, Zone 2, RPE 5–6.",small:"1:00 walk break whenever needed: tap +1 walk break.",segs:[["READY",10,"Zone 2 run"],["STEADY",960,"Zone 2 run"]],counter:1}},
  walk01:{w01walk:{name:"Zone 2 run with walk breaks",note:"Steady pace, Zone 2, RPE 5–6.",small:"1:00 walk break whenever needed: tap +1 walk break.",segs:[["STEADY",1800,"Zone 2 run"]],counter:1}}});
+// week-4 run-instead versions
+Object.assign(RI,{
+ bk07:{x07row:{name:"Zone 2 run",note:"Steady pace, Zone 2, RPE 5–6.",small:"1:00 walk break whenever needed: tap +1 walk break.",segs:[["READY",10,"Zone 2 run"],["STEADY",960,"Zone 2 run"]],counter:1}},
+ walk08:{w08walk:{name:"Zone 2 run with walk breaks",note:"Steady pace, Zone 2, RPE 5–6.",small:"1:00 walk break whenever needed: tap +1 walk break.",segs:[["STEADY",1920,"Zone 2 run"]],counter:1}}});
 Object.keys(RI).forEach(function(k){SESS[k].blocks.forEach(function(b){var v=RI[k][b.id];if(!v)return;var a=0,c=0;b.segs.forEach(function(g){a+=g[1];});v.segs.forEach(function(g){c+=g[1];});if(a!=c)throw new Error("run-instead time mismatch "+b.id);b.ri=v;});});
 var RIN={row:["Run Intervals","Run"],walk:["Zone 2 Run","Run"],bk14:["Backup · Run/Walk + Core","Run"],bk17:["Backup · Dumbbell Flow + Zone 2 Run","DB"]};
 var RIS={bk14:"Lower energy, no rowing. Breathe out slowly during the core work. Steady pace, RPE 5–6.",row:"Run intervals never all-out: short phrases only. Walk whenever you need to and breathe rhythmically. Moderate pace, RPE 7.",walk:STOP_RUN};
@@ -420,6 +496,8 @@ Object.assign(RIN,{bk21:["Backup · Zone 2 Run + Core","Run"],bk24:["Backup · Z
 Object.assign(RIS,{bk21:"No rowing. Zone 2 run: conversational, a little breathless, walk whenever needed. Steady pace, RPE 5–6.",bk24:STOP_RUN,walk25:STOP_RUN});
 Object.assign(RIN,{bk27:["Backup · Zone 2 Run + Stretch","Run"],bk31:["Backup · Zone 2 Run + Circuit","Run"],walk01:["Zone 2 Run + Stretch (Sun)","Run"]});
 Object.assign(RIS,{bk27:STOP_RUN,bk31:STOP_RUN,walk01:STOP_RUN});
+Object.assign(RIN,{bk07:["Backup · Zone 2 Run + Floor Core","Run"],walk08:["Zone 2 Run 32 + Stretch","Run"]});
+Object.assign(RIS,{bk07:STOP_RUN,walk08:STOP_RUN});
 var ALIAS={"Zone 2 Run":["Easy Run"],"Backup · Zone 2 Row + Mobility":["Backup · Easy Row + Mobility"],"Backup · Dumbbell Flow + Zone 2 Run":["Backup · Dumbbell Flow + Easy Run"]};
 function isName(n,name){return n==name||(ALIAS[name]||[]).indexOf(n)>=0;}
 function hasRI(S){S=S&&(S.base||S);return !!(S&&S.blocks.some(function(b){return b.ri;}));}
