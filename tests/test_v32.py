@@ -1,0 +1,200 @@
+import os; CHROME=os.environ.get("CHROME") or None  # set CHROME=/path/to/chrome to use system Chrome; default = Playwright Chromium
+# pc-v32: week 4 (Mon 2 – Sun 8 Nov). Same app-style-standard audit as test_v28 on every week-2 view, plus
+# week-1 history intact, programme mapping, How-to coverage, medical rules, timings and a full guided run of every week-2 view.
+import datetime as dt, re, json
+from playwright.sync_api import sync_playwright
+URL="http://localhost:8765/index.html";res=[];errs=[]
+def ok(n,c,i=""): res.append(bool(c)); print(("PASS " if c else "FAIL ")+n+("" if c else " "+str(i)[:300]))
+def ls(p,k): return p.evaluate("k=>{var v=localStorage.getItem(k);try{return JSON.parse(v)}catch(e){return v}}",k)
+HOOK="""window.__bp=[];window.__osc=0;window.__vib=0;
+(function(){var C=window.AudioContext||window.webkitAudioContext;if(C){var o=C.prototype.createOscillator;C.prototype.createOscillator=function(){window.__osc++;return o.apply(this,arguments);};}
+try{navigator.vibrate=function(){window.__vib++;return true;};}catch(e){}})();"""
+# the 17 week-2 views: 7 main, 7 backup, 3 run instead (Wed backup, Sat backup, Sun main)
+DAYS=["2026-11-0%d"%d for d in range(2,9)]
+VIEWS=[(d,"main",{}) for d in DAYS]+[(d,"backup",{"wo_alt":{d:1}}) for d in DAYS]
+VIEWS+=[("2026-11-07","backup+run",{"wo_alt":{"2026-11-07":1},"wo_ri":{"2026-11-07":1}}),("2026-11-08","run",{"wo_ri":{"2026-11-08":1}})]
+GUIDED=r"Warm-up|Every 2:00 × \d+|EMOM \d+ s × \d+|Intervals|Circuit × \d+|Steady|Flow|Cool-down"
+STRENGTH=r"Straight sets|Superset|Tri-set"
+HDR=re.compile(r"^\d+ · (?:([A-C]) · )?("+GUIDED+"|"+STRENGTH+r") · (?:(\d+:\d\d)|(\d+) (rounds|sets))$")
+EW=r"\b(easy|steady|moderate|hard)\b"
+BAND={"easy":(3,4),"steady":(5,6),"moderate":(7,7)}
+def rpes(t): return [(int(a),int(b or a)) for a,b in re.findall(r"RPE (\d+)(?:–(\d+))?",t)]
+def effort_ok(texts):
+    """§6: every effort word comes with an RPE from its band, and every RPE written next to effort words sits in one of their bands."""
+    t=" ".join(x for x in texts if x)
+    words={w.lower() for w in re.findall(EW,t,re.I)}
+    if "hard" in words: return False,"hard"
+    if not words: return True,""
+    rs=rpes(t)
+    if not rs: return False,("no RPE",words)
+    for w in words:
+        lo,hi=BAND[w]
+        if not any(lo<=a and b<=hi for a,b in rs): return False,(w,rs)
+    for a,b in rs:
+        if not any(BAND[w][0]<=a and b<=BAND[w][1] for w in words): return False,(rs,words)
+    return True,""
+def sec(s): m=re.search(r"(\d+):(\d\d)",s); return int(m.group(1))*60+int(m.group(2)) if m else -1
+def mk(b,d,toggles,hour=8):
+    y,m,dd=map(int,d.split("-"))
+    c=b.new_context(viewport={"width":390,"height":844},device_scale_factor=2,is_mobile=True,has_touch=True,service_workers="block")
+    c.add_init_script(HOOK);p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.on("dialog",lambda x:x.accept())
+    p.clock.install(time=dt.datetime(y,m,dd,hour,0));p.goto(URL)
+    p.evaluate("t=>{localStorage.clear();localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');for(var k in t)localStorage.setItem(k,JSON.stringify(t[k]));}",toggles)
+    p.reload();p.wait_for_timeout(150)
+    if not p.locator("#panel.open").count(): p.click(f'button.day[data-d="{d}"]');p.wait_for_timeout(200)
+    return c,p
+DOM="""()=>{var V=__app.view(),out=[],cur=null,bi=0,ex=V.blocks.filter(function(b){return b.k=="timer"||b.k=="ex";});
+ [].forEach.call(document.getElementById('sess').children,function(el){
+  var h=el.tagName=="H2"?el:(el.classList.contains("bh")?el.querySelector("h2"):null);
+  if(h&&h.textContent=="Optional"){cur=null;return;}
+  if(h){var b=ex[bi++];cur={hdr:h.textContent,kind:b.k,id:b.id||"",flow:!!b.flow,segs:b.segs||[],items:(b.items||[]).map(function(i){return i.lab;}),n:b.n||0,rr:b.rr||null,rest:b.rest||0,title:"",note:"",small:[],list:[],sm:0,btns:[],names:[],gn:[]};out.push(cur);return;}
+  if(!cur)return;
+  if(el.classList.contains("gn"))cur.gn.push(el.textContent);
+  if(el.classList.contains("sp"))cur.small.push(el.textContent);
+  if(el.classList.contains("card")){var n=el.querySelector(".hd .name, :scope > .name");
+   if(el.classList.contains("ex")){el.querySelectorAll(".mvh .mvn").forEach(function(x){cur.names.push(x.textContent);});cur.rows=el.querySelectorAll(".srow").length;}
+   else{cur.title=n.textContent;var nt=el.querySelector(":scope > .note");cur.note=nt?nt.textContent:"";
+    el.querySelectorAll(":scope > .sp").forEach(function(x){cur.small.push(x.textContent);});
+    el.querySelectorAll(".lst li").forEach(function(x){cur.list.push(x.textContent);});
+    cur.sm=el.querySelectorAll("[data-sm]").length;}
+   el.querySelectorAll("[data-t]").forEach(function(x){cur.btns.push(x.textContent);});}
+  if(el.matches&&el.matches("button[data-t]"))cur.btns.push(el.textContent);});
+ return {name:V.name,safe:document.getElementById('safe1').textContent,stop:document.querySelector('.safe .stop').textContent,stopVis:!document.querySelector('.safe .stop').hidden,
+  dnote:document.getElementById('dnote').textContent,blocks:out,sess:document.getElementById('sess').innerText};}"""
+with sync_playwright() as pw:
+    b=pw.chromium.launch(executable_path=CHROME,args=["--no-sandbox","--autoplay-policy=no-user-gesture-required"])
+    dev=[]  # every deviation from the standard, reported together
+    def chk(view,rule,cond,info=""):
+        if not cond: dev.append(f"{view} · {rule} · {info}")
+    seen=set()
+    for d,ty,tg in VIEWS:
+        c,p=mk(b,d,tg);V=p.evaluate(DOM);c.close()
+        vw=f"{d} {ty} ({V['name']})"
+        ok(f"{vw} renders",len(V["blocks"])>0)
+        # safety line + stop signs (§7/§11, hard rules)
+        chk(vw,"§11 safety ≤160",len(V["safe"])<=160,len(V["safe"]))
+        chk(vw,"stop-signs line visible",V["stopVis"] and "sudden or severe headache" in V["stop"])
+        e=effort_ok([V["safe"]]);chk(vw,"§6 safety effort",e[0],(V["safe"],e[1]))
+        chk(vw,"no head-down / breath-hold advice",not re.search(r"head-down position(?!s)|hold your breath(?!.)",V["sess"]))
+        hasEx=any(x["kind"]=="ex" for x in V["blocks"])
+        chk(vw,"day total ≈ only when strength estimates are included",("≈" in V["dnote"])==hasEx,V["dnote"])
+        for bl in V["blocks"]:
+            key=(bl["hdr"].split(" · ",1)[1] if " · " in bl["hdr"] else bl["hdr"])+"|"+bl["id"]+"|"+bl["title"]+"|"+json.dumps(bl["segs"])[:200]
+            where=f"{vw} · {bl['hdr']}"
+            m=HDR.match(bl["hdr"])
+            chk(where,"§1 header format",m and len(bl["hdr"])<=32,bl["hdr"])
+            if not m: continue
+            fmt=m.group(2);tot=sum(x[1] for x in bl["segs"])
+            if bl["kind"]=="ex":
+                # (b)1 strength/carry: no guided timer, no time, count + "Rest X–Y s", rest timer at the prescribed rest
+                chk(where,"strength header: count, no time",m.group(3) is None and m.group(4)==str(bl["n"]) and m.group(5)==("sets" if len(bl["items"])==1 else "rounds"),bl["hdr"])
+                chk(where,"strength format",re.fullmatch(STRENGTH,fmt),fmt)
+                chk(where,"strength has no guided timer button",not bl["btns"],bl["btns"])
+                ins=bl["gn"][0] if bl["gn"] else ""
+                exp="Each "+("set" if len(bl["items"])==1 else "round")+": "+" → ".join(bl["items"])+f". Rest {bl['rr'][0]}–{bl['rr'][1]} s."
+                chk(where,"§2 strength instruction line",ins==exp and len(ins)<=60,(ins,exp))
+                chk(where,"rest timer = middle of prescribed range",bl["rr"] and bl["rest"]==(bl["rr"][0]+bl["rr"][1])/2,(bl["rr"],bl["rest"]))
+                for nm in bl["names"]: chk(where,"§11 move name ≤36",len(nm)<=36,nm)
+                for nm in bl["names"]: chk(where,"R5 kettlebell/dumbbell spelt out, one move per name",not re.search(r"\b(KB|DB)\b| or ",nm),nm)
+            else:
+                # guided blocks: only EMOM / Every / intervals / flows (+ the steady and circuit timed formats of §1)
+                chk(where,"guided format",re.fullmatch(GUIDED,fmt),fmt)
+                chk(where,"header time = timer total",m.group(3) and sec(m.group(3))==tot,(bl["hdr"],tot))
+                chk(where,"§11 title ≤30",len(bl["title"])<=30,bl["title"])
+                note=bl["note"]
+                if bl["flow"]: pat=r"Each move: time shown · sides cued\."
+                elif fmt=="Intervals": pat=r"Each round: \d+:\d\d work · \d+:\d\d rest\. (Easy|Steady|Moderate) pace, RPE \d(–\d)?\."
+                elif fmt.startswith("Circuit"): pat=r"Each round: [\d–]+ s per move · \d+ s rest\."
+                elif fmt.startswith("Every") or fmt.startswith("EMOM"): pat=r"Each (round|\d+ s): .+\."
+                else: pat=r"(Easy|Steady|Moderate) (pace|walk|row|run)(, Zone \d(–\d)?)?, RPE \d(–\d)?\."
+                chk(where,"§2 instruction line",re.fullmatch(pat,note) and len(note)<=60,note)
+                for x in bl["small"]: chk(where,"§2 small print ≤70",len(x)<=70,x)
+                labels=[str(x[2]) if len(x)>2 else "" for x in bl["segs"]]
+                e=effort_ok([bl["title"],note]+bl["small"]+labels);chk(where,"§6 effort word ↔ RPE band",e[0],e[1])
+                # §9 buttons
+                btn=[x for x in bl["btns"] if "walk break" not in x]
+                want=("Start guided flow" if bl["flow"] else "Start guided timer")+" · "+(m.group(3) or "")
+                chk(where,"§9 button label",len(btn)==1 and btn[0] in (want,"✓ Done · run guided timer again · "+(m.group(3) or "")),(btn,want))
+                # §10 flows collapsed, interval/circuit moves expanded
+                if bl["flow"]: chk(where,"§10 flow moves collapsed",bl["sm"]==1 and not bl["list"])
+                elif fmt.startswith("Circuit"): chk(where,"§10 circuit moves expanded",bl["sm"]==0 and len(bl["list"])>=3,bl["list"])
+                for x in bl["list"]: chk(where,"§11 move line ≤36",len(x)<=36,x)
+                for x in bl["list"]+labels: chk(where,"§3 'each side' spelled out",not re.search(r"per side|/side|\bL/R\b",x),x)
+                # (b)2 window fit: no trailing rest, ≥15 s of real rest, sides cued, GET READY only on position change
+                g=bl["segs"]
+                if len(g)>1:
+                    chk(where,"no trailing REST/READY",g[-1][0] not in ("REST","READY"),g[-1])
+                    # pc-v31 clock mode: no READY prep, no combined side labels; sides are explicit "· left" / "· right" moves
+                    chk(where,"no READY segments (one 10 s get-ready is added at start)",not [x for x in g if x[0]=="READY"])
+                    chk(where,"no combined switch / round labels",not [x for x in labels if re.search(r"switch →|round \d|Interval \d|set \d",x)],labels[:3])
+                    left=[x for x in labels if x.endswith(" · left")];right=[x for x in labels if x.endswith(" · right")]
+                    chk(where,"sides written as left / right moves",len(left)==len(right) or fmt.startswith("EMOM") or fmt.startswith("Every"),(len(left),len(right)))
+                    if not (fmt.startswith("EMOM") or fmt.startswith("Every")): chk(where,"'each side' only inside an EMOM minute",not [x for x in labels if "each side" in x])
+                    rests=[x[1] for x in g if x[0]=="REST"]
+                    chk(where,"every rest ≥10 s",all(r>=10 for r in rests),rests)
+                    if fmt.startswith("Every") or fmt.startswith("EMOM"):
+                        # one segment per minute (window); rest is whatever is left, never a separate segment
+                        win=sec(fmt) if ":" in fmt else int(re.search(r"(\d+) s",fmt).group(1));n=int(re.search(r"× (\d+)",fmt).group(1))
+                        chk(where,f"EMOM/Every = {n} segments of {win} s, all WORK",len(g)==n and all(x[0]=="WORK" and x[1]==win for x in g),[x[:2] for x in g][:4])
+                if bl["flow"]: chk(where,"flow has its moves list",len(bl["segs"])>1)
+        # whole-view text rules (§6/§7): single words, no paces, no "hard", s/m only in small print
+        txt=V["sess"]+" "+V["safe"]
+        chk(vw,"§6 no combined effort terms",not re.search(r"(easy|steady|moderate|hard)\s*[-–/(]+\s*(easy|steady|moderate|hard)|steady-state",txt,re.I))
+        chk(vw,"§6 no 'hard'",not re.search(r"\bhard\b",txt,re.I))
+        chk(vw,"§6 no numeric paces",not re.search(r"min/km|km/h|/500|drag factor|\d:\d\d–\d:\d\d/",txt))
+        notsmall=[x for bl in V["blocks"] for x in [bl["title"],bl["note"]]+bl["gn"]+[str(s[2]) for s in bl["segs"] if len(s)>2]]
+        chk(vw,"§6 stroke rate only in small print",not [x for x in notsmall if "s/m" in x],[x for x in notsmall if "s/m" in x][:2])
+    ok(f"standard audit: 0 deviations across {len(VIEWS)} views",not dev,len(dev))
+    for x in dev[:40]: print("   DEVIATION",x)
+    W3P={"2026-10-26":"up26","2026-10-27":"run27","2026-10-28":"mob28","2026-10-29":"lo29","2026-10-30":"mob30","2026-10-31":"kb31","2026-11-01":"walk01"}
+    W4P={"2026-11-02":"run02","2026-11-03":"up03","2026-11-04":"mob04","2026-11-05":"lo05","2026-11-06":"mob06","2026-11-07":"kb07","2026-11-08":"walk08"}
+    W4B={d:"bk0%d"%int(d[-1]) for d in W4P}
+    c,p=mk(b,"2026-11-02",{})
+    D=p.evaluate("""()=>{var S=__how.SESS,o={};Object.keys(S).forEach(function(k){o[k]={name:S[k].name,tot:S[k].tot,safe:S[k].safe,blocks:S[k].blocks.map(function(b){return {k:b.k,id:b.id||b.tid||"",
+      names:(b.items||[]).map(function(i){return i.x;}),reps:(b.items||[]).map(function(i){return i.x+":"+i.rp;}),list:b.list||[]};})};});return o;}""")
+    P=p.evaluate("()=>__wk.PROG");B=p.evaluate("()=>__wk.BK")
+    ok("weeks 1-3 programme unchanged",all(P[d]==k for d,k in W3P.items()) and P["2026-10-13"]=="strA" and P["2026-10-20"]=="up20" and B["2026-11-01"]=="bk01")
+    ok("week-4 programme + backups mapped",all(P.get(d)==k for d,k in W4P.items()) and all(B.get(d)==k for d,k in W4B.items()),(P,B))
+    W4=set(W4P.values())|set(W4B.values());old=[k for k in D if k not in W4]
+    ids1={bl["id"] for k in old for bl in D[k]["blocks"] if bl["id"]};ids4=[bl["id"] for k in W4 for bl in D[k]["blocks"] if bl["id"]]
+    ok("week-4 block ids unique and new",len(ids4)==len(set(ids4)) and not (set(ids4)&ids1),set(ids4)&ids1)
+    ok("week-4 session names new",not ({D[k]["name"] for k in W4}&{D[k]["name"] for k in old}),{D[k]["name"] for k in W4}&{D[k]["name"] for k in old})
+    def moves(k): return sorted([n for bl in D[k]["blocks"] for n in bl["reps"]]+[x for bl in D[k]["blocks"] for x in bl["list"]])
+    PAIR={"run02":"run27","up03":"up26","mob04":"mob28","lo05":"lo29","mob06":"mob30","kb07":"kb31","walk08":"walk01"}  # same day type in week 3
+    for a,b3 in PAIR.items(): ok(f"{a} differs from week 3 ({b3})",moves(a)!=moves(b3))
+    for a,b3 in PAIR.items(): ok(f"{a} same length as {b3} (±2 min)",abs(D[a]["tot"]-D[b3]["tot"])<=120,(D[a]["tot"],D[b3]["tot"]))
+    rp=lambda k,x:[it.split(":")[1] for bl in D[k]["blocks"] for it in bl["reps"] if it.split(":")[0]==x]
+    ok("double progression: bench top of range (8) -> +2 kg at 6",rp("up26","db-bench")==["8"] and rp("up03","db-bench")==["6"] and "add 2 kg" in p.evaluate("()=>JSON.stringify(__how.SESS.up03)"))
+    ok("chin-up 6 -> 7, row 12 -> +2 kg x10",rp("up03","assisted-chinup")==["7"] and rp("up03","cs-row")==["10"])
+    ok("split squat 8 -> 10, RDL 10 -> 12 same weight",rp("lo05","rfess")==["10"] and rp("lo05","db-rdl")==["12"])
+    ok("Thursday has a second pull",rp("lo05","kb-sa-row")==["10"] and rp("up03","cs-row"))
+    ok("carry back: Tue farmer's + Thu suitcase",rp("up03","farmers-carry")==["50"] and rp("lo05","suitcase-carry")==["40"])
+    ok("Mon 2 Nov = the easy 5 km run, no strength",D["run02"]["name"]=="Easy 5 km Run" and not any(bl["k"]=="ex" for bl in D["run02"]["blocks"]))
+    ok("EMOM: 15 windows of 60 s, more reps than week 3",p.evaluate("()=>{var g=__how.SESS.kb07.blocks[1].segs;return g.length==15&&g.every(function(x){return x[1]==60})}") and "×3 each side" in D["kb07"]["blocks"][1]["list"][0])
+    lim={"mob04":(13,16),"mob06":(13,16),"run02":(36,40),"bk04":(10,16),"bk06":(10,16),"bk08":(10,16)}
+    for k in W4:
+        lo,hi=lim.get(k,(20 if k.startswith("bk") else 32,38));m=D[k]["tot"]/60;ok(f"{k} time {m:.1f} min in {lo}–{hi}",lo<=m<=hi)
+    miss=p.evaluate("""()=>{var S=__how.SESS,H=__how.HT,o=[];%s.forEach(function(k){S[k].blocks.forEach(function(b){(b.items||[]).forEach(function(i){if(!H[i.x])o.push(i.x);});
+      (b.list||[]).forEach(function(x){if(!H[__how.hkey(x)])o.push(x);});});});return o;}"""%json.dumps(sorted(W4)))
+    ok("How-to covers every week-4 move",not miss,miss)
+    ok("one 16 kg kettlebell only (kettlebell moves cue 16 kg)",all("16 kg" in p.evaluate("k=>JSON.stringify(__how.SESS[k])",k) for k in W4 if any(n.startswith("kb-") or n=="goblet-squat" for bl in D[k]["blocks"] for n in bl["names"])))
+    txt=json.dumps({k:D[k] for k in W4})
+    ok("medical: no barbell, back squat, conventional deadlift, snatch, inversion",not re.search(r"barbell|back squat|conventional|snatch|handstand|headstand|inverted|valsalva",txt,re.I))
+    p.click("#next");p.wait_for_timeout(150)
+    ok("9 Nov still 'Soon'",p.locator('button.day[data-d="2026-11-09"] .pl').inner_text()=="Soon")
+    c.close()
+    # full guided run of every week-4 view
+    for d,ty,tg in VIEWS:
+        c,p=mk(b,d,tg);nm=p.locator("#ttl").inner_text()
+        ids=p.evaluate("[...document.querySelectorAll('#sess [data-t]')].map(e=>e.dataset.t)")
+        ok(f"{d} {ty} ({nm}) has guided blocks",len(ids)>0,ids)
+        for tid in ids:
+            p.evaluate("()=>{window.__bp=[];window.__osc=0}");p.locator(f'#sess [data-t="{tid}"]').first.click();p.wait_for_timeout(40)
+            segs=ls(p,"wo_timer")["segs"];tot=sum(x[1] for x in segs)
+            p.clock.run_for(tot*1000+2000);p.wait_for_timeout(60)
+            bp=p.evaluate("window.__bp.length")
+            ok(f"{d} {ty}/{tid} beeps on every segment ({len(segs)}) and logs done",bp>=len(segs) and (ls(p,"wo_"+d) or {}).get("s",{}).get(tid)==1,(bp,len(segs)))
+        c.close()
+    ok("no page errors",not errs,errs[:3])
+    b.close()
+print(f"{sum(res)}/{len(res)} passed")
