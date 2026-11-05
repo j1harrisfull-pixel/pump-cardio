@@ -30,13 +30,19 @@ Match spacing and hierarchy in the mocks: one big current move, next move small;
 
 ## Reference mocks
 
-In-repo (copy of the approved previews):
+**Primary in-repo references** (open in a browser at 390 px, or screenshot):
 
-- `docs/beauty-pass-mocks/light-week.png` (+ `.html`) — week strip + today card
-- `docs/beauty-pass-mocks/light-session.png` (+ `.html`) — Upper strength list mode
-- `docs/beauty-pass-mocks/light-emom.png` (+ `.html`) — 16 kg EMOM clock mid-session
+- `docs/beauty-pass-mocks/light-week.html` — week strip + today card
+- `docs/beauty-pass-mocks/light-session.html` — Upper strength list mode
+- `docs/beauty-pass-mocks/light-emom.html` — 16 kg EMOM clock mid-session
 
-Side-by-side the live app with these PNGs on a phone-width viewport. Close is good enough; pixel-perfect is not required.
+PNG stills James approved are the same art. Restore them locally with:
+
+```bash
+bash docs/beauty-pass-mocks/decode-pngs.sh
+```
+
+(that decodes `light-*.png.b64` → `light-*.png`). Side-by-side the live app with the HTML or PNG at phone width. Close is good enough; pixel-perfect is not required.
 
 ## In scope
 
