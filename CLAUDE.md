@@ -12,7 +12,7 @@ https://j1harrisfull-pixel.github.io/pump-cardio/ (GitHub Pages, `main` branch, 
 - **Logging:** "Finish workout" logs the day (name, type, weights, sets, km, feel, notes). History lets you change a logged day's type (Main / Backup / Run instead / Quick option).
 - **Offline:** works offline via `sw.js`, with an update prompt when a new version is deployed.
 
-**Read first:** `app-style-standard.md` (the approved layout standard) and `BRIEF.md` (the next approved job).
+**Read first:** `app-style-standard.md` (the approved layout standard) and **`BRIEF-beauty-pass.md`** (the next approved job: white + orange visual beauty pass). Older briefs: `BRIEF-workout-mode.md`, `BRIEF.md`.
 Background notes are in `docs/`: the week-1 programme, terminology audit with sources, and premium-app research.
 
 ## Repo layout
@@ -21,15 +21,16 @@ index.html            BUILT single-file app (served by Pages). Never edit by han
 sw.js                 service worker; cache name var V="pc-vNN" (must match the page marker)
 manifest.json         PWA manifest with embedded icons (leave as is)
 .nojekyll             serve files as-is on Pages
-src/top.html          <head>, CSS (warm orange dark theme) and the static markup (#bar guided timer, #rbar rest timer, panels)
+src/top.html          <head>, CSS (theme variables; beauty pass → white + orange) and the static markup (#bar, #rbar, panels)
 src/app.js            all logic and session data (the script continues straight from top.html)
 scripts/build.sh      index.html = src/top.html + src/app.js
 scripts/bump.sh NN    pc-vOLD -> pc-vNN in src/top.html, sw.js, tests/test_sw.py
 scripts/test.sh [suite…]  build, serve the repo root on :8765, run the Playwright suites
 tests/test_*.py       Playwright (Python, sync API) suites at iPhone viewport 390×844 (test_v28 = automated style-standard audit, test_v30 = workout mode)
-docs/                 programme-week1.md, terminology-audit.md (test_v20 reads both), premium-apps-research.md
+docs/                 programme notes, research; beauty-pass-mocks/ + beauty-pass-research.md for the light theme
 app-style-standard.md layout standard + 159-deviation audit
-BRIEF.md              next job: acceptance criteria and the tests to update
+BRIEF-beauty-pass.md  next job: white + orange visual beauty pass (approved 5 Nov 2026)
+BRIEF.md              older brief (pc-v28 layout/timer); kept for history
 ```
 
 ## Architecture
@@ -135,7 +136,7 @@ Keep `index.html`, `sw.js` and `manifest.json` at the repo root: the installed P
 - Move names spell out kettlebell/dumbbell. "each side" is always spelled out.
 
 ### Product and process
-- Keep it **simple and readable** on an iPhone, using the **warm orange dark theme** (CSS variables in `src/top.html`: `--accent` orange on a dark background). Follow `app-style-standard.md`.
+- Keep it **simple and readable** on an iPhone. Theme: **white + orange** beauty pass (`BRIEF-beauty-pass.md`; CSS variables in `src/top.html`). Follow `app-style-standard.md` for layout wording.
 - Make **one commit per change** with a clear `pc-vNN: …` message.
 - **Never break saved logs** (see the compatibility rules above).
 - Don't add trackers, external scripts or network calls; the app must work offline.
