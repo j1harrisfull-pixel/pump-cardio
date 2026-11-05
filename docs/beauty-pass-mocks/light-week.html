@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>Beauty pass · Light week</title>
+<style>
+  :root{
+    --bg:#F5F5F7; --card:#FFFFFF; --text:#111111; --muted:#6B6B70;
+    --line:#E8E8ED; --accent:#FF8A3D; --soft:rgba(255,138,61,.14);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:#D8D8DC; color:var(--text);
+    font:16px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    width:390px; min-height:844px; margin:0 auto;
+    background:var(--bg); padding:54px 20px 40px;
+  }
+  .brand{
+    font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--accent); font-weight:700; margin:0 0 10px;
+  }
+  .top{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:22px}
+  h1{font-size:26px; line-height:1.15; font-weight:700; margin:0; letter-spacing:-.02em}
+  .date{color:var(--muted); font-size:14px; margin-top:6px}
+  .ring{
+    width:48px; height:48px; border-radius:50%;
+    background:conic-gradient(var(--accent) 0 0%, var(--line) 0);
+    display:grid; place-items:center; flex:none;
+  }
+  .ring i{
+    width:38px; height:38px; border-radius:50%; background:var(--bg);
+    display:grid; place-items:center; font-size:11px; font-weight:700; color:var(--muted);
+  }
+  .wk-head{display:flex; align-items:center; justify-content:space-between; margin:8px 0 12px}
+  .wk-head span{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); font-weight:600}
+  .edit{
+    background:none; border:0; color:var(--muted); font:600 13px inherit;
+    padding:8px 4px; min-height:36px;
+  }
+  .days{display:flex; gap:6px; margin-bottom:22px}
+  .day{
+    flex:1; min-width:0; text-align:center;
+    background:#FFFFFF; border:1px solid var(--line);
+    border-radius:14px; padding:10px 0 9px; color:var(--muted);
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .day b{display:block; font-size:11px; font-weight:600; letter-spacing:.04em}
+  .day em{display:block; font-style:normal; font-size:17px; font-weight:700; color:var(--text); margin:3px 0 2px}
+  .day small{display:block; font-size:10px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; padding:0 2px}
+  .day.done::after{
+    content:"✓"; display:block; margin:4px auto 0; width:16px; height:16px;
+    border-radius:50%; background:var(--soft); color:var(--accent);
+    font-size:10px; line-height:16px; font-weight:700;
+  }
+  .day.today{
+    background:var(--accent); border-color:var(--accent); color:#fff;
+    box-shadow:0 4px 12px rgba(255,138,61,.35);
+  }
+  .day.today em,.day.today small,.day.today b{color:#fff}
+  .day.today small{opacity:.85}
+  .card{
+    background:var(--card); border-radius:20px; padding:22px 20px;
+    margin:0 0 14px; border:1px solid var(--line);
+    box-shadow:0 8px 24px rgba(17,17,17,.06);
+  }
+  .card .k{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); font-weight:700; margin:0 0 8px}
+  .card h2{font-size:22px; font-weight:700; margin:0 0 8px; letter-spacing:-.02em}
+  .card p{margin:0; color:var(--muted); font-size:14px; line-height:1.5}
+  .meta{display:flex; gap:10px; margin-top:16px; flex-wrap:wrap}
+  .chip{
+    display:inline-flex; align-items:center; gap:6px;
+    background:#F5F5F7; border-radius:999px;
+    padding:7px 12px; font-size:13px; color:var(--muted); font-weight:500;
+  }
+  .chip svg{width:14px; height:14px; stroke:var(--muted); fill:none; stroke-width:1.6}
+  .btn{
+    display:block; width:100%; min-height:54px; margin-top:18px;
+    border:0; border-radius:16px; background:var(--accent); color:#fff;
+    font:700 16px inherit; letter-spacing:-.01em;
+    box-shadow:0 6px 16px rgba(255,138,61,.35);
+  }
+  .safe{font-size:13px; color:var(--muted); margin:18px 4px 0; line-height:1.5}
+  .ico{
+    width:22px; height:22px; stroke:var(--muted); fill:none; stroke-width:1.5;
+    stroke-linecap:round; stroke-linejoin:round;
+  }
+  .actions{display:flex; gap:8px; margin:4px 0 18px}
+  .actions button{
+    flex:1; min-height:44px; border-radius:12px; border:1px solid var(--line);
+    background:#FFFFFF; color:var(--muted); font:600 13px inherit; padding:0 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="brand">Pump + Cardio</div>
+    <div class="top">
+      <div>
+        <h1>Strength B4 · Lower + Pull</h1>
+        <div class="date">Thursday 5 November</div>
+      </div>
+      <div class="ring" aria-hidden="true"><i>0%</i></div>
+    </div>
+
+    <div class="wk-head">
+      <span>This week</span>
+      <button class="edit">Edit plan</button>
+    </div>
+    <div class="days">
+      <div class="day done"><b>Mon</b><em>2</em><small>Run</small></div>
+      <div class="day"><b>Tue</b><em>3</em><small>Upper</small></div>
+      <div class="day"><b>Wed</b><em>4</em><small>Mobility</small></div>
+      <div class="day today"><b>Thu</b><em>5</em><small>Lower</small></div>
+      <div class="day"><b>Fri</b><em>6</em><small>Mobility</small></div>
+      <div class="day"><b>Sat</b><em>7</em><small>KB</small></div>
+      <div class="day"><b>Sun</b><em>8</em><small>Walk</small></div>
+    </div>
+
+    <div class="actions">
+      <button>Close</button>
+      <button>Backup</button>
+      <button>Swap</button>
+    </div>
+
+    <div class="card">
+      <div class="k">Today</div>
+      <h2>Lower + Pull</h2>
+      <p>No heavy spinal loading. More reps, same weight. RPE 6–7, stop 2 reps short.</p>
+      <div class="meta">
+        <span class="chip">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          ~45 min
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h14"/></svg>
+          5 blocks
+        </span>
+      </div>
+      <button class="btn">Open session</button>
+    </div>
+
+    <div class="card" style="padding:18px 20px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        <div>
+          <div style="font-weight:600;font-size:15px">Coming up · Sat</div>
+          <div style="color:var(--muted);font-size:13px;margin-top:2px">KB EMOM 15 · Round 2 + Run</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="safe">Breathe out on the effort. Never hold your breath. Stop if anything feels off.</p>
+  </div>
+</body>
+</html>

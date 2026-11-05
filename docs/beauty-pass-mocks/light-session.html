@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>Beauty pass · Light session</title>
+<style>
+  :root{
+    --bg:#F5F5F7; --card:#FFFFFF; --text:#111111; --muted:#6B6B70;
+    --line:#E8E8ED; --accent:#FF8A3D; --soft:rgba(255,138,61,.14);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:#D8D8DC; color:var(--text);
+    font:16px/1.45 -apple-system,BlinkMacSystemFont,"Inter","Segoe UI",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .phone{
+    width:390px; margin:0 auto; background:var(--bg);
+    padding:54px 18px 48px; min-height:844px;
+  }
+  .brand{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); font-weight:700; margin:0 0 10px}
+  .top{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:18px}
+  h1{font-size:24px; line-height:1.15; font-weight:700; margin:0; letter-spacing:-.02em}
+  .date{color:var(--muted); font-size:13px; margin-top:5px}
+  .ring{
+    width:44px; height:44px; border-radius:50%;
+    background:conic-gradient(var(--accent) 0 28%, var(--line) 0);
+    display:grid; place-items:center; flex:none;
+  }
+  .ring i{width:34px; height:34px; border-radius:50%; background:var(--bg); display:grid; place-items:center; font-size:10px; font-weight:700; color:var(--text)}
+  .wk{display:flex; gap:5px; margin-bottom:16px}
+  .day{
+    flex:1; text-align:center; border:1px solid var(--line); border-radius:12px;
+    padding:8px 0 7px; color:var(--muted); font-size:10px; font-weight:600;
+    background:#FFFFFF;
+  }
+  .day em{display:block; font-style:normal; font-size:14px; font-weight:700; color:var(--text); margin:2px 0 1px}
+  .day.sel{background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 3px 10px rgba(255,138,61,.35)}
+  .day.sel em{color:#fff}
+  .day.done::after{content:"✓"; color:var(--accent); display:block; font-size:9px; margin-top:2px}
+  .safe{
+    color:var(--muted); font-size:13px; line-height:1.5;
+    padding:0 4px; margin:0 0 18px;
+  }
+  .block{
+    background:var(--card); border-radius:18px; padding:18px 16px 16px;
+    margin:0 0 12px; border:1px solid var(--line);
+    box-shadow:0 6px 18px rgba(17,17,17,.05);
+  }
+  .bh{
+    display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+    margin:0 0 4px;
+  }
+  .bh .n{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:600}
+  .bh .t{font-size:12px; color:var(--muted)}
+  .btitle{font-size:18px; font-weight:700; margin:0 0 4px; letter-spacing:-.01em}
+  .note{font-size:13px; color:var(--muted); margin:0 0 14px}
+  .ex-head{display:flex; align-items:center; gap:8px; margin:0 0 6px}
+  .lab{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:28px; height:22px; padding:0 7px; border-radius:7px;
+    background:var(--soft); color:#D96A20; font:700 12px inherit;
+  }
+  .ename{font-size:16px; font-weight:600; flex:1; min-width:0}
+  .more{
+    background:none; border:0; color:var(--muted); font:600 12px inherit;
+    padding:8px 4px; min-width:44px; min-height:36px;
+  }
+  .presc{font-size:14px; color:var(--muted); margin:0 0 12px}
+  .presc b{color:var(--text); font-weight:600}
+  .tp{
+    display:inline-block; margin-left:6px; padding:1px 6px; border-radius:5px;
+    background:#F5F5F7; color:var(--text); font:600 12px/1.4 inherit;
+  }
+  .row{
+    display:flex; align-items:center; gap:8px;
+    padding:10px 0; border-top:1px solid var(--line); min-height:52px;
+  }
+  .sn{width:22px; color:var(--muted); font-size:13px; font-weight:600; text-align:center}
+  .sl{width:28px; font-size:12px; font-weight:700; color:#D96A20}
+  .kg,.rp{
+    width:64px; height:40px; border-radius:10px; border:1px solid var(--line);
+    background:#F5F5F7; color:var(--text); font:600 15px inherit;
+    text-align:center; padding:0;
+  }
+  .kg{margin-left:auto}
+  .unit{font-size:11px; color:var(--muted); width:18px}
+  .tk{
+    width:40px; height:40px; border-radius:50%; border:1.5px solid var(--line);
+    background:#FFFFFF; color:transparent; flex:none;
+    display:grid; place-items:center; font-size:16px; font-weight:800;
+  }
+  .tk.on{background:var(--accent); border-color:var(--accent); color:#fff}
+  .rest{font-size:12px; color:var(--muted); margin:10px 0 0; padding-left:2px}
+  .btn{
+    display:block; width:100%; min-height:52px; margin-top:4px;
+    border:0; border-radius:14px; background:var(--accent); color:#fff;
+    font:700 15px inherit;
+    box-shadow:0 5px 14px rgba(255,138,61,.3);
+  }
+  .btn.ghost{
+    background:#FFFFFF; border:1px solid var(--line); color:var(--muted); margin-top:10px;
+    box-shadow:none;
+  }
+  .fab{
+    position:sticky; bottom:16px; margin:20px 0 0; display:flex; justify-content:flex-end;
+  }
+  .fab button{
+    min-height:40px; border-radius:999px; border:1px solid var(--line);
+    background:rgba(255,255,255,.95); color:var(--muted); font:600 13px inherit;
+    padding:0 14px; display:inline-flex; align-items:center; gap:6px;
+    box-shadow:0 4px 14px rgba(17,17,17,.08);
+  }
+  .fab svg{width:16px; height:16px; stroke:var(--muted); fill:none; stroke-width:1.5}
+  .finish{margin-top:8px}
+  .chk{
+    display:flex; align-items:center; gap:10px; margin:16px 4px 0;
+    color:var(--muted); font-size:13px;
+  }
+  .chk i{
+    width:20px; height:20px; border-radius:6px; border:1.5px solid var(--line);
+    display:inline-block; flex:none; background:#fff;
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="brand">Pump + Cardio</div>
+    <div class="top">
+      <div>
+        <h1>Strength A4 · Upper</h1>
+        <div class="date">Tuesday 3 November</div>
+      </div>
+      <div class="ring"><i>28%</i></div>
+    </div>
+
+    <div class="wk">
+      <div class="day done">Mon<em>2</em>Run</div>
+      <div class="day sel">Tue<em>3</em>Upper</div>
+      <div class="day">Wed<em>4</em>Mobility</div>
+      <div class="day">Thu<em>5</em>Lower</div>
+      <div class="day">Fri<em>6</em>Mobility</div>
+      <div class="day">Sat<em>7</em>KB</div>
+      <div class="day">Sun<em>8</em>Walk</div>
+    </div>
+
+    <p class="safe">Top of the range last week, so a little more weight. Still RPE 6–7: breathe out on every rep, no grinding, stop 2 reps short (2 RIR).</p>
+
+    <div class="block">
+      <div class="bh"><span class="n">1 · Warm-up</span><span class="t">3:00</span></div>
+      <div class="btitle">Shoulder prep – upper</div>
+      <p class="note">Each move: time shown · sides cued.</p>
+      <button class="btn">Start guided flow · 3:00</button>
+    </div>
+
+    <div class="block">
+      <div class="bh"><span class="n">2 · A · Straight sets × 4</span><span class="t">≈12:00</span></div>
+      <div class="ex-head">
+        <span class="lab">A1</span>
+        <span class="ename">Dumbbell bench press</span>
+        <button class="more">More</button>
+      </div>
+      <p class="presc"><b>4 × 6</b> <span class="tp">3110</span></p>
+      <div class="row"><span class="sn">1</span><input class="kg" value="18"><span class="unit">kg</span><input class="rp" value="6"><span class="unit">r</span><button class="tk on">✓</button></div>
+      <div class="row"><span class="sn">2</span><input class="kg" value="18"><span class="unit">kg</span><input class="rp" value="6"><span class="unit">r</span><button class="tk on">✓</button></div>
+      <div class="row"><span class="sn">3</span><input class="kg" value="18"><span class="unit">kg</span><input class="rp" value="6"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sn">4</span><input class="kg" value="18"><span class="unit">kg</span><input class="rp" value="6"><span class="unit">r</span><button class="tk"></button></div>
+      <p class="rest">Rest 90–120 s between sets</p>
+    </div>
+
+    <div class="block">
+      <div class="bh"><span class="n">3 · B · Superset × 3</span><span class="t">≈14:00</span></div>
+      <p class="note" style="margin-bottom:12px">Each round: B1 → B2 · rest 60–90 s.</p>
+
+      <div class="ex-head">
+        <span class="lab">B1</span>
+        <span class="ename">Assisted chin-up</span>
+        <button class="more">More</button>
+      </div>
+      <p class="presc"><b>3 × 7</b> <span class="tp">3010</span> · last —</p>
+
+      <div class="ex-head" style="margin-top:14px">
+        <span class="lab">B2</span>
+        <span class="ename">Chest-supported row</span>
+        <button class="more">More</button>
+      </div>
+      <p class="presc"><b>3 × 10</b> <span class="tp">2011</span> · last 16 kg</p>
+
+      <div class="row"><span class="sl">B1</span><span class="sn">1</span><input class="kg" value="—" style="color:var(--muted)"><span class="unit"> </span><input class="rp" value="7"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">B2</span><span class="sn">1</span><input class="kg" value="18"><span class="unit">kg</span><input class="rp" value="10"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">B1</span><span class="sn">2</span><input class="kg" value="—" style="color:var(--muted)"><span class="unit"> </span><input class="rp" value="7"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">B2</span><span class="sn">2</span><input class="kg" value="18"><span class="unit">kg</span><input class="rp" value="10"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">B1</span><span class="sn">3</span><input class="kg" value="—" style="color:var(--muted)"><span class="unit"> </span><input class="rp" value="7"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">B2</span><span class="sn">3</span><input class="kg" value="18"><span class="unit">kg</span><input class="rp" value="10"><span class="unit">r</span><button class="tk"></button></div>
+      <p class="rest">Rest after B2 · 60–90 s</p>
+    </div>
+
+    <div class="block">
+      <div class="bh"><span class="n">4 · C · Superset × 2</span><span class="t">≈8:00</span></div>
+      <p class="note" style="margin-bottom:12px">Each round: C1 → C2 · rest 45–75 s.</p>
+
+      <div class="ex-head">
+        <span class="lab">C1</span>
+        <span class="ename">Seated shoulder press</span>
+        <button class="more">More</button>
+      </div>
+      <p class="presc"><b>2 × 10</b> <span class="tp">2011</span></p>
+
+      <div class="ex-head" style="margin-top:14px">
+        <span class="lab">C2</span>
+        <span class="ename">Farmer’s carry</span>
+        <button class="more">More</button>
+      </div>
+      <p class="presc"><b>2 × 50 m</b> · +2 kg each hand</p>
+
+      <div class="row"><span class="sl">C1</span><span class="sn">1</span><input class="kg" value="12"><span class="unit">kg</span><input class="rp" value="10"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">C2</span><span class="sn">1</span><input class="kg" value="22"><span class="unit">kg</span><input class="rp" value="50"><span class="unit">m</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">C1</span><span class="sn">2</span><input class="kg" value="12"><span class="unit">kg</span><input class="rp" value="10"><span class="unit">r</span><button class="tk"></button></div>
+      <div class="row"><span class="sl">C2</span><span class="sn">2</span><input class="kg" value="22"><span class="unit">kg</span><input class="rp" value="50"><span class="unit">m</span><button class="tk"></button></div>
+    </div>
+
+    <div class="block">
+      <div class="bh"><span class="n">5 · Intervals</span><span class="t">6:30</span></div>
+      <div class="btitle">Row intervals 6 × 0:40 / 0:30</div>
+      <p class="note">Each round: 0:40 work · 0:30 rest. Moderate pace, RPE 7.</p>
+      <p class="rest" style="margin:0 0 12px">Work 24–26 s/m · damper 4–5</p>
+      <button class="btn">Start guided timer · 6:30</button>
+    </div>
+
+    <div class="block">
+      <div class="bh"><span class="n">6 · Cool-down</span><span class="t">2:00</span></div>
+      <div class="btitle">Active stretch – upper</div>
+      <p class="note">Breathe out into each stretch.</p>
+      <button class="btn">Start guided flow · 2:00</button>
+    </div>
+
+    <div class="fab">
+      <button>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Rest timer
+      </button>
+    </div>
+
+    <button class="btn finish">Finish workout</button>
+    <button class="btn ghost">Report a bug</button>
+    <label class="chk"><i></i> Auto-start rest timer when I tick a set</label>
+  </div>
+</body>
+</html>
