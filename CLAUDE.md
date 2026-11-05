@@ -12,7 +12,7 @@ https://j1harrisfull-pixel.github.io/pump-cardio/ (GitHub Pages, `main` branch, 
 - **Logging:** "Finish workout" logs the day (name, type, weights, sets, km, feel, notes). History lets you change a logged day's type (Main / Backup / Run instead / Quick option).
 - **Offline:** works offline via `sw.js`, with an update prompt when a new version is deployed.
 
-**Read first:** `app-style-standard.md` (the approved layout standard) and **`BRIEF-beauty-pass.md`** (the next approved job: white + orange visual beauty pass). Older briefs: `BRIEF-workout-mode.md`, `BRIEF.md`.
+**Read first:** `app-style-standard.md` (the approved layout standard). **Next approved jobs:** `BRIEF-beauty-pass.md` (white + orange visual beauty pass), then **`BRIEF-day-swap.md`** (swap two day slots in the current week). Older briefs: `BRIEF-workout-mode.md`, `BRIEF.md`.
 Background notes are in `docs/`: the week-1 programme, terminology audit with sources, and premium-app research.
 
 ## Repo layout
@@ -30,6 +30,7 @@ tests/test_*.py       Playwright (Python, sync API) suites at iPhone viewport 39
 docs/                 programme notes, research; beauty-pass-mocks/ + beauty-pass-research.md for the light theme
 app-style-standard.md layout standard + 159-deviation audit
 BRIEF-beauty-pass.md  next job: white + orange visual beauty pass (approved 5 Nov 2026)
+BRIEF-day-swap.md     next job after beauty pass: swap two days in the current week (approved 5 Nov 2026)
 BRIEF.md              older brief (pc-v28 layout/timer); kept for history
 ```
 
