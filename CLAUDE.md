@@ -70,6 +70,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
   - `ALIAS`: renamed session → old names. `sameE` treats a log saved under an old name as that day's log, and updating it keeps the old name.
   - Legacy days up to `LEGACY_END` use `PAT` / `DEFP` / `LEG`.
 - **Resolution:** `sid(date)` resolves rest override (wo_plan) → quick (`wo_quick`) → backup (`wo_alt`) → main.
+  - **Swap days (pc-v34):** `srcOf(k)` reads `wo_daymap`; `baseSid`, `bkOf`, `qkOf` use the source date, so a moved session brings its backup, quick option and run-instead version with it. The toggles (`wo_alt`, `wo_ri`, `wo_quick`, `wo_plan` Rest), ticks (`wo_<date>`) and logs stay on the calendar date. Only days in the current week can be swapped, and never a day that is logged or has ticks / done flags (`swapBlock`). The coach-request "Swap today's session" (`wo_swaps`) is a separate feature.
   - `S_(date)` returns the session, wrapped as a run view when Run instead is on.
   - `curType(date)` returns `main`, `backup`, `run` or `quick`.
   - `typeOpts` / `setType` drive the history Edit dropdown.
@@ -88,6 +89,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
 | `wo_wt` | weights `{exerciseId: {date: "kg"}}` (feeds "Last: 16 kg") |
 | `wo_alt`, `wo_ri`, `wo_quick` | per-day `{date: 1}` toggles for backup / run instead / quick option |
 | `wo_plan` | user plan edits (e.g. `{date: "Rest"}`) |
+| `wo_daymap` | swapped day slots in a week `{calendarDate: sourceDate}` (pc-v34, optional). Calendar date K shows the main session of source date V; missing key or a bad value = no remap. Written in pairs by Edit plan → Swap days; identity entries are deleted |
 | `wo_timer`, `wo_rest`, `wo_restlast`, `wo_autorest` | running guided timer, running rest timer, last manual rest, auto-rest setting (default on) |
 | `wo_swaps` | queued "swap today's session" requests |
 | `wo_startdate`, `wo_ver` | programme start date and data version (migrations in `migrate()`) |
