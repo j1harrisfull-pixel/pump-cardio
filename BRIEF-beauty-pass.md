@@ -1,6 +1,6 @@
 # Brief: Beauty pass — white + orange (for Claude Code)
 
-*Approved by James on 5 Nov 2026 after reviewing the light mocks. Read `CLAUDE.md` first (architecture, hard rules, localStorage compatibility), then this brief. Visual reference: `docs/beauty-pass-mocks/light-*.png` (HTML sources alongside). Research: `docs/beauty-pass-research.md`.*
+*Approved by James on 5 Nov 2026 after reviewing the light mocks. Read `CLAUDE.md` first (architecture, hard rules, localStorage compatibility), then this brief. Visual reference: `docs/beauty-pass-mocks/light-*.html` (PNG stills via `decode-pngs.sh`). Research: `docs/beauty-pass-research.md`.*
 
 **Goal:** Visual beauty pass only. Make the live PWA look like the approved **white + orange** light mocks — clearly better and clearly different from the current dark, dense UI. Do **not** change workouts, timers, list/clock modes, or session data.
 
