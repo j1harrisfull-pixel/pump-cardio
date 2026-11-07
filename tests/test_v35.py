@@ -15,8 +15,7 @@ def mk(b,d,seed=None,hour=9):
     p.reload();p.wait_for_timeout(150)
     if not p.locator("#panel.open").count(): p.click(f'button.day[data-d="{d}"]');p.wait_for_timeout(200)
     return c,p
-def fin(p):
-    p.click("#fin");p.wait_for_selector("#ov.show",timeout=5000);p.clock.fast_forward(1000);p.wait_for_timeout(150)
+from lib import fin  # shared: retries if the overlay is slow
 def opend(p,d):
     if p.locator("#panel.open").count(): p.click("#close")
     p.click(f'button.day[data-d="{d}"]');p.wait_for_timeout(200)

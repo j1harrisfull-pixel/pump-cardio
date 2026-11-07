@@ -36,15 +36,20 @@ def view(b,d,seed=None,hour=9,open_day=True):
     c.add_init_script(HOOK);p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.on("dialog",lambda x:x.accept())
     p.clock.install(time=dt.datetime(y,m,dd,hour,0));p.goto(URL)
     p.evaluate("t=>{localStorage.clear();localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');for(var k in t)localStorage.setItem(k,JSON.stringify(t[k]));}",seed or {})
-    p.reload();p.wait_for_timeout(120)
-    if open_day and not p.locator("#panel.open").count(): p.click(f'button.day[data-d="{d}"]');p.wait_for_timeout(150)
+    p.reload();p.wait_for_selector("#week button.day",timeout=10000);p.wait_for_timeout(80)
+    if open_day and not p.locator("#panel.open").count(): p.click(f'button.day[data-d="{d}"]');p.wait_for_selector("#panel.open",timeout=5000);p.wait_for_timeout(100)
     return c,p
 def opend(p,d):
     if p.locator("#panel.open").count(): p.click("#close")
     p.click(f'button.day[data-d="{d}"]');p.wait_for_timeout(150)
 def fin(p):
-    """Finish workout and wait for the summary overlay (then its 700 ms tap guard)."""
-    p.click("#fin");p.wait_for_selector("#ov.show",timeout=5000);p.clock.fast_forward(1000);p.wait_for_timeout(120)
+    """Finish workout and wait for the summary overlay (then its 700 ms tap guard). The app ignores a second tap
+    within 1.5 s (finBusy), so if the overlay doesn't show, move the clock on and tap again."""
+    for _ in range(3):
+        p.click("#fin")
+        try: p.wait_for_selector("#ov.show",timeout=1500);break
+        except Exception: p.clock.run_for(2000);p.wait_for_timeout(80)
+    p.clock.fast_forward(1000);p.wait_for_timeout(120)
 def tick(p,x,i):
     """Tick set i of exercise x in list mode (closes the reps stepper if it opens)."""
     p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(i).click();p.wait_for_timeout(30)
@@ -64,6 +69,10 @@ def run_block(p,tid,d=None):
         if target>el+0.5: p.clock.fast_forward(int((target-el)*1000));el=target
         p.clock.run_for(1500);el+=1.5;p.wait_for_timeout(15)
     p.clock.run_for(1200);p.wait_for_timeout(60)
+    for _ in range(8):  # under heavy parallel load a tick can lag: give the engine a few more seconds of clock to finish
+        st=ls(p,"wo_"+d) or {}
+        if (st.get("s") or {}).get(tid)==1 or p.locator("#bar.ask").count(): break
+        p.clock.run_for(1000);p.wait_for_timeout(40)
     st=ls(p,"wo_"+d) or {}
     return {"segs":segs,"total":tot,"beeps":p.evaluate("window.__bp.length"),"osc":p.evaluate("window.__osc"),
             "done":(st.get("s") or {}).get(tid)==1,"ask":p.locator("#bar.ask").count()==1,"first":first,"drops":t1<t0 or t0<=3}

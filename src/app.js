@@ -551,7 +551,9 @@ function beep(f,d){try{if(ac){var o=ac.createOscillator(),g=ac.createGain();o.fr
 var wl=null;function wake(){try{if("wakeLock" in navigator&&!wl&&document.visibilityState=="visible")navigator.wakeLock.request("screen").then(function(l){wl=l;l.addEventListener("release",function(){wl=null;});}).catch(function(){});}catch(e){}}
 function unwake(){try{if(wl)wl.release();}catch(e){}wl=null;}
 function wantWake(){return isOpen&&sel==today;}
-function relWake(){if(!(T||RT||wantWake()))unwake();}
+function relWake(){if(!(T||RT||wantWake()))unwake();if(!T&&!RT)keepAudio(false);}
+// iPhone mutes Web Audio beeps when the ring switch is on silent unless an audio element is playing: loop a silent clip while a timer runs
+function keepAudio(on){var a=$("snda");if(!a)return;try{if(on){if(a.paused){var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}}else if(!a.paused)a.pause();}catch(e){}}
 // timer
 var T=LS.get("wo_timer",null),lastI=-2,lastL=-1,hideAt=0;
 function tnow(){return T&&T.pa?T.pa:Date.now();}
@@ -580,7 +582,7 @@ function moveList(b){if(b.list)return b.list;if(b.groups)return b.groups.map(fun
 function findT(S,id){var r=null;S.blocks.forEach(function(b){b=VB(b);if(b.k=="timer"&&b.id==id){r={label:b.name||b.h,kind:kindOf(b),segs:b.segs,list:moveList(b),amrap:b.amrap?1:0};if(r.kind=="emom"){var pl=emomPlan(b);if(pl){r.plan=pl;r.list=emomLines(pl);}}}if(b.timer&&b.timer.id==id)r={label:b.h,kind:b.mode=="every"?"every":"emom",segs:b.timer.segs,list:b.items.map(emomLab)};if(b.k=="ex"&&"rest:"+b.rk==id)r={label:b.unit+" "+Math.min(P(sel)[b.rk]||1,b.n)+" of "+b.n,segs:[["REST",b.rest]],max:b.n,nopre:1};});return r;}
 function startT(id){var m=mode(sel);if(m=="future"||m=="pre")return;var S=S_(sel),def=S&&findT(S,id);if(!def)return;unlock();var d=sel,s=P(d);
 if(!s.start&&!LS.get("wo_runstart_"+d,null)){s.start=Date.now();LS.set("wo_"+d,s);}
-T={id:id,label:def.label,kind:def.kind||"one",segs:def.nopre?def.segs:[["READY",10,"Get ready"]].concat(def.segs),pre:def.nopre?0:1,list:def.list||null,amrap:def.amrap||0,plan:def.plan||null,rounds:0,max:def.max,t0:Date.now(),date:d};$("bar").classList.remove("locked");$("peek").hidden=true;LS.set("wo_timer",T);lastI=-1;lastL=-1;lastTick=Date.now();if(RT)stopRest();wake();loop();}
+keepAudio(true);T={id:id,label:def.label,kind:def.kind||"one",segs:def.nopre?def.segs:[["READY",10,"Get ready"]].concat(def.segs),pre:def.nopre?0:1,list:def.list||null,amrap:def.amrap||0,plan:def.plan||null,rounds:0,max:def.max,t0:Date.now(),date:d};$("bar").classList.remove("locked");$("peek").hidden=true;LS.set("wo_timer",T);lastI=-1;lastL=-1;lastTick=Date.now();if(RT)stopRest();wake();loop();}
 function segStart(i){var a=0;for(var j=0;j<i;j++)a+=T.segs[j][1];return a;}
 function tJump(i){if(!T)return;i=Math.max(0,Math.min(i,T.segs.length-1));T.t0=tnow()-segStart(i)*1000;LS.set("wo_timer",T);lastI=-1;lastL=-1;loop();}
 function tPause(){if(!T)return;if(T.pa){T.t0+=Date.now()-T.pa;delete T.pa;unlock();}else T.pa=Date.now();LS.set("wo_timer",T);lastL=-1;loop();}
@@ -623,7 +625,7 @@ if(s.left!=lastL){$("time").textContent=fmt(s.left);if(!T.pa&&s.left<=3&&lastL>s
 // rest timer (strength blocks)
 var RT=LS.get("wo_rest",null);
 function autoRest(){return LS.get("wo_autorest",true)!==false;}
-function startRest(sec,label){RT={end:Date.now()+sec*1000,dur:sec,label:label||"Rest"};LS.set("wo_rest",RT);unlock();wake();restTick(0);}
+function startRest(sec,label){keepAudio(true);RT={end:Date.now()+sec*1000,dur:sec,label:label||"Rest"};LS.set("wo_rest",RT);unlock();wake();restTick(0);}
 function stopRest(){RT=null;LS.del("wo_rest");$("rbar").classList.remove("show","zero");$("rbtn").hidden=!!T;relWake();}
 function restAdj(d){if(!RT)return;RT.end=Math.max(Date.now()+1000,RT.end+d*1000);LS.set("wo_rest",RT);restTick(0);}
 function restTick(gap){var rb=$("rbar");if(!RT){rb.classList.remove("show");$("rbtn").hidden=!!T;return;}$("rbtn").hidden=true;rb.classList.add("show");var left=Math.ceil((RT.end-Date.now())/1000);

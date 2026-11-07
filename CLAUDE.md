@@ -11,7 +11,7 @@ https://j1harrisfull-pixel.github.io/pump-cardio/ (GitHub Pages, `main` branch, 
   - **Clock mode** for EMOM, Every, intervals, circuits, flows, steady pieces and AMRAP: one full-screen clock with the block name + counter, NOW (large), the clock (largest), NEXT (small), and Back / Pause / Next / Stop / Lock. One 10 s get-ready at the start, 3-2-1 + a long beep at each change, a double beep at the end.
 - **Logging:** "Finish workout" logs the day (name, type, weights, sets, km, feel, notes). History lets you change a logged day's type (Main / Backup / Run instead / Quick option).
 - **Actual running (pc-v35):** run days have an *Actual* card (distance km with decimals, elapsed time mm:ss, effort word, feel, notes), never prefilled from the plan. Other sessions get a small **+ Add a run**, which saves one `type:"extra"` log entry ("Extra run") for that date, updated in place. **Edit run** in History edits either kind. **Export history** in History builds a readable text + the raw `wo_log` JSON and hands it to the iOS share sheet (fallback: a copy sheet). Nothing leaves the phone otherwise.
-- **Offline:** works offline via `sw.js`, with an update prompt when a new version is deployed.
+- **Offline:** works offline via `sw.js`. Since pc-v36 the worker is **cache first** (the app opens at once on a weak signal; the network copy refreshes the cache in the background), so a new version only arrives through the update prompt / `reg.update()`.
 
 **Read first:** `app-style-standard.md` (the approved layout standard). **Next approved jobs:** `BRIEF-beauty-pass.md` (white + orange visual beauty pass), then **`BRIEF-day-swap.md`** (swap two day slots in the current week). Older briefs: `BRIEF-workout-mode.md`, `BRIEF.md`.
 Background notes are in `docs/`: the week-1 programme, terminology audit with sources, and premium-app research.
@@ -82,6 +82,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
   - A gap over 2.5 s after the end (phone locked) shows "FINISHED WHILE LOCKED · Mark done / Not done".
   - Audio uses one AudioContext, resumed on every tap and on `visibilitychange`. It handles the iOS "interrupted" state. `beep()` also pushes to `window.__bp` for tests.
   - **Never rely on `navigator.vibrate`**: iOS has no vibration API.
+  - **Silent switch (pc-v36):** iPhone mutes Web Audio when the ring switch is on silent unless an audio element is playing, so `keepAudio(true)` loops the tiny silent clip `#snda` while a guided or rest timer runs and `relWake()` pauses it when both are stopped. Untested on a real iPhone so far.
   - Screen Wake Lock is held while today's panel is open.
 
 ### localStorage keys (all JSON). Compatibility rules
@@ -146,7 +147,7 @@ Keep `index.html`, `sw.js` and `manifest.json` at the repo root: the installed P
 - Move names spell out kettlebell/dumbbell. "each side" is always spelled out.
 
 ### Product and process
-- Keep it **simple and readable** on an iPhone. Theme: **white + orange** beauty pass (`BRIEF-beauty-pass.md`; CSS variables in `src/top.html`). Follow `app-style-standard.md` for layout wording.
+- Keep it **simple and readable** on an iPhone. Theme: **white + orange** beauty pass (`BRIEF-beauty-pass.md`; CSS variables in `src/top.html`). Since pc-v36 text on orange fills is near black (`#111`, 8:1) and small orange text uses `--accent-ink` `#B34F00` (5.2:1 on white); `#FF8A3D` stays for fills, the ring and the day pill. Follow `app-style-standard.md` for layout wording.
 - Make **one commit per change** with a clear `pc-vNN: …` message.
 - **Never break saved logs** (see the compatibility rules above).
 - Don't add trackers, external scripts or network calls; the app must work offline.
