@@ -1,4 +1,4 @@
-# pc-v37: (1) "Did a different run" on run days: the actual run replaces the prescription in the log (sub + plan),
+# pc-v37/38: (1) "Did a different run" on run days: the actual run replaces the prescription in the log (sub + plan),
 # editable from History; (2) one-tap outcome on every session (as planned / modified / cut short / skipped) with notes
 # on strength days, saved by Finish workout; (3) a SUMMARY at the top of the export: last weights and reps, runs by
 # week, swapped days, different runs, outcomes, planned but not logged. Old logs without the new fields still work.
@@ -37,6 +37,15 @@ with sync_playwright() as pw:
     # a flagged run with no text still reads sensibly
     c,p=view(b,RUN);p.click('#r_sub [data-sub="1"]');p.wait_for_timeout(50);fin(p);p.click("#o_done")
     ok("empty text falls back to 'a different run'",ls(p,"wo_log")[0].get("sub")=="a different run")
+    c.close()
+    # a run inside a mixed session (Sat 7 Nov: KB EMOM 15 + Zone 2 run) gets the same Actual card (pc-v38)
+    c,p=view(b,"2026-11-07")
+    ok("mixed session with a run block: Actual card, Plan chips, no Add a run",p.locator("#r_d").count()==1 and p.locator("#r_sub").count()==1 and p.locator("#addrun").count()==0 and p.locator("#runx").count()==0)
+    p.click('#r_sub [data-sub="1"]');p.wait_for_timeout(60);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input");p.fill("#r_d","5.1");p.dispatch_event("#r_d","input");p.fill("#r_t","30:00");p.dispatch_event("#r_t","input");p.click('#r_e [data-e="easy"]')
+    fin(p);p.click("#o_done");e=ls(p,"wo_log")[0]
+    ok("log: the run inside the session is replaced, plan is the run block",e.get("sub")=="5K easy run" and e.get("plan")=="Zone 2 run 12:00" and e["km"]=="5.1" and e["time"]=="30:00" and e["type"]=="main" and len(ls(p,"wo_log"))==1,e)
+    p.evaluate("()=>document.querySelector('details').open=true")
+    ok("history: Edit run offered on the mixed session",p.locator("#hist .erun").count()==1)
     c.close()
     # ---------------- 2. outcome on a strength day ----------------
     c,p=view(b,STR)
