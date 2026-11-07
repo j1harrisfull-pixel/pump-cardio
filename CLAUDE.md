@@ -26,8 +26,10 @@ src/top.html          <head>, CSS (theme variables; beauty pass → white + oran
 src/app.js            all logic and session data (the script continues straight from top.html)
 scripts/build.sh      index.html = src/top.html + src/app.js
 scripts/bump.sh NN    pc-vOLD -> pc-vNN in src/top.html, sw.js, tests/test_sw.py
-scripts/test.sh [suite…]  build, serve the repo root on :8765, run the Playwright suites
-tests/test_*.py       Playwright (Python, sync API) suites at iPhone viewport 390×844 (test_v28 = automated style-standard audit, test_v30 = workout mode)
+scripts/test.sh [--fast | suite…]  build, serve the repo root on :8765, run the Playwright suites in parallel (JOBS=3)
+tests/lib.py          shared test library: page setup (view), timers (run_block), the style-standard audit (audit_view), week discovery
+tests/test_audit.py   data-driven audit of every view in every programmed week + every guided block + data rules (WEEK=current for this week only)
+tests/test_*.py       per-release regression suites (Playwright, Python sync API, iPhone viewport 390×844)
 docs/                 programme notes, research; beauty-pass-mocks/ + beauty-pass-research.md for the light theme
 app-style-standard.md layout standard + 159-deviation audit
 BRIEF-beauty-pass.md  next job: white + orange visual beauty pass (approved 5 Nov 2026)
@@ -107,13 +109,16 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
 ```bash
 pip install -r requirements-dev.txt && python -m playwright install chromium   # once
 bash scripts/build.sh                     # after every edit to src/
-bash scripts/test.sh                      # all suites (~8 min); or: bash scripts/test.sh test_v26
+bash scripts/test.sh --fast               # this week's audit + app/v31/v34/v35: about 3 min, for every change
+bash scripts/test.sh                      # every suite in parallel, about 10 min, before a release; or: bash scripts/test.sh test_v26
 CHROME=/usr/bin/google-chrome bash scripts/test.sh   # optional: system Chrome instead of bundled Chromium
 ```
+- **Write new tests with `tests/lib.py`** (`from lib import *`): `view(b, date, seed)` opens a day, `run_block(p, tid)` drives a guided block to the end in a fraction of a second (it jumps inside segments and ticks across every boundary, so beeps, countdown and the done flag are still checked), `audit_view` is the standard audit, `fin(p)` finishes a workout. Don't copy helpers between suites.
+- `test_audit.py` finds the weeks in `PROG` itself and audits every main / backup / quick / run-instead view, so **a new week needs no new rendering or timer tests**; only week-specific content checks (progression, How-to, limits) go in a `tests/test_vNN.py`.
 - The tests serve the repo root at `http://localhost:8765/index.html` and use Playwright's fake clock.
   - Use `page.clock.run_for(ms)` to advance timers.
   - `fast_forward` simulates a locked phone and triggers the "finished while locked" prompt.
-- `test_sw.py` temporarily rewrites `sw.js` and restores it. Afterwards, check that `head -c 22 sw.js` shows `var V="pc-vNN"`.
+- `test_sw.py` temporarily rewrites `sw.js` and restores it (the runner keeps it on its own, after the parallel batch). Afterwards, check that `head -c 22 sw.js` shows `var V="pc-vNN"`.
 - **Update or add tests with every change.** Name new suites `tests/test_vNN.py`; the existing suites must keep passing (update their expectations only when the brief changes the behaviour).
 
 **Deploy = push to `main`.** GitHub Pages serves the repo root. For each release:
@@ -149,6 +154,6 @@ Keep `index.html`, `sw.js` and `manifest.json` at the repo root: the installed P
 ## Weekly sessions
 Weekly sessions are added by the Health & Fitness bot directly into the session data; Claude Code should not change session content unless asked, and must keep the session data format stable so weekly additions stay simple.
 
-- How a week is added today (pc-v29, week 2): one `// ==== WEEK N …` block in `src/app.js`, just above `// ---- backups`. It holds new `X` ids with `HT` How-to entries, `HAL` aliases, and `Object.assign(SESS,{…})` with that week's main sessions (`mob19`, `up20`, …) and backups (`bk19`…, `g0:100`). It's followed by date entries in `PROG` / `BK`, plus `Object.assign(RI/RIN/RIS,…)` for Run-instead versions. The weekly plan and rationale go in `docs/programme-weekN.md`; tests go in `tests/test_vNN.py` (copy `test_v29.py` and change `DAYS` / `VIEWS` / `W2P`).
+- How a week is added today (pc-v29, week 2): one `// ==== WEEK N …` block in `src/app.js`, just above `// ---- backups`. It holds new `X` ids with `HT` How-to entries, `HAL` aliases, and `Object.assign(SESS,{…})` with that week's main sessions (`mob19`, `up20`, …) and backups (`bk19`…, `g0:100`). It's followed by date entries in `PROG` / `BK`, plus `Object.assign(RI/RIN/RIS,…)` for Run-instead versions. The weekly plan and rationale go in `docs/programme-weekN.md`. Rendering, the style audit and the timer runs of the new week are covered automatically by `tests/test_audit.py`; add only the week's content checks (programme mapping, progression vs last week, time limits) to `tests/test_vNN.py`, written with `tests/lib.py` (see `test_v32.py` for the shape), and add it to `FULL` in `scripts/test.sh`.
 - **Writing timed blocks (pc-v30):** EMOMs use `h:"EMOM 60 s × N"` with 2–3 moves rotating by minute, one task per minute that fits in about 30–40 s; the same rotation every round; sides alternate by minute or are "× n each side" inside one minute (see BRIEF-workout-mode.md). Old-style segments still load: `clk()` converts them.
 - **Future improvement (not done yet; only on request):** make weekly additions lower-touch with one clear `WEEKS` data section, e.g. `WEEKS["2026-10-19"]={days:{mon:{main:"mob19",backup:"bk19"},…}}`. `PROG`, `BK`, `QK` and the RI tables would be derived from it, and the test `DAYS` / `VIEWS` would be generated from it. Session ids and block ids must stay unchanged so saved logs keep working.

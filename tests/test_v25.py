@@ -42,6 +42,7 @@ with sync_playwright() as pw:
             if re.match(r"EMOM|Every",bl["h"]):
                 ok(f"{k}/{bl['h']} EMOM: one WORK segment per minute, no timed rest",all(x[0]=="WORK" for x in g) and len({x[1] for x in g})==1,[x[:2] for x in g][:3])
     # ---- full session per day type: every guided block counts down + beeps, then logs done
+    from lib import run_block
     for alt in (False,True):
       for d,k in DAYS.items():
         y,m,dd=map(int,d.split("-"));c,p=mk(b,dt.datetime(y,m,dd,8,0),alt)
@@ -50,20 +51,13 @@ with sync_playwright() as pw:
         ok(f"{d}{' backup' if alt else ''} ({nm}) has guided blocks",len(ids)>0,ids)
         hs=p.locator("#sess h2").all_inner_texts()
         for tid in ids:
-            p.evaluate("()=>{window.__bp=[];window.__osc=0}")
-            p.locator(f'#sess [data-t="{tid}"]').first.click();p.wait_for_timeout(50)
-            segs=p.evaluate("()=>JSON.parse(localStorage.getItem('wo_timer')).segs");tot=sum(x[1] for x in segs)
-            t0=sec(T(p));p.clock.run_for(3000);p.wait_for_timeout(30);t1=sec(T(p))
-            ok(f"{d}/{tid} countdown advances",t1<t0 or (t0<=3),(t0,t1))
-            p.clock.run_for(tot*1000+2000);p.wait_for_timeout(80)
-            bp=p.evaluate("window.__bp.length");osc=p.evaluate("window.__osc")
-            nseg=len(segs)
-            ok(f"{d}/{tid} beeps every segment ({nseg} segs) via AudioContext",bp>=nseg and osc>=nseg,(bp,osc,nseg))
-            ok(f"{d}/{tid} logged done, no lock ask",(ls(p,"wo_"+d) or {}).get("s",{}).get(tid)==1 and p.locator("#bar.ask").count()==0)
-            # displayed time = timer time
+            r=run_block(p,tid,d)
+            ok(f"{d}/{tid} countdown advances",r["drops"],r["first"])
+            ok(f"{d}/{tid} beeps every segment ({len(r['segs'])} segs) via AudioContext",r["beeps"]>=len(r["segs"]) and r["osc"]>=len(r["segs"]),(r["beeps"],r["osc"],len(r["segs"])))
+            ok(f"{d}/{tid} logged done, no lock ask",r["done"] and not r["ask"])
             lab=p.locator(f'#sess [data-t="{tid}"]').first.inner_text()
             mm=re.search(r"(\d+):(\d\d)",lab) or re.search(r"(\d+):(\d\d)"," ".join(hs))
-            if "guided" in lab: ok(f"{d}/{tid} button total = timer total (+10 s get-ready)",sec(mm.group(0))==tot-10 and segs[0][0]=="READY" and segs[0][1]==10,(lab,tot))
+            if "guided" in lab: ok(f"{d}/{tid} button total = timer total (+10 s get-ready)",sec(mm.group(0))==r["total"]-10 and r["segs"][0][0]=="READY" and r["segs"][0][1]==10,(lab,r["total"]))
         ok(f"{d} no vibrate calls",p.evaluate("window.__vib")==0)
         c.close()
     # ---- controls on Tue row intervals (the Every 2:00 A-block is a rest-timer superset from pc-v28)

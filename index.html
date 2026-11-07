@@ -1051,7 +1051,7 @@ $("sw_c").addEventListener("click",function(e){var b=e.target.closest("[data-r]"
 $("sw_n").addEventListener("input",swapUpd);
 $("sw_go").addEventListener("click",function(){swapUpd();var q=LS.get("wo_swaps",[]);if(!Array.isArray(q))q=[];q.push({date:sel,at:Date.now(),reasons:RS.filter(function(r){return swR[r];}),note:$("sw_n").value.trim()});LS.set("wo_swaps",q);setTimeout(function(){$("sw_form").hidden=true;$("sw_ok").hidden=false;},50);});
 $("swp").addEventListener("click",function(e){if(e.target===this||e.target.closest(".swx"))$("swp").classList.remove("show");});
-window.__wk={BK:BK,OVR:OVR,PROG:PROG,swapHref:swapHref};
+window.__wk={BK:BK,OVR:OVR,PROG:PROG,QK:QK,swapHref:swapHref};
 var finBusy=false,ovAt=0;
 $("fin").onclick=function(){var d=sel,S=S_(d),m=mode(d);if(finBusy||m=="future"||m=="pre"||!S||S.rest)return;finBusy=true;setTimeout(function(){finBusy=false;},1500);
 var name=S.name,l=logs(),old=null,idx=-1;for(var i=0;i<l.length;i++)if(sameE(l[i],d,name)){old=l[i];idx=i;}
