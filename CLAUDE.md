@@ -30,6 +30,7 @@ scripts/bump.sh NN    pc-vOLD -> pc-vNN in src/top.html, sw.js, tests/test_sw.py
 scripts/test.sh [--fast | suite…]  build, serve the repo root on :8765, run the Playwright suites in parallel (JOBS=3)
 tests/lib.py          shared test library: page setup (view), timers (run_block), the style-standard audit (audit_view), week discovery
 tests/test_audit.py   data-driven audit of every view in every programmed week + every guided block + data rules (WEEK=current for this week only)
+weeks/                one JSON file per programme week (pc-v39), inlined by build.sh; see docs/week-format.md
 tests/test_*.py       per-release regression suites (Playwright, Python sync API, iPhone viewport 390×844)
 docs/                 programme notes, research; beauty-pass-mocks/ + beauty-pass-research.md for the light theme
 app-style-standard.md layout standard + 159-deviation audit
@@ -154,7 +155,15 @@ Keep `index.html`, `sw.js` and `manifest.json` at the repo root: the installed P
 - Don't add trackers, external scripts or network calls; the app must work offline.
 
 ## Weekly sessions
-Weekly sessions are added by the Health & Fitness bot directly into the session data; Claude Code should not change session content unless asked, and must keep the session data format stable so weekly additions stay simple.
+**Since pc-v39 a week is data, not code.** One JSON object per week (`docs/week-format.md`, worked example `docs/week-sample.json`):
+`{v:1, week:"<monday>", x, ht, hal, sess:{id:{name, short, safe, g0?, blocks:[spec…]}}, days:{date:{main, backup?, quick?}}, ri, rin, ris}`.
+Block specs (`flow`, `tm`, `iv`, `core`, `emom`, `timer`, `ex`, `fields`, `rest`) are built by `mkBlock` with the same builders the code uses.
+`validateWeek` enforces the hard rules (Monday week, ids, How-to coverage, banned terms, effort words, run-instead totals) and `applyWeek`
+merges into `X`, `HT`, `HAL`, `SESS`, `PROG`, `BK`, `QK`, `RI`, `RIN`, `RIS` before the post-pass. Two routes in:
+- **`weeks/<monday>.json` in the repo**: `scripts/build.sh` inlines every file as `WEEKS_BUILTIN`; `tests/test_v39.py` validates each file. This is how the Health & Fitness bot should add a week now (no JavaScript edits, no new test suite needed; the data-driven audit covers rendering and timers).
+- **Import on the phone**: History → Weeks → Import week → paste → Check → Save (`wo_weeks`, applied after the built-in weeks, removable from the same list). The page reloads to rebuild.
+A week never replaces a session id that already exists in the code. Weeks 1 to 4 stay as JavaScript (`// ==== WEEK N` blocks); Claude Code should not change session content unless asked.
+
 
 - How a week is added today (pc-v29, week 2): one `// ==== WEEK N …` block in `src/app.js`, just above `// ---- backups`. It holds new `X` ids with `HT` How-to entries, `HAL` aliases, and `Object.assign(SESS,{…})` with that week's main sessions (`mob19`, `up20`, …) and backups (`bk19`…, `g0:100`). It's followed by date entries in `PROG` / `BK`, plus `Object.assign(RI/RIN/RIS,…)` for Run-instead versions. The weekly plan and rationale go in `docs/programme-weekN.md`. Rendering, the style audit and the timer runs of the new week are covered automatically by `tests/test_audit.py`; add only the week's content checks (programme mapping, progression vs last week, time limits) to `tests/test_vNN.py`, written with `tests/lib.py` (see `test_v32.py` for the shape), and add it to `FULL` in `scripts/test.sh`.
 - **Writing timed blocks (pc-v30):** EMOMs use `h:"EMOM 60 s × N"` with 2–3 moves rotating by minute, one task per minute that fits in about 30–40 s; the same rotation every round; sides alternate by minute or are "× n each side" inside one minute (see BRIEF-workout-mode.md). Old-style segments still load: `clk()` converts them.

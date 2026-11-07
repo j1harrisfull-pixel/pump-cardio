@@ -1,0 +1,39 @@
+{"v":1,"week":"2027-01-04","title":"Sample week (format demo)",
+ "notes":"A complete example of the week format. Not loaded by the app; tests import it to prove the format works end to end.",
+ "x":{"db-floor-press":["Dumbbell floor press","14–18 kg each","14–18",1]},
+ "ht":{"db-floor-press":{"q":"dumbbell floor press","u":"Chest press lying on the floor, elbows stop at the floor.","s":["Lie on your back, knees bent, dumbbells over your chest.","Lower until your upper arms touch the floor.","Pause, then press up, breathing out."],"c":["Wrists over elbows","Feet flat"],"m":"Bouncing the elbows off the floor.","z":"Breathe out on the effort; never hold your breath."}},
+ "hal":{"Dumbbell floor press":"db-floor-press"},
+ "sess":{
+  "run0104":{"name":"Zone 2 Run 20","short":"Run","safe":"Conversational pace, walk whenever needed. Steady pace, RPE 5–6.","blocks":[
+   {"k":"flow","id":"s04wu","h":"Warm-up","name":"Dynamic stretch – run","moves":[["Leg swings",40],["Ankle rocks – each side",40],["Hip CARs – each side",40]],"phase":"WARM-UP"},
+   {"k":"tm","id":"s04run","h":"Steady","name":"Zone 2 run","note":"Steady pace, Zone 2, RPE 5–6.","sec":1200,"phase":"JOG","counter":1,"small":"1:00 walk break whenever needed: tap +1 walk break."},
+   {"k":"tm","id":"s04cd","h":"Cool-down","name":"Cool-down walk","note":"Easy walk, RPE 3–4.","sec":180,"phase":"COOL-DOWN"},
+   {"k":"fields"}]},
+  "up0105":{"name":"Strength · Upper (sample)","short":"Upper","safe":"Breathe out on every rep, stop 2 reps short (2 RIR). RPE 6–7.","blocks":[
+   {"k":"flow","id":"s05wu","h":"Warm-up","name":"Shoulder prep","moves":[["Wall slides",40],["Shoulder CARs – each side",40],["Cat-cow",40]],"phase":"WARM-UP"},
+   {"k":"ex","h":"A · Straight sets","mode":"sup","n":3,"rr":[90,120],"tid":"s05a","items":[{"x":"db-floor-press","lab":"A1","rp":8,"tp":"3011"}]},
+   {"k":"ex","h":"B · Superset","mode":"sup","n":3,"rr":[60,90],"tid":"s05b","items":[{"x":"cs-row","lab":"B1","rp":10,"tp":"2011"},{"x":"lateral-raise","lab":"B2","rp":12,"tp":"2011"}]},
+   {"k":"iv","id":"s05iv","h":"Intervals","name":"Row intervals 4 × 0:40 / 0:40","note":"Each round: 0:40 work · 0:40 rest. Moderate pace, RPE 7.","small":"Damper 4–5, 24–26 s/m.","n":4,"work":40,"rest":40,"wl":"moderate","rl":"light paddle"},
+   {"k":"flow","id":"s05cd","h":"Cool-down","name":"Active stretch","note":"Breathe out into each stretch.","moves":[["Doorway/rack chest stretch – each side",40],["Thoracic open book – each side",40]]}]},
+  "kb0106":{"name":"KB EMOM 9 (sample)","short":"KB","safe":"One 16 kg kettlebell. Breathe out on every swing and press. Smooth reps at RPE 6–7 (2 RIR).","blocks":[
+   {"k":"flow","id":"s06wu","h":"Warm-up","name":"Kettlebell warm-up","moves":[["Kettlebell halo, slow, alternate direction",40],["Kettlebell hip hinge drill",40]],"phase":"WARM-UP"},
+   {"k":"emom","id":"s06e","h":"EMOM 60 s × 9","name":"Single-bell EMOM","note":"Each 60 s: press left · press right · swings.","rounds":3,"win":60,"cycle":["Single-arm press · left","Single-arm press · right","Kettlebell swing ×12"],"list":["Single-arm press – ×5 each side","Kettlebell swing – ×12"]},
+   {"k":"core","id":"s06c","h":"Circuit × 2","name":"Floor core","note":"Each round: 30 s per move · 30 s rest.","rounds":2,"moves":[["Glute bridge",30,10,0],["Dead bug",30,10,0],["Side plank",30,10,1]],"rest":30,"list":["Glute bridge – 30 s","Dead bug – 30 s","Side plank – 30 s each side"]},
+   {"k":"flow","id":"s06cd","h":"Cool-down","name":"Mobility","note":"Controlled, keep breathing.","moves":[["Couch stretch – each side",40],["Slow breathing lying on back",60]],"phase":"MOBILITY"}]},
+  "bk0105":{"name":"Backup · Walk + Core (sample)","short":"Walk","g0":100,"safe":"Lower energy day. Breathe out slowly on every effort. Easy pace, RPE 3–4.","blocks":[
+   {"k":"tm","id":"s05bw","h":"Steady","name":"Easy walk","note":"Easy pace, RPE 3–4.","sec":900,"phase":"EASY"},
+   {"k":"core","id":"s05bc","h":"Circuit × 2","name":"Floor core","note":"Each round: 30 s per move · 30 s rest.","rounds":2,"moves":[["Dead bug",30,10,0],["Bird-dog",30,10,0],["Glute bridge",30,10,0]],"rest":30,"list":["Dead bug – 30 s","Bird-dog – 30 s","Glute bridge – 30 s"]},
+   {"k":"fields"}]}
+ },
+ "days":{
+  "2027-01-04":{"main":"run0104"},
+  "2027-01-05":{"main":"up0105","backup":"bk0105"},
+  "2027-01-06":{"main":"kb0106"},
+  "2027-01-07":{"main":"rest0"},
+  "2027-01-08":{"main":"up0105"},
+  "2027-01-09":{"main":"kb0106"},
+  "2027-01-10":{"main":"rest0"}},
+ "ri":{"bk0105":{"s05bw":{"k":"tm","id":"s05bw","h":"Steady","name":"Zone 2 run","note":"Steady pace, Zone 2, RPE 5–6.","sec":900,"phase":"JOG","counter":1}}},
+ "rin":{"bk0105":["Backup · Zone 2 Run + Core (sample)","Run"]},
+ "ris":{"bk0105":"Zone 2 run: conversational, a little breathless. Walk whenever you need to. Steady pace, RPE 5–6."}
+}

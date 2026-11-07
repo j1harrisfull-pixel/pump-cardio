@@ -146,7 +146,7 @@ bk17:{name:"Backup · Dumbbell Flow (no KB)",short:"DB",g0:100,safe:"Dumbbells o
 bk18:{name:"Backup · Long Stretch + Breathe",short:"Stretch",rest:0,g0:100,safe:"Lowest energy option. Long, gentle holds – no forcing, no head-down positions, breathe slowly.",blocks:[
  fl("x18fl","Flow","Long-hold stretch","Gentle holds, no forcing.",[["Doorway/rack chest stretch – each side",90],["Seated lat reach at bench – each side",90],["Couch stretch – left",90],["Couch stretch – right",90],["Calf stretch on block – each side",90],["Supported deep squat hold (hold rack)",90],["90/90 hold with lift-offs – each side",90],["Thoracic open book – each side",90],["Slow breathing lying on back",150]],"MOBILITY")]},
 rest0:{name:"Rest day",short:"Rest",rest:1,safe:"Rest and recover.",blocks:[{k:"rest",name:"Rest day",note:"Walk, stretch, sleep well."}]},
-tbc:{name:"Plan coming Sunday",short:"Soon",rest:1,tbc:1,safe:"",blocks:[{k:"rest",name:"Plan coming Sunday",note:"This week's sessions are added each Sunday."}]}};
+tbc:{name:"Plan coming Sunday",short:"Soon",rest:1,tbc:1,safe:"",blocks:[{k:"rest",name:"Plan coming Sunday",note:"This week's sessions are added each Sunday. If you have a week file, import it from History."}]}};
 // ---- how-to library: key -> {u:summary, s:steps(<=12 words), c:tips, m:mistake, z:safety, q:demo search}
 var BR="Breathe out on the effort; never hold your breath.";
 var HT={
@@ -488,7 +488,63 @@ Object.assign(RI,{
 Object.assign(RI,{
  bk07:{x07row:{name:"Zone 2 run",note:"Steady pace, Zone 2, RPE 5–6.",small:"1:00 walk break whenever needed: tap +1 walk break.",segs:[["READY",10,"Zone 2 run"],["STEADY",960,"Zone 2 run"]],counter:1}},
  walk08:{w08walk:{name:"Zone 2 run with walk breaks",note:"Steady pace, Zone 2, RPE 5–6.",small:"1:00 walk break whenever needed: tap +1 walk break.",segs:[["STEADY",1920,"Zone 2 run"]],counter:1}}});
-Object.keys(RI).forEach(function(k){SESS[k].blocks.forEach(function(b){var v=RI[k][b.id];if(!v)return;var a=0,c=0;b.segs.forEach(function(g){a+=g[1];});v.segs.forEach(function(g){c+=g[1];});if(a!=c)throw new Error("run-instead time mismatch "+b.id);b.ri=v;});});
+var LS={get:function(k,d){try{var v=localStorage.getItem(k);if(v==null)return d;try{return JSON.parse(v);}catch(e){return v;}}catch(e){return d;}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},del:function(k){try{localStorage.removeItem(k);}catch(e){}}};
+
+// ---- weeks as data (pc-v39). A week is one JSON object (docs/week-format.md): sessions, days, How-to entries and
+// run-instead versions. Built-in weeks come from weeks/*.json (scripts/build.sh inlines them as WEEKS_BUILTIN);
+// imported weeks live in localStorage wo_weeks {monday: week} and are applied after the built-in ones. A week never
+// replaces a session id that already exists in the code, so saved logs keep rendering.
+var WEEKS={};
+var SPEC=["moves","phase","dir","sec","n","work","wl","rl","rounds","cycle","win"];
+function strip(b,keys){keys.forEach(function(q){delete b[q];});return b;}
+function mkBlock(sp){var b={},q;for(q in sp)b[q]=sp[q];var k=b.k,o;
+ if(k=="flow"){o=fl(b.id,b.h,b.name,b.note||"",b.moves||[],b.phase,b.dir);for(q in b)if(SPEC.indexOf(q)<0&&q!="k"&&q!="note")o[q]=b[q];return o;}
+ if(k=="tm"){o=tm(b.id,b.h,b.name,b.note||"",+b.sec||0,b.phase||"STEADY");for(q in b)if(SPEC.indexOf(q)<0&&q!="k")o[q]=b[q];return o;}
+ if(k=="iv"){b.k="timer";b.segs=iv(+b.n||1,+b.work||0,+b.rest||0,b.wl||"",b.rl||"rest");delete b.rest;return strip(b,SPEC);}
+ if(k=="core"){b.k="timer";b.segs=core(+b.rounds||1,b.moves||[],+b.rest||30);delete b.rest;return strip(b,SPEC);}
+ if(k=="emom"){b.k="timer";var s=[];for(var r=0;r<(+b.rounds||1);r++)(b.cycle||[]).forEach(function(l){s.push(["WORK",+b.win||60,l]);});b.segs=s;return strip(b,SPEC);}
+ return b;}
+function mkRI(sp){if(!sp||!sp.k)return sp;var o=mkBlock(sp);delete o.k;delete o.id;return o;}
+function buildWeek(w){var o={sess:{},ri:{}};Object.keys(w.sess||{}).forEach(function(k){var S=w.sess[k],T={},q;for(q in S)T[q]=S[q];T.blocks=(S.blocks||[]).map(mkBlock);o.sess[k]=T;});
+ Object.keys(w.ri||{}).forEach(function(k){o.ri[k]={};Object.keys(w.ri[k]).forEach(function(id){o.ri[k][id]=mkRI(w.ri[k][id]);});});return o;}
+var EFFORT=/\b(easy|steady|moderate)\b/i;
+// banned terms (paces, combined effort words, unsafe moves); spelt in pieces so the app source itself never contains them
+var BANNED=new RegExp(["\\bhard\\b","min\\/"+"km","km\\/"+"h","\\/500 ?"+"m","drag "+"factor","moderate-"+"hard","steady-"+"hard","easy-"+"steady","barbell","back squat","conventional deadlift","snatch","handstand","headstand","inverted","valsalva"].join("|"),"i");
+var PHASES=["READY","WORK","REST","WARM-UP","EASY","STEADY","JOG","FLOW","STRETCH","MOBILITY","FINISH","COOL-DOWN","WALK"];
+function validateWeek(w){var E=[],W=[],info={sess:0,days:0,how:0};var err=function(m){E.push(m);},warn=function(m){W.push(m);};
+ if(!w||typeof w!="object")return {errors:["Not a week object."],warnings:[],info:info};
+ if(w.v!=1)err("v must be 1.");
+ if(!/^\d{4}-\d\d-\d\d$/.test(w.week||""))err("week must be the Monday as YYYY-MM-DD.");else if(pd(w.week).getDay()!=1)err("week "+w.week+" is not a Monday.");
+ var mon=w.week||"",sun=mon?addDays(mon,6):"";var B;try{B=buildWeek(w);}catch(e){return {errors:["Could not build the sessions: "+(e&&e.message||e)],warnings:W,info:info};}
+ var XX={},q;for(q in X)XX[q]=X[q];for(q in w.x||{})XX[q]=w.x[q];var HH={},AA={};for(q in HT)HH[q]=HT[q];for(q in w.ht||{})HH[q]=w.ht[q];for(q in HAL)AA[q]=HAL[q];for(q in w.hal||{})AA[q]=w.hal[q];
+ var hk=function(n){var k=String(n).replace(/\s*\(.*?\)/g,"").replace(/ – .*$/,"").replace(/,.*$/,"").replace(/ @.*$/,"").replace(/ \+ lift-offs$/,"").trim();return AA[k]||k;};
+ Object.keys(w.x||{}).forEach(function(k){var x=w.x[k];if(!Array.isArray(x)||x.length<4||typeof x[0]!="string")err("x."+k+" must be [name, suggested, range, weighted 0/1].");else if(!HH[k])err("x."+k+" ("+x[0]+") has no How-to (ht."+k+").");});
+ Object.keys(w.ht||{}).forEach(function(k){var h=w.ht[k];if(!h||!h.u||!Array.isArray(h.s)||!h.s.length)err("ht."+k+" needs u (summary) and s (steps).");else{h.s.forEach(function(t){if(String(t).split(/\s+/).length>12)warn("ht."+k+": step over 12 words: "+t);});info.how++;}});
+ var ids=Object.keys(B.sess);info.sess=ids.length;if(!ids.length)err("No sessions (sess).");
+ ids.forEach(function(k){var S=B.sess[k],txt=JSON.stringify(w.sess[k]);if(SESS[k]&&!(WEEKS[mon]&&WEEKS[mon].ids.indexOf(k)>=0))err("Session id "+k+" already exists in the app; use a new id.");
+  if(!S.name)err(k+": name missing.");if(!S.short)err(k+": short (week strip label) missing.");if(!S.rest&&!S.safe)err(k+": safe (safety line) missing.");if(S.safe&&S.safe.length>160)err(k+": safe is over 160 characters.");
+  if(S.safe&&!/breathe out|breath/i.test(S.safe)&&S.blocks.some(function(b){return b.k=="ex";}))warn(k+": strength session, safety line does not mention breathing out.");
+  if(BANNED.test(txt))err(k+": contains a banned term ("+BANNED.exec(txt)[0]+").");
+  if(/\bRPE 8|RPE 9|RPE 10\b/.test(txt))err(k+": RPE 8+ is not used.");
+  var seen={};S.blocks.forEach(function(b,i){var id=b.id||b.tid;if(b.k=="timer"||b.k=="ex"){if(!id)err(k+" block "+(i+1)+": id missing.");else if(seen[id])err(k+": duplicate block id "+id);seen[id]=1;}
+   if(b.k=="timer"){if(!b.h)err(k+"/"+id+": h (header) missing.");if(!Array.isArray(b.segs)||!b.segs.length)err(k+"/"+id+": no segments.");else b.segs.forEach(function(g){if(!Array.isArray(g)||PHASES.indexOf(g[0])<0||!(+g[1]>0))err(k+"/"+id+": bad segment "+JSON.stringify(g));});
+    (b.list||[]).forEach(function(m){if(!HH[hk(m)])err(k+"/"+id+": no How-to for \""+m+"\".");});
+    if(/^EMOM/.test(b.h||"")&&!(b.list&&b.list.length))warn(k+"/"+id+": EMOM without a list of moves.");}
+   else if(b.k=="ex"){if(!b.h)err(k+"/"+id+": h missing (e.g. \"A · Superset\").");if(!(+b.n>0))err(k+"/"+id+": n (sets or rounds) missing.");if(!Array.isArray(b.rr)||b.rr.length!=2)err(k+"/"+id+": rr [lo, hi] rest range missing.");
+    (b.items||[]).forEach(function(it){if(!XX[it.x])err(k+"/"+id+": unknown exercise id "+it.x+" (add it to x).");else if(!HH[it.x]&&!HH[hk(XX[it.x][0])])err(k+"/"+id+": no How-to for "+it.x+".");if(it.rp==null)err(k+"/"+id+"/"+it.x+": rp (reps) missing.");});
+    if(!b.items||!b.items.length)err(k+"/"+id+": no items.");}
+   else if(b.k!="fields"&&b.k!="rest")err(k+" block "+(i+1)+": unknown kind "+b.k+".");});
+  S.blocks.forEach(function(b){if(/^Circuit/.test(b.h||"")&&(b.list||[]).length<3)warn(k+"/"+b.id+": a circuit lists fewer than 3 moves (the standard expands 3 or more).");});
+  if(S.blocks.some(function(b){return b.k=="timer"&&/^(Steady|Intervals)/.test(b.h||"")&&!EFFORT.test(b.note||"")&&!EFFORT.test(b.small||"")&&!EFFORT.test(b.h||"");}))warn(k+": a timed block has no effort word in its note (easy RPE 3–4, steady RPE 5–6 or moderate RPE 7).");});
+ var days=Object.keys(w.days||{});info.days=days.length;if(!days.length)err("No days.");
+ days.forEach(function(d){if(d<mon||d>sun)err("days."+d+" is outside the week "+mon+" to "+sun+".");var dd=w.days[d]||{};["main","backup","quick"].forEach(function(t){var id=dd[t];if(id&&!B.sess[id]&&!SESS[id])err("days."+d+"."+t+": unknown session "+id+".");});if(!dd.main)err("days."+d+": main missing (use a rest session).");});
+ Object.keys(B.ri).forEach(function(k){var S=B.sess[k]||SESS[k];if(!S){err("ri."+k+": unknown session.");return;}Object.keys(B.ri[k]).forEach(function(id){var b=null;S.blocks.forEach(function(x){if(x.id==id)b=x;});if(!b){err("ri."+k+"."+id+": no such block.");return;}var v=B.ri[k][id];if(!v.segs)err("ri."+k+"."+id+": segs missing.");else if(dur(v.segs)!=dur(b.segs))err("ri."+k+"."+id+": run-instead time "+dur(v.segs)+" s differs from "+dur(b.segs)+" s.");});if(!(w.rin||{})[k])warn("ri."+k+": no rin [name, short] for the run version.");});
+ return {errors:E,warnings:W,info:info};}
+function applyWeek(w,src){var v=validateWeek(w);if(v.errors.length){WEEKS[w&&w.week||"?"]={src:src,errors:v.errors,ids:[]};return false;}
+ var B=buildWeek(w),q;for(q in w.x||{})X[q]=w.x[q];for(q in w.ht||{})HT[q]=w.ht[q];for(q in w.hal||{})HAL[q]=w.hal[q];
+ for(q in B.sess)SESS[q]=B.sess[q];for(q in B.ri)RI[q]=B.ri[q];for(q in w.rin||{})RIN[q]=w.rin[q];for(q in w.ris||{})RIS[q]=w.ris[q];
+ Object.keys(w.days).forEach(function(d){var dd=w.days[d];PROG[d]=dd.main;if(dd.backup)BK[d]=dd.backup;else delete BK[d];if(dd.quick)QK[d]=dd.quick;else delete QK[d];});
+ WEEKS[w.week]={src:src,title:w.title||"",ids:Object.keys(B.sess),days:Object.keys(w.days).length,errors:[],warnings:v.warnings};return true;}
 var RIN={row:["Run Intervals","Run"],walk:["Zone 2 Run","Run"],bk14:["Backup · Run/Walk + Core","Run"],bk17:["Backup · Dumbbell Flow + Zone 2 Run","DB"]};
 var RIS={bk14:"Lower energy, no rowing. Breathe out slowly during the core work. Steady pace, RPE 5–6.",row:"Run intervals never all-out: short phrases only. Walk whenever you need to and breathe rhythmically. Moderate pace, RPE 7.",walk:STOP_RUN};
 // renamed sessions (pc-v28): logs saved under the old name still count as that day's log
@@ -498,6 +554,10 @@ Object.assign(RIN,{bk27:["Backup · Zone 2 Run + Stretch","Run"],bk31:["Backup �
 Object.assign(RIS,{bk27:STOP_RUN,bk31:STOP_RUN,walk01:STOP_RUN});
 Object.assign(RIN,{bk07:["Backup · Zone 2 Run + Floor Core","Run"],walk08:["Zone 2 Run 32 + Stretch","Run"]});
 Object.assign(RIS,{bk07:STOP_RUN,walk08:STOP_RUN});
+// weeks as data load here, after every table they extend exists; then run-instead versions attach to their blocks
+(typeof WEEKS_BUILTIN!="undefined"&&Array.isArray(WEEKS_BUILTIN)?WEEKS_BUILTIN:[]).forEach(function(w){applyWeek(w,"file");});
+(function(){var m=LS.get("wo_weeks",{});if(m&&typeof m=="object")Object.keys(m).sort().forEach(function(k){applyWeek(m[k],"import");});})();
+Object.keys(RI).forEach(function(k){SESS[k].blocks.forEach(function(b){var v=RI[k][b.id];if(!v)return;var a=0,c=0;b.segs.forEach(function(g){a+=g[1];});v.segs.forEach(function(g){c+=g[1];});if(a!=c)throw new Error("run-instead time mismatch "+b.id);b.ri=v;});});
 var ALIAS={"Zone 2 Run":["Easy Run"],"Backup · Zone 2 Row + Mobility":["Backup · Easy Row + Mobility"],"Backup · Dumbbell Flow + Zone 2 Run":["Backup · Dumbbell Flow + Easy Run"]};
 function isName(n,name){return n==name||(ALIAS[name]||[]).indexOf(n)>=0;}
 function hasRI(S){S=S&&(S.base||S);return !!(S&&S.blocks.some(function(b){return b.ri;}));}
@@ -505,7 +565,6 @@ function riOn(k){var a=LS.get("wo_ri",{})||{};return !!a[k];}
 function setRI(k,v){var a=LS.get("wo_ri",{})||{};if(v)a[k]=1;else delete a[k];LS.set("wo_ri",a);}
 function VB(b){return b.ri&&riOn(sel)?Object.assign({},b,b.ri,{ri:null}):b;}
 Object.keys(SESS).forEach(function(k){var S=SESS[k],g=S.g0||0;S.nt=0;S.tot=0;S.blocks.forEach(function(b,bi){b.bi=bi;if(b.rr)b.rest=(b.rr[0]+b.rr[1])/2;if(b.k=="timer"&&!b.clk){b.segs=clk(b,b.segs);if(b.ri)b.ri.segs=clk(Object.assign({},b,b.ri),b.ri.segs);b.clk=1;}if(b.mode=="sup"){b.est=bEst(b);S.tot+=b.est;S.est=1;}else{if(b.mode){b.timer={id:b.tid,segs:b.mode=="every"?bEvery(b):bEmom(b)};}var tt=b.timer||b;S.tot+=dur(tt.segs);}if(b.k=="ex"){b.items.forEach(function(it){it.gi=g++;S.nt+=b.n;});if(!b.rk)b.rk="r"+bi;}if(b.k=="timer"||b.timer)S.nt++;});});
-var LS={get:function(k,d){try{var v=localStorage.getItem(k);if(v==null)return d;try{return JSON.parse(v);}catch(e){return v;}}catch(e){return d;}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},del:function(k){try{localStorage.removeItem(k);}catch(e){}}};
 function $(id){return document.getElementById(id);}
 function esc(v){return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");}
 function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
@@ -734,7 +793,7 @@ h+='<button class="day '+md+(k==today?" today":"")+(isOpen&&k==sel?" sel":"")+(e
 $("week").innerHTML=h;$("week").classList.toggle("editing",editing);$("prev").disabled=m<=SD;swUI();$("wlab").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":pd(m).toLocaleDateString("en-GB",{day:"numeric",month:"short"});}
 function nm(id){return X[id]?X[id][0]:id;}
 function repLine(id,kg,r){var k=r.k||[],mix=k.filter(function(x,i,a){return x!="–"&&a.indexOf(x)==i;}).length>1;return nm(id)+(kg&&!mix?" "+kg+" kg":"")+" · "+(mix?r.v.map(function(v,i){return v+(k[i]&&k[i]!="–"?"@"+k[i]:"");}):r.v).join("/")+(r.u?" "+r.u:"")+(mix?" (kg)":"");}
-function hist(){var h=logs().slice().reverse().map(function(e){var w;if(e.wt&&Object.keys(e.wt).length)w=Object.keys(e.wt).filter(function(i){return e.wt[i];}).map(function(i){return nm(i)+": "+esc(e.wt[i])+" kg";}).join(", ");else w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&PUMPIDS[i];}).map(function(i){return nm(PUMPIDS[i])+": "+esc(e.w[i])+" kg";}).join(", ");if(e.rp&&Object.keys(e.rp).length)w=Object.keys(e.rp).map(function(i){return esc(repLine(i,e.wt&&e.wt[i],e.rp[i]));}).join("<br>");var x=[];if(e.sets!=null)x.push(e.sets+"/"+(e.of||18)+" sets");var rl=runLine(e);if(rl)x.push(rl);var ol=ocLine(e);if(ol)x.push(ol);if(e.feel)x.push("felt "+esc(e.feel)+"/10");if(e.breaks)x.push(e.breaks+" walk breaks");if(e.notes)x.push(esc(e.notes));if(x.length)w=(w?w+", ":"")+x.join(" · ");var op=e.type=="extra"?[]:typeOpts(e.date),ed=op.length>1?'<label class="hed">Edit: <select data-hd="'+e.date+'" data-hn="'+esc(e.name||"")+'">'+op.map(function(o){return '<option value="'+o[0]+'"'+((e.type||"main")==o[0]?" selected":"")+">"+o[1]+"</option>";}).join("")+"</select></label>":"";var canRun=e.type=="extra"||e.km||e.time||e.effort||(function(){var S0=S_(e.date);return hasRun(S0);})();if(canRun)ed+='<button class="link erun" data-er="'+esc(e.date)+'|'+esc(e.name||"")+'|'+esc(e.type||"")+'">Edit run</button>';return "<li><b>"+e.date+"</b> · "+esc(e.name||"Pump + Cardio")+" – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+ed+"</li>";}).join("");$("hist").innerHTML=h||"<li>No workouts yet</li>";}
+function hist(){var h=logs().slice().reverse().map(function(e){var w;if(e.wt&&Object.keys(e.wt).length)w=Object.keys(e.wt).filter(function(i){return e.wt[i];}).map(function(i){return nm(i)+": "+esc(e.wt[i])+" kg";}).join(", ");else w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&PUMPIDS[i];}).map(function(i){return nm(PUMPIDS[i])+": "+esc(e.w[i])+" kg";}).join(", ");if(e.rp&&Object.keys(e.rp).length)w=Object.keys(e.rp).map(function(i){return esc(repLine(i,e.wt&&e.wt[i],e.rp[i]));}).join("<br>");var x=[];if(e.sets!=null)x.push(e.sets+"/"+(e.of||18)+" sets");var rl=runLine(e);if(rl)x.push(rl);var ol=ocLine(e);if(ol)x.push(ol);if(e.feel)x.push("felt "+esc(e.feel)+"/10");if(e.breaks)x.push(e.breaks+" walk breaks");if(e.notes)x.push(esc(e.notes));if(x.length)w=(w?w+", ":"")+x.join(" · ");var op=e.type=="extra"?[]:typeOpts(e.date),ed=op.length>1?'<label class="hed">Edit: <select data-hd="'+e.date+'" data-hn="'+esc(e.name||"")+'">'+op.map(function(o){return '<option value="'+o[0]+'"'+((e.type||"main")==o[0]?" selected":"")+">"+o[1]+"</option>";}).join("")+"</select></label>":"";var canRun=e.type=="extra"||e.km||e.time||e.effort||(function(){var S0=S_(e.date);return hasRun(S0);})();if(canRun)ed+='<button class="link erun" data-er="'+esc(e.date)+'|'+esc(e.name||"")+'|'+esc(e.type||"")+'">Edit run</button>';return "<li><b>"+e.date+"</b> · "+esc(e.name||"Pump + Cardio")+" – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+ed+"</li>";}).join("");$("hist").innerHTML=h||"<li>No workouts yet</li>";weeksList();}
 // edit a saved run from history (session run entries and extra runs)
 var ER=null;
 function findLog(d,name,type){var l=logs();for(var i=0;i<l.length;i++){var e=l[i];if(e&&e.date==d&&(e.name||"")==name&&(e.type||"")==type)return i;}return -1;}
@@ -769,7 +828,7 @@ $("exp").onclick=doExport;$("ex_copy").onclick=function(){var t=$("ex_t").value;
 $("exs").addEventListener("click",function(e){if(e.target===this||e.target.closest(".exx"))$("exs").classList.remove("show");});
 function typeOpts(d){if(d<=LEGACY_END)return [];var b=baseSid(d);if(!b||!SESS[b])return [];var o=[["main","Main"]];if(bkOf(d)&&SESS[bkOf(d)])o.push(["backup","Backup"]);if(hasRI(SESS[b]))o.push(["run","Run instead"]);if(qkOf(d)&&SESS[qkOf(d)])o.push(["quick",SESS[qkOf(d)].name]);return o;}
 function setType(d,t,oldName){setAlt(d,t=="backup");setRI(d,t=="run");setQ(d,t=="quick");var l=logs(),S=S_(d);for(var i=0;i<l.length;i++){var e=l[i];if(e.date==d&&(e.name||"")==oldName){e.type=t;e.sid=sid(d);e.name=S.name;delete e.custom;if(t=="run")e.ri=1;else delete e.ri;}}LS.set("wo_log",l);all();hist();}
-function all(){title();week();if(isOpen)renderPanel();prog();}
+function all(){title();week();if(isOpen)renderPanel();prog();weeksList();}
 function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();}
 function closeP(){isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
@@ -856,6 +915,17 @@ $("sw_c").addEventListener("click",function(e){var b=e.target.closest("[data-r]"
 $("sw_n").addEventListener("input",swapUpd);
 $("sw_go").addEventListener("click",function(){swapUpd();var q=LS.get("wo_swaps",[]);if(!Array.isArray(q))q=[];q.push({date:sel,at:Date.now(),reasons:RS.filter(function(r){return swR[r];}),note:$("sw_n").value.trim()});LS.set("wo_swaps",q);setTimeout(function(){$("sw_form").hidden=true;$("sw_ok").hidden=false;},50);});
 $("swp").addEventListener("click",function(e){if(e.target===this||e.target.closest(".swx"))$("swp").classList.remove("show");});
+// ---- week import (pc-v39): paste → Check → Save; the page reloads so the new week builds like a built-in one
+function weeksList(){var ks=Object.keys(WEEKS).sort(),h=ks.map(function(k){var w=WEEKS[k],bad=w.errors&&w.errors.length;return "<li><span>w/c "+esc(sdl(k))+" · "+(w.src=="file"?"built in":"imported")+(bad?" · <b class=\"bad\">not loaded</b>":" · "+w.days+" days")+"</span>"+(w.src=="import"?'<button class="link" data-rmw="'+esc(k)+'">Remove</button>':"")+"</li>";}).join("");
+ var codeWeeks={};Object.keys(PROG).forEach(function(d){var m=monOf(d);if(!WEEKS[m]&&d>LEGACY_END)codeWeeks[m]=1;});h=Object.keys(codeWeeks).sort().map(function(k){return "<li><span>w/c "+esc(sdl(k))+" · in the app</span></li>";}).join("")+h;$("wks").innerHTML=h||"<li>No weeks loaded</li>";}
+var IMW=null;
+$("imp").onclick=function(){IMW=null;$("im_t").value="";$("im_r").innerHTML="";$("im_ok").hidden=true;$("ims").classList.add("show");setTimeout(function(){$("im_t").focus();},50);};
+$("ims").addEventListener("click",function(e){if(e.target===this||e.target.closest(".imx"))$("ims").classList.remove("show");});
+$("im_chk").onclick=function(){var w;IMW=null;$("im_ok").hidden=true;try{w=JSON.parse($("im_t").value);}catch(e){$("im_r").innerHTML='<div class="bad">Not valid JSON: '+esc(e.message||e)+'</div>';return;}
+ var v=validateWeek(w),h="";if(v.errors.length)h+=v.errors.map(function(m){return '<div class="bad">✕ '+esc(m)+'</div>';}).join("");else{h+='<div class="good">✓ Week of '+esc(sdl(w.week))+(w.title?" · "+esc(w.title):"")+': '+v.info.sess+' sessions, '+v.info.days+' days'+(v.info.how?', '+v.info.how+' How-to entries':'')+'.</div>';IMW=w;$("im_ok").hidden=false;}
+ h+=v.warnings.map(function(m){return '<div class="warn">! '+esc(m)+'</div>';}).join("");$("im_r").innerHTML=h;};
+$("im_ok").onclick=function(){if(!IMW)return;var m=LS.get("wo_weeks",{});if(!m||typeof m!="object")m={};m[IMW.week]=IMW;LS.set("wo_weeks",m);location.reload();};
+$("wks").addEventListener("click",function(e){var b=e.target.closest("[data-rmw]");if(!b)return;if(!confirm("Remove the imported week of "+sdl(b.dataset.rmw)+"? Logged workouts are kept."))return;var m=LS.get("wo_weeks",{})||{};delete m[b.dataset.rmw];LS.set("wo_weeks",m);location.reload();});
 window.__wk={BK:BK,OVR:OVR,PROG:PROG,QK:QK,swapHref:swapHref};
 var finBusy=false,ovAt=0;
 $("fin").onclick=function(){var d=sel,S=S_(d),m=mode(d);if(finBusy||m=="future"||m=="pre"||!S||S.rest)return;finBusy=true;setTimeout(function(){finBusy=false;},1500);
@@ -882,6 +952,6 @@ if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){var reload=
 navigator.serviceWorker.register("sw.js").then(function(reg){function show(){var u=$("upd");u.style.display="block";u.onclick=function(){if(reg.waiting)reg.waiting.postMessage("skip");else location.reload();};}
 if(reg.waiting&&navigator.serviceWorker.controller)show();reg.addEventListener("updatefound",function(){var w=reg.installing;if(w)w.addEventListener("statechange",function(){if(w.state=="installed"&&navigator.serviceWorker.controller)show();});});
 setInterval(function(){reg.update().catch(function(){});},3600000);document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible")reg.update().catch(function(){});});}).catch(function(){});}
-window.__app={get today(){return today;},get sel(){return sel;},checkDay:checkDay,sid:sid,view:function(){return S_(sel);},posOf:posOf,emomPlan:emomPlan,exportText:exportText};
+window.__app={get today(){return today;},get sel(){return sel;},checkDay:checkDay,sid:sid,view:function(){return S_(sel);},posOf:posOf,emomPlan:emomPlan,exportText:exportText,validateWeek:validateWeek,buildWeek:buildWeek,get WEEKS(){return WEEKS;}};
 })();
 </script></body></html>
