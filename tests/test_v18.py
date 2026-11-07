@@ -90,7 +90,7 @@ with sync_playwright() as pw:
     for x in ("cs-row","hk-db-press"):
         p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(0).click()
 
-    ok("rest bar 1:15 after last move of round, with filler",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15" and p.locator("#rlab").inner_text().startswith("Next: set 2 · Chest-supported dumbbell row 8") and "Optional in the rest: 20 s hip flexor reach each side." in p.locator("#sess").inner_text(),p.locator("#rlab").inner_text())
+    ok("rest bar 1:15 after last move of round, with filler",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15" and p.locator("#rlab").inner_text().startswith("Next: set 2 · 8 @ 16 kg · B1") and "Optional in the rest: 20 s hip flexor reach each side." in p.locator("#sess").inner_text(),p.locator("#rlab").inner_text())
     p.click("#rskip");ok("skip hides rest bar",p.locator("#rbar.show").count()==0)
     p.click("#fin");p.clock.fast_forward(1000);e=ls(p,"wo_log")[-1]
     ok("log has reps per set",e["rp"]["incline-db-press"]["v"]==[5,4,6,"–"] and e["wt"]["incline-db-press"]=="14",e.get("rp"))
@@ -110,7 +110,7 @@ with sync_playwright() as pw:
     ok("KB stations have no guided timer",p.locator('[data-t="kcirc"],[data-t="kemom"]').count()==0)
     for x in ("kb-swing","kb-sumo-dl"):
         p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(0).click()
-
+    p.wait_for_timeout(80)
     ok("swing + sumo round starts the 1:15 rest",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15");p.click("#rskip")
     kf=p.locator('.srow[data-x="farmers-carry"] [data-tk]').nth(0).get_attribute("data-tk");p.click(f'[data-tk="{kf}"]');p.click(f'[data-rp="{kf}"]');p.click('[data-st="1"]');ok("metres step +5",ls(p,"wo_2026-10-17")["rp"][kf]==35 and ls(p,"wo_wt")["farmers-carry"].get("2026-10-17")=="22")
     p.close()

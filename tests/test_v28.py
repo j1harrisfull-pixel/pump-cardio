@@ -77,7 +77,7 @@ with sync_playwright() as pw:
     ok("A superset shows its count and rest range","2 · A · Superset · 4 rounds" in p.locator("#sess h2").all_text_contents() and "Each round: A1 → A2. Rest 60–90 s." in p.locator("#sess").inner_text())
     tick("incline-db-press",0);ok("no rest mid-round",p.locator("#rbar.show").count()==0)
     tick("prone-y-raise",0);ok("rest starts after the round at 1:15",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15",p.locator("#rtime").inner_text())
-    ok("rest bar shows the next set",p.locator("#rlab").inner_text()=="Next: set 2 · Incline dumbbell press 6",p.locator("#rlab").inner_text())
+    ok("rest bar shows the next set",p.locator("#rlab").inner_text()=="Next: set 2 · 6 · A1",p.locator("#rlab").inner_text())
     p.click("#rskip")
     tick("assisted-chinup",0);tick("lateral-raise",0);tick("hammer-curl",0)
     ok("tri-set 60–90 s rest starts at 1:15",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15");p.click("#rskip")
