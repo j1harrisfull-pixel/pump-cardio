@@ -22,7 +22,7 @@ with sync_playwright() as pw:
     ok("quick session shown",p.locator("#ttl").inner_text()==Q and ls(p,"wo_quick")=={"2026-10-17":1})
     ok("button flips to back to main",p.locator("#qk").inner_text().startswith("↩ Back to main"))
     ok("header 15 min","15 min" in p.locator("#dnote").inner_text(),p.locator("#dnote").inner_text())
-    hs=p.locator("#sess h2").all_inner_texts();ts=[sec(h.split("·")[-1]) for h in hs]
+    hs=[h for h in p.locator("#sess h2").all_inner_texts() if re.search(r"\d+:\d\d$",h)];ts=[sec(h.split("·")[-1]) for h in hs]  # block headers only (the Extra / Actual headings carry no time)
     ok("main block is 5 × 2:00 = 10:00, total about 15 min",ts[1]==600 and 870<=sum(ts)<=900,hs)
     S=p.evaluate("()=>{var S=__how.SESS.kbq17;return{tot:S.tot,b:S.blocks.map(function(b){return{id:b.id,segs:b.segs,list:b.list}})}}")
     ok("SESS total = block headers",S["tot"]==sum(ts),(S["tot"],ts))

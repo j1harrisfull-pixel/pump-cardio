@@ -10,6 +10,7 @@ https://j1harrisfull-pixel.github.io/pump-cardio/ (GitHub Pages, `main` branch, 
   - **List mode** for strength, supersets and carries: one card per block, rows of set | kg | reps | tick (supersets alternate B1, B2), tempo chips and How-to sheets. Ticking a set starts the rest bar (−15 s / +15 s / Skip, "Next: set 3 · Name 6 @ 60 kg"). No block timer.
   - **Clock mode** for EMOM, Every, intervals, circuits, flows, steady pieces and AMRAP: one full-screen clock with the block name + counter, NOW (large), the clock (largest), NEXT (small), and Back / Pause / Next / Stop / Lock. One 10 s get-ready at the start, 3-2-1 + a long beep at each change, a double beep at the end.
 - **Logging:** "Finish workout" logs the day (name, type, weights, sets, km, feel, notes). History lets you change a logged day's type (Main / Backup / Run instead / Quick option).
+- **Actual running (pc-v35):** run days have an *Actual* card (distance km with decimals, elapsed time mm:ss, effort word, feel, notes), never prefilled from the plan. Other sessions get a small **+ Add a run**, which saves one `type:"extra"` log entry ("Extra run") for that date, updated in place. **Edit run** in History edits either kind. **Export history** in History builds a readable text + the raw `wo_log` JSON and hands it to the iOS share sheet (fallback: a copy sheet). Nothing leaves the phone otherwise.
 - **Offline:** works offline via `sw.js`, with an update prompt when a new version is deployed.
 
 **Read first:** `app-style-standard.md` (the approved layout standard). **Next approved jobs:** `BRIEF-beauty-pass.md` (white + orange visual beauty pass), then **`BRIEF-day-swap.md`** (swap two day slots in the current week). Older briefs: `BRIEF-workout-mode.md`, `BRIEF.md`.
@@ -51,6 +52,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
       - Other blocks drop READY prep (the first one, and every one in flows); a READY between moves becomes or joins a `REST`. Labels lose "Interval k of n" / "round r/n" / "switch →" text and sides read "Name · left" / "Name · right".
       - Interval work labels become `Machine · m:ss · effort` (e.g. "Row · 0:50 · moderate"). Segments carry the round number as an optional 4th element.
       - `b.amrap` (with `list`) gives an AMRAP: one countdown, the whole round as NOW, a "+1 round" button and a score sheet at the end (`wo_<date>.sc[id] = {r, kg, e}`).
+      - **EMOM groups (pc-v35):** `emomPlan(b)` derives one group per minute of the cycle from the normalised minute labels plus `list`: the cycle is the shortest repeating run of labels; a minute labelled `… · left` / `… · right` takes the `list` moves marked `each side`, any other minute takes the unsided moves named in its label (`Swing ×15 + goblet squat ×5` → "15 swings, then 5 goblet squats"). The card shows `Minute 1 · Left` groups, a "Repeat this three minute cycle five times." line and "Start each group on the minute. Rest for whatever remains of that minute."; `small` is not shown for EMOMs (every minute is a full window). The clock reads the same plan (`T.plan`): NOW = side, `#nowd` = the moves, NEXT = next minute. So when the bot writes an EMOM: labels `Complex · left` / `Complex · right` / `<move> ×N [+ <move> ×N]`, and `list` entries `Name – ×N[ each side]`.
   - `{k:"ex", h ("A · Superset"), mode:"sup", n, rr:[lo, hi], tid, items:[{x, lab, rp, side, tp (tempo e.g. "3011"), ru ("s" | "m"), sw, cue}], fill?, gn?}`: a strength or carry block, rendered in list mode by `listBlock`.
     - No guided timer and no header time: the header reads `N · A · Superset · 4 rounds`, the line `Each round: A1 → A2. Rest 60–90 s.`
     - `b.rest` = middle of `rr`; the rest timer starts with it when the last move of a round is ticked (each tick for a one-move straight set) (`maybeRest`). `b.est` (`bEst`, no segments) is the estimated time used in the `≈` day total.
@@ -83,9 +85,9 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
 ### localStorage keys (all JSON). Compatibility rules
 | Key | Content |
 |---|---|
-| `wo_log` | array of logged days `{date, name, type: main/backup/run/quick, sid, min, sets, of, w, wt, rp: {id: {v, u, k?}}, sc?, km, feel, notes, breaks, ri, custom, mig}` (`rp[id].k` per-set kg and `sc` AMRAP scores are optional, pc-v30) |
+| `wo_log` | array of logged days `{date, name, type: main/backup/run/quick/extra, sid, min, sets, of, w, wt, rp: {id: {v, u, k?}}, sc?, km, time?, effort?, feel, notes, breaks, ri, custom, mig, extra?}` (`rp[id].k` per-set kg and `sc` AMRAP scores are optional, pc-v30; `time` "mm:ss", `effort` easy/steady/moderate and `type:"extra"` + `extra:1` for an added run are optional, pc-v35) |
 | `wo_<date>` | that day's ticks/state `{t: {"gi_round": true}, rp: {"gi_round": reps}, kg?: {"gi_round": "kg"}, w, r, s: {timerId: 1}, sc?: {timerId: {r, kg, e}}, start}` (`kg` and `sc` are optional, pc-v30) |
-| `wo_run_<date>`, `wo_runstart_<date>` | run-day counters (walk breaks) and start time |
+| `wo_run_<date>`, `wo_runstart_<date>` | run-day fields `{b: walk breaks, d: km, t?: "mm:ss", e?: effort word, f: feel, n: notes, s}` and start time (pc-v35 adds `t`, `e`; on non-run days the same key holds the Add a run draft) |
 | `wo_wt` | weights `{exerciseId: {date: "kg"}}` (feeds "Last: 16 kg") |
 | `wo_alt`, `wo_ri`, `wo_quick` | per-day `{date: 1}` toggles for backup / run instead / quick option |
 | `wo_plan` | user plan edits (e.g. `{date: "Rest"}`) |

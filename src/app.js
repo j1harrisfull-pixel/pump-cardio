@@ -556,11 +556,31 @@ function relWake(){if(!(T||RT||wantWake()))unwake();}
 var T=LS.get("wo_timer",null),lastI=-2,lastL=-1,hideAt=0;
 function tnow(){return T&&T.pa?T.pa:Date.now();}
 function tstate(){var e=(tnow()-T.t0)/1000,acc=0;for(var i=0;i<T.segs.length;i++){var L=T.segs[i][1];if(e<acc+L)return{i:i,left:Math.max(1,Math.ceil(acc+L-e))};acc+=L;}return{i:T.segs.length,left:0};}
+// pc-v35 EMOM overview: per-minute groups derived from the block's minute labels (segs) and its move list.
+// Sided minutes ("Complex · left") take the "each side" moves; other minutes take the moves named in their label.
+var NUMW=["zero","one","two","three","four","five","six","seven","eight","nine","ten"];
+function numw(n){return NUMW[n]||String(n);}
+function shortMv(n){var x=String(n).replace(/^(Kettlebell|Dumbbell|Single-arm|Two-hand|Double|Barbell) /i,"").replace(/\s*\(.*?\)/g,"").replace(/-/g," ").trim().toLowerCase();return x;}
+function plural(x){return /(s|sh|ch|x|z)$/.test(x)?x+"es":x+"s";}
+function emomPlan(b){var segs=b.segs||[],n=segs.length;if(!n)return null;var labs=segs.map(function(g){return String(g[2]||"");}),p=n;
+ for(var q=1;q<n;q++){if(n%q)continue;var okk=true;for(var i=0;i<n&&okk;i++)if(labs[i]!=labs[i%q])okk=false;if(okk){p=q;break;}}
+ var items=(b.list||[]).map(function(x){var m=/^(.*?) – ×(\d+)( each side)?$/.exec(x);return m?{name:m[1],reps:+m[2],side:!!m[3]}:{name:x,reps:null,side:false};});
+ var cyc=[];for(var j=0;j<p;j++){var L=labs[j],m=/^(.*?) · (left|right)$/i.exec(L),side=m?m[2].toLowerCase():"",base=m?m[1]:L,mv;
+  if(side){mv=items.filter(function(it){return it.side;});if(!mv.length)mv=items;}
+  else{var un=items.filter(function(it){return !it.side;}),lo=base.toLowerCase();mv=un.filter(function(it){return lo.indexOf(shortMv(it.name).split(" ").pop())>=0;});if(!mv.length)mv=un;
+   if(!mv.length)mv=base.split(/ \+ |, /).map(function(t){var k=/^(.*?) ×(\d+)$/.exec(t.trim());return k?{name:k[1],reps:+k[2],side:false}:{name:t.trim(),reps:null,side:false};});}
+  var seq=/ \+ /.test(base),parts=mv.map(function(it){return {name:it.name,reps:it.reps,word:it.reps==null?shortMv(it.name):(it.reps==1?shortMv(it.name):plural(shortMv(it.name)))};});
+  var text=parts.map(function(x,i){return (i&&seq?"then ":"")+(x.reps==null?"":x.reps+" ")+x.word;}).join(", ")+".";
+  cyc.push({i:j,side:side,title:"Minute "+(j+1)+(side?" · "+side.charAt(0).toUpperCase()+side.slice(1):""),mv:parts,text:text});}
+ return {cycle:cyc,p:p,n:n,reps:n/p,win:segs[0][1]||60};}
+function emomLines(pl){var a=[];if(!pl)return a;pl.cycle.forEach(function(g){a.push(g.title+": "+g.text);});if(pl.reps>1)a.push("Repeat this "+numw(pl.p)+" minute cycle "+numw(pl.reps)+" times.");a.push("Start each group on the minute. Rest for whatever remains of that minute.");return a;}
+function emomHTML(pl){var h='<div class="emp">';pl.cycle.forEach(function(g){h+='<div class="emg"><div class="emh">'+esc(g.title)+'</div><div class="emm">'+g.mv.map(function(x,i){var hk=hkey(x.name),w=esc(x.word),inner=HT[hk]?'<button class="mv" data-h="'+esc(hk)+'">'+w+'</button>':w;return (i&&/ then /.test(" "+g.text+" ")?"then ":"")+(x.reps==null?"":x.reps+" ")+inner;}).join(", ")+'.</div></div>';});
+ if(pl.reps>1)h+='<div class="emr">Repeat this '+numw(pl.p)+' minute cycle '+numw(pl.reps)+' times.</div>';h+='<div class="emr">Start each group on the minute. Rest for whatever remains of that minute.</div></div>';return h;}
 function moveList(b){if(b.list)return b.list;if(b.groups)return b.groups.map(function(g){return g[0]+": "+g[1].map(function(m){return m[1]+" ×"+m[2];}).join(", ");});return null;}
-function findT(S,id){var r=null;S.blocks.forEach(function(b){b=VB(b);if(b.k=="timer"&&b.id==id)r={label:b.name||b.h,kind:kindOf(b),segs:b.segs,list:moveList(b),amrap:b.amrap?1:0};if(b.timer&&b.timer.id==id)r={label:b.h,kind:b.mode=="every"?"every":"emom",segs:b.timer.segs,list:b.items.map(emomLab)};if(b.k=="ex"&&"rest:"+b.rk==id)r={label:b.unit+" "+Math.min(P(sel)[b.rk]||1,b.n)+" of "+b.n,segs:[["REST",b.rest]],max:b.n,nopre:1};});return r;}
+function findT(S,id){var r=null;S.blocks.forEach(function(b){b=VB(b);if(b.k=="timer"&&b.id==id){r={label:b.name||b.h,kind:kindOf(b),segs:b.segs,list:moveList(b),amrap:b.amrap?1:0};if(r.kind=="emom"){var pl=emomPlan(b);if(pl){r.plan=pl;r.list=emomLines(pl);}}}if(b.timer&&b.timer.id==id)r={label:b.h,kind:b.mode=="every"?"every":"emom",segs:b.timer.segs,list:b.items.map(emomLab)};if(b.k=="ex"&&"rest:"+b.rk==id)r={label:b.unit+" "+Math.min(P(sel)[b.rk]||1,b.n)+" of "+b.n,segs:[["REST",b.rest]],max:b.n,nopre:1};});return r;}
 function startT(id){var m=mode(sel);if(m=="future"||m=="pre")return;var S=S_(sel),def=S&&findT(S,id);if(!def)return;unlock();var d=sel,s=P(d);
 if(!s.start&&!LS.get("wo_runstart_"+d,null)){s.start=Date.now();LS.set("wo_"+d,s);}
-T={id:id,label:def.label,kind:def.kind||"one",segs:def.nopre?def.segs:[["READY",10,"Get ready"]].concat(def.segs),pre:def.nopre?0:1,list:def.list||null,amrap:def.amrap||0,rounds:0,max:def.max,t0:Date.now(),date:d};$("bar").classList.remove("locked");$("peek").hidden=true;LS.set("wo_timer",T);lastI=-1;lastL=-1;lastTick=Date.now();if(RT)stopRest();wake();loop();}
+T={id:id,label:def.label,kind:def.kind||"one",segs:def.nopre?def.segs:[["READY",10,"Get ready"]].concat(def.segs),pre:def.nopre?0:1,list:def.list||null,amrap:def.amrap||0,plan:def.plan||null,rounds:0,max:def.max,t0:Date.now(),date:d};$("bar").classList.remove("locked");$("peek").hidden=true;LS.set("wo_timer",T);lastI=-1;lastL=-1;lastTick=Date.now();if(RT)stopRest();wake();loop();}
 function segStart(i){var a=0;for(var j=0;j<i;j++)a+=T.segs[j][1];return a;}
 function tJump(i){if(!T)return;i=Math.max(0,Math.min(i,T.segs.length-1));T.t0=tnow()-segStart(i)*1000;LS.set("wo_timer",T);lastI=-1;lastL=-1;loop();}
 function tPause(){if(!T)return;if(T.pa){T.t0+=Date.now()-T.pa;delete T.pa;unlock();}else T.pa=Date.now();LS.set("wo_timer",T);lastL=-1;loop();}
@@ -577,7 +597,9 @@ $("sc_e").addEventListener("click",function(ev){var x=ev.target.closest("[data-e
 $("sc_ok").onclick=function(){if(!SCT)return;var p=P(SCT.date);p.sc=p.sc||{};p.sc[SCT.id]={r:+$("sc_r").value||0,kg:$("sc_k").value,e:SCT.e};p.s[SCT.id]=1;LS.set("wo_"+SCT.date,p);SCT=null;$("scs").classList.remove("show");if(isOpen)renderPanel();prog();};
 function short(l){return String(l||"").split(" · ")[0];}
 function segLab(g){return g[0]=="READY"?"Get ready":g[2]||(g[0]=="REST"?"Rest":T.label);}
-function nextLab(i){var g=T.segs[i+1];if(!g)return "";var l=segLab(g);if(g[0]=="REST"&&T.segs[i+2])l+=", then "+segLab(T.segs[i+2]);return l;}
+function nextLab(i){var g=T.segs[i+1];if(!g)return "";if(T.plan&&isWork(g)){var q=emomGroup(i+1);return q?(q.side?q.side.charAt(0).toUpperCase()+q.side.slice(1)+" · ":"")+q.text:segLab(g);}var l=segLab(g);if(g[0]=="REST"&&T.segs[i+2])l+=", then "+segLab(T.segs[i+2]);return l;}
+// EMOM minute group for segment index i (work segments only)
+function emomGroup(i){if(!T.plan||!isWork(T.segs[i]||[]))return null;var w=0;for(var j=0;j<i;j++)if(isWork(T.segs[j]))w++;return T.plan.cycle[w%T.plan.p]||null;}
 function isWork(g){return g[0]!="READY"&&g[0]!="REST";}
 // top line: counts work rounds only
 function ctr(i){var k=T.kind,N=0,done=0,pre=T.pre?T.segs[0][1]:0;T.segs.forEach(function(g,j){if(isWork(g)){N++;if(j<=i)done++;}});
@@ -595,7 +617,8 @@ if(s.i>=T.segs.length){if(gap>2500||T.ask||document.hidden){T.ask=1;LS.set("wo_t
 $("cctr").textContent=ctr(s.i);
 var g=T.segs[s.i];if(s.i!=lastI){if(lastI!=-2){beep(988,.6);flash("bar");}lastI=s.i;var rd=g[0]=="READY",rs=g[0]=="REST";$("ph").textContent=rd?"GET READY":rs?"REST":"WORK";$("ph").className=rd?"ready":rs?"rest":"work";
  ["p-work","p-rest","p-ready"].forEach(function(c){$("bar").classList.remove(c);});$("bar").classList.add(rd?"p-ready":rs?"p-rest":"p-work");
- $("now").textContent=rd?"Get ready":T.amrap&&!rs&&T.list?T.list.slice(0,4).join("\n"):segLab(g);var nx=nextLab(s.i);$("sub").textContent=nx?"Next: "+nx:"Last one";}
+ var eg=rd||rs?null:emomGroup(s.i);$("nowd").textContent=eg&&eg.side?eg.text:"";$("nowd").hidden=!(eg&&eg.side);
+ $("now").textContent=rd?"Get ready":eg?(eg.side?eg.side.charAt(0).toUpperCase()+eg.side.slice(1):eg.text):T.amrap&&!rs&&T.list?T.list.slice(0,4).join("\n"):segLab(g);var nx=nextLab(s.i);$("sub").textContent=nx?"Next: "+nx:(T.plan?"Last minute":"Last one");}
 if(s.left!=lastL){$("time").textContent=fmt(s.left);if(!T.pa&&s.left<=3&&lastL>s.left)beep(440,.1);lastL=s.left;}}
 // rest timer (strength blocks)
 var RT=LS.get("wo_rest",null);
@@ -617,17 +640,25 @@ function unitOf(it){return it.ru=="s"?"s":it.ru=="m"?"m":"";}
 function rxOf(b,it){return b.n+" × "+it.rp+(it.ru=="s"?" s":it.ru=="m"?" m":"")+(it.side?" each side":"");}
 function repV(s,k,it){return s.rp&&s.rp[k]!=null?s.rp[k]:it.rp;}
 function stepOf(it){return it.ru?5:1;}
-function renderSess(){var S=S_(sel),s=P(sel),r=R(sel),h="",n=0;
+// run fields (pc-v35): actual distance, elapsed time, effort word, feel, notes. Never prefilled from the plan.
+var RUNOPEN={};
+function runCard(dl,r,extra){return '<div class="card lock runc"'+(extra?' id="runx"':'')+'><label class="l">'+dl+'<input class="f" id="r_d" type="number" inputmode="decimal" step="0.01" placeholder="e.g. 6.87"></label><label class="l">Elapsed time (mm:ss)<input class="f" id="r_t" type="text" inputmode="numeric" placeholder="e.g. 34:20"></label><div class="l">Effort<div class="rcs" id="r_e">'+["easy","steady","moderate"].map(function(w){return '<button type="button" class="rc'+(r.e==w?" on":"")+'" data-e="'+w+'">'+w+'</button>';}).join("")+'</div></div><label class="l">How it felt (1–10)<input class="f" id="r_f" type="number" inputmode="numeric" min="1" max="10"></label><label class="l">Notes<textarea class="f" id="r_n" rows="2"></textarea></label>'+(extra?'<button class="btn" id="runsave">Save run</button><button class="sm" id="runclose">Close</button>':'')+'</div>';}
+function tnorm(t){t=String(t||"").trim();if(!t)return "";var m=/^(\d+):(\d\d)(?::(\d\d))?$/.exec(t);if(m)return m[3]?m[1]+":"+m[2]+":"+m[3]:(+m[1])+":"+m[2];if(/^\d+(\.\d+)?$/.test(t)){var x=Math.round(+t*60);return Math.floor(x/60)+":"+String(x%60).padStart(2,"0");}return t;}
+function tmin(t){var m=/^(\d+):(\d\d)(?::(\d\d))?$/.exec(tnorm(t));if(!m)return 0;return m[3]?+m[1]*60+ +m[2]+Math.round(+m[3]/60):+m[1]+Math.round(+m[2]/60);}
+function extraFor(d){var l=logs();for(var i=0;i<l.length;i++)if(l[i]&&l[i].date==d&&l[i].type=="extra")return i;return -1;}
+function runLine(e){var x=[];if(e.km)x.push(esc(e.km)+(e.sid=="row"&&!e.ri?" m":" km"));if(e.time)x.push(esc(tnorm(e.time)));if(e.effort)x.push(esc(e.effort));return x.join(" · ");}
+function renderSess(){var S=S_(sel),s=P(sel),r=R(sel),h="",n=0,hasF=false;
 S.blocks.forEach(function(b){
  if(b.k=="rest"){h+='<div class="card"><div class="name">'+b.name+'</div><div class="note">'+b.note+'</div></div>';return;}
- if(b.k=="fields"){h+='<h2>Optional</h2><div class="card lock"><label class="l">'+(b.dist||"Distance (km)")+'<input class="f" id="r_d" type="number" inputmode="decimal" step="0.01"></label><label class="l">How it felt (1–10)<input class="f" id="r_f" type="number" inputmode="numeric" min="1" max="10"></label><label class="l">Notes<textarea class="f" id="r_n" rows="3"></textarea></label></div>';return;}
+ if(b.k=="fields"){h+='<h2>Actual</h2>'+runCard(b.dist||"Distance (km)",r,false);hasF=true;return;}
  n++;b=VB(b);var tt=b.timer||b,D=dur(tt.segs);
  if(b.k=="timer"){h+='<h2>'+n+' · '+b.h+' · '+mmss(D)+'</h2><div class="card tcard'+(sdone(sel,b.id)?" done":"")+'" id="c_'+b.id+'"><div class="name">'+b.name+'</div>'+(b.note?'<div class="note">'+b.note+'</div>':'');
   var mvl=function(a){return '<ul class="lst">'+a.map(function(x){var hk=hkey(x);return "<li>"+(HT[hk]?'<button class="mv" data-h="'+esc(hk)+'">'+x+'</button>':x)+"</li>";}).join("")+'</ul>';};
   if(b.groups)h+=b.groups.map(function(g){return '<div class="rg"><div class="rgh">'+g[0]+' <span>each side</span></div><ul class="lst rgl">'+g[1].map(function(m){var hk=hkey(m[0]);return '<li>'+(HT[hk]?'<button class="mv" data-h="'+esc(hk)+'">'+m[1]+'</button>':m[1])+' <b>×'+m[2]+'</b></li>';}).join("")+'</ul></div>';}).join("");
+  else if(kindOf(b)=="emom"&&emomPlan(b))h+=emomHTML(emomPlan(b));
   else if(b.list&&!b.flow)h+=mvl(b.list);
   else if(b.list){var op=SM[b.id];h+='<button class="sm" data-sm="'+b.id+'">'+(op?"Hide moves":"Show "+b.list.length+" moves")+'</button>';if(op)h+=mvl(b.list);}
-  h+=sps(b.small);
+  if(kindOf(b)!="emom")h+=sps(b.small);  // EMOM: the per-minute groups say it all; every minute is a full 60 s
   var dn=sdone(sel,b.id);h+='<button class="btn lock'+(dn?" gt dn":"")+'" data-t="'+b.id+'">'+(dn?"✓ Done · run guided timer again":b.flow?"Start guided flow":"Start guided timer")+' · '+mmss(D)+'</button>'+(b.counter?'<button class="btn ghost lock" id="brkb">+1 walk break · <span id="brk">'+r.b+'</span></button>':'')+'</div>';return;}
  // exercise group
  if(b.rr){var one=b.items.length==1;h+='<div class="bh"><h2>'+n+' · '+b.h+' · '+b.n+(one?' sets':' rounds')+'</h2></div>';
@@ -648,7 +679,10 @@ S.blocks.forEach(function(b){
   h+='<div class="mx"'+(mo?'':' hidden')+'>'+(it.cue?'<div class="cue">'+it.cue+'</div>':'')+'<div class="note">'+(e[3]?(last?'Last: '+esc(last.v)+' kg ('+sdl(last.d)+')'+(cur!=null&&+cur>+last.v?' <span class="up">↑</span>':''):'Suggested: '+e[1]):e[1])+'</div><button class="how" data-h="'+it.x+'">How to</button></div></div>';});
  if(b.rest&&!b.mode)h+='<button class="btn lock" data-t="rest:'+b.rk+'">'+b.btn+'</button>';
  if(b.timer)h+='<button class="btn lock gt'+(sdone(sel,b.timer.id)?" dn":"")+'" data-t="'+b.timer.id+'" id="c_'+b.timer.id+'">'+(sdone(sel,b.timer.id)?"✓ Done · run guided timer again":"Start guided timer")+' · '+mmss(D)+'</button>';});
-$("sess").innerHTML=h;["d","f","n"].forEach(function(k){var el=$("r_"+k);if(el)el.value=r[k]||"";});}
+if(!hasF&&!S.rest&&!S.tbc){var xi=extraFor(sel),open=RUNOPEN[sel]||xi>=0;h+='<h2>Extra</h2>'+(open?runCard("Distance (km)",r,true):'<button class="link addrun" id="addrun">+ Add a run</button>');}
+$("sess").innerHTML=h;["d","t","f","n"].forEach(function(k){var el=$("r_"+k);if(el)el.value=r[k]||"";});}
+// save or update the one "Extra run" entry for this date (never a second strength log)
+function saveExtra(d){var r=R(d),l=logs(),i=extraFor(d),e=i>=0?l[i]:{date:d,name:"Extra run",type:"extra",extra:1};e.km=r.d||"";e.time=tnorm(r.t||"");e.effort=r.e||"";e.feel=r.f||"";e.notes=r.n||"";e.min=tmin(e.time)||e.min||0;if(i>=0)l[i]=e;else l.push(e);LS.set("wo_log",l);}
 // list mode (pc-v30): one card per block; rows = set | kg | reps | tick, supersets alternate B1, B2; no block timer
 function kgOf(s,k,it){if(!X[it.x][3])return null;if(s.kg&&s.kg[k]!=null&&s.kg[k]!=="")return {v:String(s.kg[k])};var c=dayW(it.x,sel);if(c!=null)return {v:c};var l=lastW(it.x,sel);return l?{v:l.v,pf:1}:{v:""};}
 function lastSets(x){var l=logs(),best=null;l.forEach(function(e){if(e.date<sel&&e.rp&&e.rp[x]&&(!best||e.date>best.date))best=e;});if(!best)return null;var r=best.rp[x];return {v:r.v||[],u:r.u||"",k:r.k||null,w:best.wt&&best.wt[x]};}
@@ -690,7 +724,25 @@ h+='<button class="day '+md+(k==today?" today":"")+(isOpen&&k==sel?" sel":"")+(e
 $("week").innerHTML=h;$("week").classList.toggle("editing",editing);$("prev").disabled=m<=SD;swUI();$("wlab").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":pd(m).toLocaleDateString("en-GB",{day:"numeric",month:"short"});}
 function nm(id){return X[id]?X[id][0]:id;}
 function repLine(id,kg,r){var k=r.k||[],mix=k.filter(function(x,i,a){return x!="–"&&a.indexOf(x)==i;}).length>1;return nm(id)+(kg&&!mix?" "+kg+" kg":"")+" · "+(mix?r.v.map(function(v,i){return v+(k[i]&&k[i]!="–"?"@"+k[i]:"");}):r.v).join("/")+(r.u?" "+r.u:"")+(mix?" (kg)":"");}
-function hist(){var h=logs().slice().reverse().map(function(e){var w;if(e.wt&&Object.keys(e.wt).length)w=Object.keys(e.wt).filter(function(i){return e.wt[i];}).map(function(i){return nm(i)+": "+esc(e.wt[i])+" kg";}).join(", ");else w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&PUMPIDS[i];}).map(function(i){return nm(PUMPIDS[i])+": "+esc(e.w[i])+" kg";}).join(", ");if(e.rp&&Object.keys(e.rp).length)w=Object.keys(e.rp).map(function(i){return esc(repLine(i,e.wt&&e.wt[i],e.rp[i]));}).join("<br>");var x=[];if(e.sets!=null)x.push(e.sets+"/"+(e.of||18)+" sets");if(e.km)x.push(esc(e.km)+" km");if(e.feel)x.push("felt "+esc(e.feel)+"/10");if(e.breaks)x.push(e.breaks+" walk breaks");if(e.notes)x.push(esc(e.notes));if(x.length)w=(w?w+", ":"")+x.join(" · ");var op=typeOpts(e.date),ed=op.length>1?'<label class="hed">Edit: <select data-hd="'+e.date+'" data-hn="'+esc(e.name||"")+'">'+op.map(function(o){return '<option value="'+o[0]+'"'+((e.type||"main")==o[0]?" selected":"")+">"+o[1]+"</option>";}).join("")+"</select></label>":"";return "<li><b>"+e.date+"</b> · "+esc(e.name||"Pump + Cardio")+" – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+ed+"</li>";}).join("");$("hist").innerHTML=h||"<li>No workouts yet</li>";}
+function hist(){var h=logs().slice().reverse().map(function(e){var w;if(e.wt&&Object.keys(e.wt).length)w=Object.keys(e.wt).filter(function(i){return e.wt[i];}).map(function(i){return nm(i)+": "+esc(e.wt[i])+" kg";}).join(", ");else w=Object.keys(e.w||{}).filter(function(i){return e.w[i]&&PUMPIDS[i];}).map(function(i){return nm(PUMPIDS[i])+": "+esc(e.w[i])+" kg";}).join(", ");if(e.rp&&Object.keys(e.rp).length)w=Object.keys(e.rp).map(function(i){return esc(repLine(i,e.wt&&e.wt[i],e.rp[i]));}).join("<br>");var x=[];if(e.sets!=null)x.push(e.sets+"/"+(e.of||18)+" sets");var rl=runLine(e);if(rl)x.push(rl);if(e.feel)x.push("felt "+esc(e.feel)+"/10");if(e.breaks)x.push(e.breaks+" walk breaks");if(e.notes)x.push(esc(e.notes));if(x.length)w=(w?w+", ":"")+x.join(" · ");var op=e.type=="extra"?[]:typeOpts(e.date),ed=op.length>1?'<label class="hed">Edit: <select data-hd="'+e.date+'" data-hn="'+esc(e.name||"")+'">'+op.map(function(o){return '<option value="'+o[0]+'"'+((e.type||"main")==o[0]?" selected":"")+">"+o[1]+"</option>";}).join("")+"</select></label>":"";var canRun=e.type=="extra"||e.km||e.time||e.effort||(function(){var S0=S_(e.date);return !!(S0&&S0.blocks&&S0.blocks.some(function(b){return b.k=="fields";}));})();if(canRun)ed+='<button class="link erun" data-er="'+esc(e.date)+'|'+esc(e.name||"")+'|'+esc(e.type||"")+'">Edit run</button>';return "<li><b>"+e.date+"</b> · "+esc(e.name||"Pump + Cardio")+" – "+e.min+" min"+(w?"<br><small>"+w+"</small>":"")+ed+"</li>";}).join("");$("hist").innerHTML=h||"<li>No workouts yet</li>";}
+// edit a saved run from history (session run entries and extra runs)
+var ER=null;
+function findLog(d,name,type){var l=logs();for(var i=0;i<l.length;i++){var e=l[i];if(e&&e.date==d&&(e.name||"")==name&&(e.type||"")==type)return i;}return -1;}
+function openRunEdit(d,name,type){var i=findLog(d,name,type);if(i<0)return;var e=logs()[i];ER={d:d,name:name,type:type,e:""+(e.effort||"")};$("er_d").textContent=sdl(d)+" · "+name;$("er_km").value=e.km||"";$("er_t").value=tnorm(e.time||"");$("er_f").value=e.feel||"";$("er_n").value=e.notes||"";[].forEach.call($("er_e").children,function(y){y.classList.toggle("on",y.dataset.e==ER.e);});$("ers").classList.add("show");}
+$("er_e").addEventListener("click",function(ev){var x=ev.target.closest("[data-e]");if(!x||!ER)return;ER.e=ER.e==x.dataset.e?"":x.dataset.e;[].forEach.call(this.children,function(y){y.classList.toggle("on",y.dataset.e==ER.e);});});
+$("er_ok").onclick=function(){if(!ER)return;var l=logs(),i=findLog(ER.d,ER.name,ER.type);if(i<0){ER=null;$("ers").classList.remove("show");return;}var e=l[i];e.km=$("er_km").value;e.time=tnorm($("er_t").value);e.effort=ER.e;e.feel=$("er_f").value;e.notes=$("er_n").value;if(e.type=="extra")e.min=tmin(e.time)||e.min||0;l[i]=e;LS.set("wo_log",l);
+ var r=R(ER.d);r.d=e.km;r.t=e.time;r.e=e.effort;r.f=e.feel;r.n=e.notes;LS.set("wo_run_"+ER.d,r);ER=null;$("ers").classList.remove("show");all();hist();};
+$("ers").addEventListener("click",function(e){if(e.target===this||e.target.closest(".erx")){ER=null;$("ers").classList.remove("show");}});
+$("hist").addEventListener("click",function(ev){var x=ev.target.closest("[data-er]");if(!x)return;var a=x.dataset.er.split("|");openRunEdit(a[0],a[1],a[2]);});
+// export: readable history + the raw log, shared from the phone only when James taps Export
+function exportText(){var l=logs(),out=["Pump + Cardio training history · exported "+sdl(today)+" "+pd(today).getFullYear(),""];l.slice().reverse().forEach(function(e){var bits=[e.date+" · "+(e.name||"Pump + Cardio")+(e.type?" ("+e.type+")":"")];if(e.min)bits.push(e.min+" min");if(e.sets!=null)bits.push(e.sets+"/"+(e.of||18)+" sets");var rl=runLine(e).replace(/<[^>]*>/g,"");if(rl)bits.push(rl);if(e.feel)bits.push("felt "+e.feel+"/10");if(e.breaks)bits.push(e.breaks+" walk breaks");if(e.ri)bits.push("run instead");out.push(bits.join(" · "));
+ if(e.rp)Object.keys(e.rp).forEach(function(i){out.push("  "+repLine(i,e.wt&&e.wt[i],e.rp[i]));});else if(e.wt)Object.keys(e.wt).forEach(function(i){if(e.wt[i])out.push("  "+nm(i)+" "+e.wt[i]+" kg");});
+ if(e.sc)Object.keys(e.sc).forEach(function(i){var q=e.sc[i];out.push("  "+i+": "+(q.r||0)+" rounds"+(q.kg?" · "+q.kg+" kg":"")+(q.e?" · "+q.e:""));});if(e.notes)out.push("  notes: "+e.notes);});
+ out.push("","--- JSON (wo_log) ---",JSON.stringify(l));return out.join("\n");}
+function doExport(){var t=exportText(),done=function(){};if(navigator.share){navigator.share({title:"Pump + Cardio history",text:t}).catch(function(){showExport(t);});}else showExport(t);}
+function showExport(t){$("ex_t").value=t;$("exs").classList.add("show");}
+$("exp").onclick=doExport;$("ex_copy").onclick=function(){var t=$("ex_t").value;if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){$("ex_copy").textContent="Copied";});else{$("ex_t").select();try{document.execCommand("copy");$("ex_copy").textContent="Copied";}catch(e){}}};
+$("exs").addEventListener("click",function(e){if(e.target===this||e.target.closest(".exx"))$("exs").classList.remove("show");});
 function typeOpts(d){if(d<=LEGACY_END)return [];var b=baseSid(d);if(!b||!SESS[b])return [];var o=[["main","Main"]];if(bkOf(d)&&SESS[bkOf(d)])o.push(["backup","Backup"]);if(hasRI(SESS[b]))o.push(["run","Run instead"]);if(qkOf(d)&&SESS[qkOf(d)])o.push(["quick",SESS[qkOf(d)].name]);return o;}
 function setType(d,t,oldName){setAlt(d,t=="backup");setRI(d,t=="run");setQ(d,t=="quick");var l=logs(),S=S_(d);for(var i=0;i<l.length;i++){var e=l[i];if(e.date==d&&(e.name||"")==oldName){e.type=t;e.sid=sid(d);e.name=S.name;delete e.custom;if(t=="run")e.ri=1;else delete e.ri;}}LS.set("wo_log",l);all();hist();}
 function all(){title();week();if(isOpen)renderPanel();prog();}
@@ -733,6 +785,10 @@ SX.addEventListener("click",function(e){var hb=e.target.closest("[data-h]");if(h
 var mo=e.target.closest("[data-mo]");if(mo){MO[mo.dataset.mo]=!MO[mo.dataset.mo];renderSess();return;}
 var smb=e.target.closest("[data-sm]");if(smb){SM[smb.dataset.sm]=!SM[smb.dataset.sm];renderSess();return;}if(mode(sel)=="future")return;var t=e.target.closest("[data-t]");if(t){startT(t.dataset.t);return;}
 if(e.target.closest("#brkb")){var r=R(sel);r.b++;LS.set("wo_run_"+sel,r);$("brk").textContent=r.b;return;}
+var ec=e.target.closest("#r_e [data-e]");if(ec){var r2=R(sel);r2.e=r2.e==ec.dataset.e?"":ec.dataset.e;LS.set("wo_run_"+sel,r2);[].forEach.call(ec.parentNode.children,function(y){y.classList.toggle("on",y.dataset.e==r2.e);});return;}
+if(e.target.closest("#addrun")){RUNOPEN[sel]=true;renderSess();var f=$("r_d");if(f)f.focus();return;}
+if(e.target.closest("#runsave")){saveExtra(sel);RUNOPEN[sel]=true;all();hist();$("swh")&&0;var xr=$("runx");if(xr)flash("runx");return;}
+if(e.target.closest("#runclose")){RUNOPEN[sel]=false;renderSess();return;}
 var st=e.target.closest("[data-st]");if(st&&EDK){var S0=S_(sel),s0=P(sel),it0=itemByGi(S0,+EDK.split("_")[0]),c=st.dataset.st;s0.rp=s0.rp||{};
  if(c=="u"){s0.t[EDK]=false;delete s0.rp[EDK];EDK=null;}else if(c=="x"){EDK=null;}else{var v=repV(s0,EDK,it0)+(+c)*stepOf(it0);s0.rp[EDK]=Math.max(0,Math.min(99*stepOf(it0),v));}
  LS.set("wo_"+sel,s0);renderSess();prog();return;}
@@ -748,7 +804,7 @@ if(b){s=P(sel);var k=b.dataset.k;s.t[k]=!s.t[k];if(!s.start)s.start=Date.now();L
 if(a){var it2=itemByGi(S,+a.dataset.a),inp=document.createElement("input");inp.className="w lock";inp.type="number";inp.inputMode="decimal";inp.placeholder=X[it2.x][2];inp.dataset.w=a.dataset.a;a.replaceWith(inp);inp.focus();}});
 SX.addEventListener("input",function(e){if(mode(sel)=="future")return;var el=e.target;
 if(el.dataset.kw!=null){var s3=P(sel),it4=itemByGi(S_(sel),+el.dataset.kw.split("_")[0]);s3.kg=s3.kg||{};s3.kg[el.dataset.kw]=el.value;LS.set("wo_"+sel,s3);if(it4&&el.value!=="")setW(it4.x,sel,el.value);el.classList.remove("pf");return;}if(el.dataset.w!=null){var it=itemByGi(S_(sel),+el.dataset.w);if(it){setW(it.x,sel,el.value);el.classList.remove("pf");}return;}
-var m=/^r_([dfn])$/.exec(el.id||"");if(m){var r=R(sel);r[m[1]]=el.value;LS.set("wo_run_"+sel,r);}});
+var m=/^r_([dtfn])$/.exec(el.id||"");if(m){var r=R(sel);r[m[1]]=el.value;LS.set("wo_run_"+sel,r);}});
 
 SX.addEventListener("change",function(e){var el=e.target;if(el.dataset.kw!=null){renderSess();return;}if(el.dataset.w==null)return;var it=itemByGi(S_(sel),+el.dataset.w),last=it&&lastW(it.x,sel),c=el.closest(".card");if(!last||!c)return;var up=c.querySelector(".up"),hi=el.value!==""&&+el.value>+last.v;if(hi&&!up){var sp=document.createElement("span");sp.className="up";sp.textContent="↑";var nt=c.querySelectorAll(".note");nt[nt.length-1].append(" ",sp);}else if(!hi&&up)up.remove();});
 function howto(k){var h=HT[k];if(!h)return;var nm0=X[k]?X[k][0]:k;$("hs_t").textContent=nm0;$("hs_u").textContent=h.u||"";
@@ -780,10 +836,10 @@ var name=S.name,l=logs(),old=null,idx=-1;for(var i=0;i<l.length;i++)if(sameE(l[i
 var s=P(d),r=R(d),st0=+LS.get("wo_runstart_"+d,0)||s.start||0,e={name:name,date:d},x=[],tot=setsTotal(S);
 if(tot){var w={},wt={};items(S).forEach(function(it){var v=dayW(it.x,d);if(v!=null&&X[it.x][3]){wt[it.x]=v;if(sid(d)=="pump")w[it.gi]=v;}});e.w=w;e.wt=wt;e.sets=ticks(s);e.of=tot;x.push(e.sets+" of "+tot+" sets ticked");
  var rp={},ln=[];S.blocks.forEach(function(b){if(b.k=="ex")b.items.forEach(function(it){if(!it.rp)return;var a=[],kk=[],hk=false,any=false;for(var q=0;q<b.n;q++){var k=it.gi+"_"+q;if(s.t[k]){any=true;a.push(repV(s,k,it));var kv=s.kg&&s.kg[k]!=null&&s.kg[k]!==""?String(s.kg[k]):null;kk.push(kv||"–");if(kv)hk=true;}else{a.push("–");kk.push("–");}}if(any){rp[it.x]={v:a,u:it.ru||""};if(hk)rp[it.x].k=kk;ln.push(repLine(it.x,wt[it.x],rp[it.x]));}});});if(ln.length){e.rp=rp;x=x.concat(ln);}}
-if(S.blocks.some(function(b){return b.k=="fields";})){e.km=r.d||"";e.feel=r.f||"";e.notes=r.n||"";if(e.km)x.push(e.km+" "+(sid(d)=="row"?"distance":"km"));if(e.feel)x.push("felt "+e.feel+"/10");}
+if(S.blocks.some(function(b){return b.k=="fields";})){e.km=r.d||"";e.time=tnorm(r.t||"");e.effort=r.e||"";e.feel=r.f||"";e.notes=r.n||"";if(e.km)x.push(e.km+" "+(sid(d)=="row"&&!S.isRun?"m":"km"));if(e.time)x.push(e.time);if(e.effort)x.push(e.effort+" effort");if(e.feel)x.push("felt "+e.feel+"/10");}
 if(S.blocks.some(function(b){return VB(b).counter;})){e.breaks=r.b;x.push(r.b+" walk breaks");}if(s.sc&&Object.keys(s.sc).length)e.sc=s.sc;e.type=curType(d);e.sid=sid(d);if(S.isRun){e.ri=1;x.push("run instead");}else delete e.ri;if(old&&old.custom&&old.type==e.type){e.name=old.name;e.custom=1;}else if(old&&old.name&&old.name!=name&&isName(old.name,name))e.name=old.name;
 if(!x.length)x.push(score(d).d+" of "+score(d).t+" parts done");
-var mins=st0?Math.round((Date.now()-st0)/60000):0;if(d!=today||mins>180||!st0)mins=old?old.min:(d==today?Math.min(mins,180):30);e.min=mins;
+var mins=st0?Math.round((Date.now()-st0)/60000):0;if(d!=today||mins>180||!st0)mins=old?old.min:(d==today?Math.min(mins,180):30);if(!mins&&e.time)mins=tmin(e.time);e.min=mins;  // a run logged by its actual elapsed time
 if(idx>=0)l[idx]=e;else l.push(e);LS.set("wo_log",l);
 $("o_n").textContent=name+(d!=today?" · "+d:"");$("o_t").textContent=e.min+" min";$("o_d").innerHTML=x.map(esc).join("<br>");$("o_e").textContent=(old?"Log updated. ":"")+ENC[Math.floor(Math.random()*ENC.length)];$("ov").classList.add("show");ovAt=Date.now();all();};
 $("o_done").onclick=function(){if(Date.now()-ovAt<700)return;$("ov").classList.remove("show");};$("ov").onclick=function(e){if(e.target===this&&Date.now()-ovAt>700)this.classList.remove("show");};
@@ -797,6 +853,6 @@ if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){var reload=
 navigator.serviceWorker.register("sw.js").then(function(reg){function show(){var u=$("upd");u.style.display="block";u.onclick=function(){if(reg.waiting)reg.waiting.postMessage("skip");else location.reload();};}
 if(reg.waiting&&navigator.serviceWorker.controller)show();reg.addEventListener("updatefound",function(){var w=reg.installing;if(w)w.addEventListener("statechange",function(){if(w.state=="installed"&&navigator.serviceWorker.controller)show();});});
 setInterval(function(){reg.update().catch(function(){});},3600000);document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible")reg.update().catch(function(){});});}).catch(function(){});}
-window.__app={get today(){return today;},get sel(){return sel;},checkDay:checkDay,sid:sid,view:function(){return S_(sel);},posOf:posOf};
+window.__app={get today(){return today;},get sel(){return sel;},checkDay:checkDay,sid:sid,view:function(){return S_(sel);},posOf:posOf,emomPlan:emomPlan,exportText:exportText};
 })();
 </script></body></html>
