@@ -17,7 +17,7 @@ with sync_playwright() as pw:
     c.close()
     # all sets hit → step up
     c,p=view(b,D,seed=seed([6,6,6,6]))
-    ok("suggestion: all sets hit → try +2 kg (dumbbell), RPE 6–7 caveat",re.match(r"Try 22 kg \(all 4 sets hit 6 last time at 20 kg; only if it felt RPE 6–7\) Use 22 kg",p.locator(".sug").first.inner_text()),p.locator(".sug").first.inner_text())
+    ok("suggestion: all sets hit → try +2 kg (dumbbell), RPE 6–7 caveat",re.match(r"Use 22 kg\s*all 4 sets hit 6 at 20 kg last time · only if it felt RPE 6–7$",p.locator(".sug").first.inner_text()),p.locator(".sug").first.inner_text())
     ok("last weight prefilled as a dashed hint, not as today's weight",p.locator(f'.srow[data-x="{X}"] input.w.pf').count()==4 and (ls(p,"wo_wt") or {}).get(X,{}).get(D) is None)
     p.locator(".sfill").first.click();p.wait_for_timeout(80)
     ok("Use 22 kg fills every unticked set and saves today's weight",[e.input_value() for e in p.locator(f'.srow[data-x="{X}"] input.w').all()]==["22"]*4 and ls(p,"wo_wt")[X][D]=="22" and (ls(p,"wo_"+D) or {}).get("kg",{}).get("0_0")=="22")
@@ -29,7 +29,7 @@ with sync_playwright() as pw:
     c.close()
     # a short set → same weight; kettlebell step 4 kg; timed/distance items never get a suggestion
     c,p=view(b,D,seed=seed([6,6,5,"–"]))
-    ok("a short set → same weight",p.locator(".sug").first.inner_text().startswith("Same weight · 20 kg (a set came up short last time at 20 kg"),p.locator(".sug").first.inner_text())
+    ok("a short set → stay at the weight, no button (pc-v43)",p.locator(".sug").first.inner_text()=="Stay at 20 kg · a set came up short last time" and p.locator(".sug .sfill").count()==0,p.locator(".sug").first.inner_text())
     ok("kettlebell step is 4 kg",p.evaluate("()=>__app.suggest('kb-swing',{rp:15})") is None and p.evaluate("()=>{var l=JSON.parse(localStorage.wo_log);l.push({date:'2026-10-28',rp:{'kb-swing':{v:[15,15],u:''}},wt:{'kb-swing':'16'}});localStorage.wo_log=JSON.stringify(l);return __app.suggest('kb-swing',{rp:15}).kg}")==20)
     ok("distance / timed items get no suggestion",p.evaluate("()=>__app.suggest('farmers-carry',{rp:50,ru:'m'})") is None)
     # per-set kg uses the heaviest set

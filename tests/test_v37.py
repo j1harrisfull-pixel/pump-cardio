@@ -92,11 +92,11 @@ with sync_playwright() as pw:
     ok("summary sits right under the title, before the entries",lines[2]=="SUMMARY" and t.index("SUMMARY")<t.index("2026-11-03 · Strength A4") and t.index("Planned but not logged")<t.index("--- JSON"),lines[:4])
     ok("last weights and reps: the latest entry per exercise wins",re.search(re.escape(xnm)+r" 22 kg · 8/7/– \(2026-11-03\)",t) and "20 kg" not in t.split("Runs by week")[0],t[:600])
     ok("runs by week: one line per Monday with count, km and minutes","w/c 2026-10-26: 1 run · 4.5 km · 30 min" in t and "w/c 2026-11-02: 2 runs · 8.2 km · 49 min" in t,[l for l in lines if "w/c" in l])
-    ok("swapped days listed from wo_daymap","Swapped days: 2026-11-04 shows 2026-11-06's session; 2026-11-06 shows 2026-11-04's session" in t,[l for l in lines if "Swapped" in l])
+    ok("swapped days listed from wo_daymap","Swapped days: Wed 4 Nov ran Fri 6 Nov's session" in t and "Fri 6 Nov ran Wed 4 Nov's session" in t,[l for l in lines if "Swapped" in l])
     ok("different runs listed","Different runs: 2026-11-02: 5K easy run instead of Easy run 5 km 31:00" in t)
     ok("outcomes grouped by kind","Outcomes: modified 2026-10-29 · cut short 2026-11-03" in t,[l for l in lines if "Outcomes" in l])
     miss=[l for l in lines if l.startswith("Planned but not logged")]
-    ok("planned but not logged: past programmed days without a log, not today, not rest days",miss and "2026-11-05 (" in miss[0] and "2026-11-07" not in miss[0] and "2026-11-03" not in miss[0] and "2026-11-02" not in miss[0] and "2026-10-11" not in miss[0],miss)
+    ok("planned but not logged: past programmed days without a log, not today, not rest days",miss and "Thu 5 Nov (" in miss[0] and "7 Nov" not in miss[0] and "3 Nov" not in miss[0] and "2 Nov" not in miss[0] and "11 Oct" not in miss[0],miss)
     ok("per-entry lines carry the substitution and the outcome","2026-11-02 · Easy 5 km Run (main) · 28 min · 5 km · 28:30 · easy · did 5K easy run instead of Easy run 5 km 31:00" in t and "cut short" in [l for l in lines if l.startswith("2026-11-03 · Strength")][0],[l for l in lines if l.startswith("2026-11-0")])
     ok("raw JSON still at the end, old entry untouched",json.loads(t.split("--- JSON (wo_log) ---\n")[1])[0]=={"date":"2026-10-20","name":"Old shape","type":"main","min":30,"sets":3,"of":6,"feel":"7"})
     opend(p,"2026-11-07");p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")

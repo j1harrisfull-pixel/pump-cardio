@@ -65,7 +65,7 @@ with sync_playwright() as pw:
     # ---------------- 3. import sheet on the phone ----------------
     c,p=view(b,"2027-01-04",open_day=False)
     ok("no plan yet: the day says so",p.locator("#week button.day").first.inner_text().endswith("Soon"))
-    opend(p,"2027-01-04");ok("tbc note points at import","import it from History" in p.locator("#sess").inner_text())
+    opend(p,"2027-01-04");ok("unplanned week names the week and points at Import week","Nothing planned for w/c Mon 4 Jan" in p.locator("#sess").inner_text() and "Import week" in p.locator("#sess").inner_text(),p.locator("#sess").inner_text())
     p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})");p.click("#imp");p.wait_for_timeout(80)
     ok("import sheet opens",p.locator("#ims.show").count()==1 and p.locator("#im_ok").is_hidden())
     p.fill("#im_t","{not json");p.click("#im_chk");ok("bad JSON reported","Not valid JSON" in p.locator("#im_r").inner_text() and p.locator("#im_ok").is_hidden())
@@ -77,7 +77,7 @@ with sync_playwright() as pw:
     p.click('button.day[data-d="2027-01-04"]');p.wait_for_timeout(150);p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("Weeks list shows it as imported with Remove","imported" in p.locator("#wks").inner_text() and p.locator('[data-rmw="2027-01-04"]').count()==1,p.locator("#wks").inner_text())
     p.click('[data-rmw="2027-01-04"]');p.wait_for_selector("#week button.day",timeout=10000);p.wait_for_timeout(200)
-    ok("removed: back to Plan coming Sunday, nothing else touched",not (ls(p,"wo_weeks") or {}) and p.locator("#week button.day").first.inner_text().endswith("Soon") and ls(p,"wo_ver")==12)
+    ok("removed: back to no plan, nothing else touched",not (ls(p,"wo_weeks") or {}) and p.locator("#week button.day").first.inner_text().endswith("Soon") and ls(p,"wo_ver")==12)
     c.close()
     # a bad stored week never breaks the app
     c,p=view(b,"2026-11-07",seed={"wo_weeks":{"2027-01-04":{"v":1,"week":"2027-01-04","sess":{},"days":{}}}})

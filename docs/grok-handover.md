@@ -1,4 +1,4 @@
-# Handover for the Health & Fitness bot (Grokbot) · pc-v41 · 7 Nov 2026
+# Handover for the Health & Fitness bot (Grokbot) · pc-v43 · 7 Nov 2026
 
 What James's Pump + Cardio app now records, how it reaches you, and what to write back. Read this with
 `CLAUDE.md` (data format) when you add a week.
@@ -26,7 +26,7 @@ labels you write (see section 4).
 
 James taps **History → Export history** and shares the text. It has three parts:
 
-1. **SUMMARY** (new in pc-v37), the part to read first:
+1. **SUMMARY**, the part to read first (pc-v43 adds the feel average, a 3 week window on misses and a next week line):
    - `Last weights and reps:` the most recent logged kg and reps per exercise, with the date.
      Reps show per set, "–" for a set not done, and "8@20/8@22 (kg)" when the weight changed mid block.
    - `Runs by week:` `w/c <Monday>: n runs · km · min` (prescribed runs, substitutes and extra runs all
@@ -34,9 +34,13 @@ James taps **History → Export history** and shares the text. It has three part
    - `Swapped days:` which calendar day showed which day's session (he can swap two days in a week).
    - `Different runs:` `<date>: <what he ran> instead of <plan>`.
    - `Outcomes:` dates grouped under modified / cut short / skipped (as planned is not listed).
-   - `Planned but not logged:` programmed past days with no log at all. Treat these as unknown, not skipped.
-2. One line per logged day, newest first:
+   - `Feel (last 4 weeks): average N/10 over M sessions`.
+   - `Planned but not logged (last 3 weeks):` programmed past days with no log at all. Treat these as unknown, not skipped.
+   - `Next week (w/c Mon …): planned / not planned yet`. "Not planned yet" means James needs your week file.
+2. One line per logged day, newest first, then indented detail lines:
    `2026-11-02 · Easy 5 km Run (main) · 28 min · 5 km · 28:30 · easy · did 5K easy run instead of Easy run 5 km 31:00 · felt 7/10`
+   `  blocks: Shoulder prep – upper, Straight sets sets (2 of 6)` (which blocks were finished; "none of 4 done" when a run replaced the whole session)
+   `  Dumbbell bench press: planned 4 × 6 → 22 kg · 6/6/5/–` (prescription → what was done; "–" is a set not done)
    Type in brackets is main / backup / run (run instead) / quick / extra.
 3. `--- JSON (wo_log) ---` the raw log array if you want to parse it.
 
@@ -54,7 +58,8 @@ Nothing leaves the phone unless he shares it.
 | `sc` | AMRAP scores `{blockId: {r: rounds, kg, e}}` |
 | `km`, `time`, `effort`, `feel`, `notes`, `breaks` | actual run values, feel 1 to 10, walk breaks |
 | `sub`, `plan` | pc-v37: what he ran instead, and the prescribed piece it replaced |
-| `oc` | pc-v37: planned / modified / cut short / skipped |
+| `oc` | pc-v37: planned / modified / cut short / skipped (a `sub` entry is always modified) |
+| `bk` | pc-v42: `{d: [names of blocks finished], n: blocks in the session}` |
 | `extra` | 1 on an added run (`type:"extra"`) |
 | `ri` | 1 when the Run instead version was used |
 
