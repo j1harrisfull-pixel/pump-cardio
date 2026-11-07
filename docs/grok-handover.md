@@ -1,4 +1,4 @@
-# Handover for the Health & Fitness bot (Grokbot) · pc-v37 · 7 Nov 2026
+# Handover for the Health & Fitness bot (Grokbot) · pc-v41 · 7 Nov 2026
 
 What James's Pump + Cardio app now records, how it reaches you, and what to write back. Read this with
 `CLAUDE.md` (data format) when you add a week.
@@ -62,7 +62,13 @@ All new fields are optional. Older entries simply lack them.
 
 ## 4. What to write back (so the app shows it well)
 
-- Keep the weekly format in `CLAUDE.md` (one `// ==== WEEK N` block, `PROG` / `BK` dates, `docs/programme-weekN.md`).
+- **Since pc-v39 a week is one JSON file, not JavaScript.** Write `weeks/<monday>.json` following `docs/week-format.md`
+  (complete example: `docs/week-sample.json`). The app validates it (ids, How-to coverage, banned terms, effort words,
+  run-instead totals) and builds the sessions itself. James can also paste the same JSON into the app
+  (History → Weeks → Import week) and train the same day, no deploy needed. Keep `docs/programme-weekN.md` for the rationale.
+- Since pc-v40 the app suggests the next weight itself from the last logged sets (all sets hit the target → +2 kg
+  dumbbells / +4 kg kettlebells, a short set → same weight, "only if it felt RPE 6–7"). Your prescription still
+  sets reps, tempo and rest; put progression notes in `cue` if you want them shown.
 - Progress from `Last weights and reps`, not from the plan. If a block shows `–` sets or `cut short`,
   hold the load; if all sets hit the top of the rep range at RPE 6 to 7, nudge the weight.
 - A `Different runs` pattern (he keeps choosing a 5K easy run over a short Zone 2 piece) is a signal to
