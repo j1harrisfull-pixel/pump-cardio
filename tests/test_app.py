@@ -35,8 +35,8 @@ with sync_playwright() as pw:
     s=ls(p,"wo_2026-10-10"); ok("ticks+weight saved", s["t"].get("0_0") and s["t"].get("1_0") and ls(p,"wo_wt")["db-bench"]["2026-10-10"]=="18", (s,ls(p,"wo_wt")))
     ok("ring updates", p.locator("#pct").inner_text()=="10%", p.locator("#pct").inner_text())
     # timer warm-up with mocked clock
-    p.locator('[data-t="wu"]').click(); p.wait_for_timeout(50)
-    ok("clock starts with the 10 s get-ready", p.locator("#bar.show").count()==1 and p.locator("#time").inner_text()=="0:10" and p.locator("#ph").inner_text()=="GET READY", p.locator("#time").inner_text())
+    p.locator('[data-t="wu"]').click(); p.clock.run_for(300); p.wait_for_timeout(50)  # one render tick (250 ms) so the clock shows the 10 s window
+    ok("clock starts with the 10 s get-ready", p.locator("#bar.show").count()==1 and p.locator("#time").inner_text() in ("0:10","0:09") and p.locator("#ph").inner_text()=="GET READY", p.locator("#time").inner_text())
     p.clock.run_for(10300); p.wait_for_timeout(50)  # render loop ticks every 250 ms: step past the boundary
     ok("bar shows 4:00", p.locator("#time").inner_text() in ("4:00","3:59"), p.locator("#time").inner_text())
     p.clock.run_for(60700); p.wait_for_timeout(50)

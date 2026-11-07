@@ -126,7 +126,7 @@ def effort_ok(texts):
 DOM="""()=>{var V=__app.view(),out=[],cur=null,bi=0,ex=V.blocks.filter(function(b){return b.k=="timer"||b.k=="ex";});
  [].forEach.call(document.getElementById('sess').children,function(el){
   var h=el.tagName=="H2"?el:(el.classList.contains("bh")?el.querySelector("h2"):null);
-  if(h&&/^(Optional|Actual|Extra)$/.test(h.textContent)){cur=null;return;}
+  if(h&&/^(Optional|Actual|Extra|How did it go\?)$/.test(h.textContent)){cur=null;return;}
   if(h){var b=ex[bi++];cur={hdr:h.textContent,kind:b.k,id:b.id||"",flow:!!b.flow,segs:b.segs||[],items:(b.items||[]).map(function(i){return i.lab;}),n:b.n||0,rr:b.rr||null,rest:b.rest||0,title:"",note:"",small:[],list:[],sm:0,btns:[],names:[],gn:[]};out.push(cur);return;}
   if(!cur)return;
   if(el.classList.contains("gn"))cur.gn.push(el.textContent);

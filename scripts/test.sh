@@ -9,8 +9,8 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 PY=${PY:-python3}; JOBS=${JOBS:-3}
-FULL="test_audit test_v25 test_app test_wt test_v18 test_v20 test_v24 test_v26 test_v28 test_v29 test_v30 test_v31 test_v32 test_v33 test_v34 test_v35 test_sw"
-FAST="test_audit test_app test_v31 test_v34 test_v35"
+FULL="test_audit test_v25 test_app test_wt test_v18 test_v20 test_v24 test_v26 test_v28 test_v29 test_v30 test_v31 test_v32 test_v33 test_v34 test_v35 test_v37 test_sw"
+FAST="test_audit test_app test_v31 test_v34 test_v35 test_v37"
 if [ "${1:-}" = "--fast" ]; then SUITES=$FAST; export WEEK=${WEEK:-current}; else SUITES=${*:-$FULL}; fi
 bash scripts/build.sh
 mkdir -p test-output; rm -f test-output/*.rc
