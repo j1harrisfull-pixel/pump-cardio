@@ -107,7 +107,7 @@ with sync_playwright() as pw:
     ok("run start not set on open", not (ls(p,"wo_2026-10-11") or {}).get("start"))
     p.locator('[data-t="rwu"]').click(); ok("run start set on timer", (ls(p,"wo_2026-10-11") or {}).get("start"))
     p.locator("#stop").click(); p.locator("#brkb").click(); p.locator("#r_d").fill("3.2"); p.locator("#r_f").fill("7")
-    p.clock.fast_forward(20*60000); p.locator("#fin").click(); p.wait_for_timeout(100)
+    p.clock.fast_forward(20*60000); p.wait_for_timeout(60); p.locator("#fin").click(); p.wait_for_timeout(100)
     ok("run overlay detail", "3.2 km" in p.locator("#o_d").inner_text() and p.locator("#o_t").inner_text()=="20 min", (p.locator("#o_d").inner_text(),p.locator("#o_t").inner_text()))
     p.clock.fast_forward(1000); p.locator("#o_done").click()
     l=ls(p,"wo_log"); ok("two logs total", len(l)==2 and l[1]["name"]=="Easy Run" and l[1]["breaks"]==1, l)
