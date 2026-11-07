@@ -51,7 +51,7 @@ with sync_playwright() as pw:
     ok("ticks stay keyed by Friday",(ls(p,"wo_"+FRI) or {}).get("t") is not None and ls(p,"wo_"+THU) is None)
     ok("Mon log untouched",[x for x in ls(p,"wo_log") if x["date"]==MON]==LOG)
     opend(p,THU);ok("Thu shows Fri's session",p.locator("#ttl").inner_text()==N[FRI]["name"])
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("history Edit offers the moved session's backup",[o.split("|")[0] for o in p.locator(f'#hist select[data-hd="{FRI}"] option').evaluate_all("o=>o.map(x=>x.value+'|'+x.textContent)")][:2]==["main","backup"])
     p.click("#close")
     # ---- blocks: logged or started days stay put

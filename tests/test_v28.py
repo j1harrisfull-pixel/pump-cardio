@@ -104,7 +104,7 @@ with sync_playwright() as pw:
           "wo_alt":{"2026-10-15":1},"wo_ri":{"2026-10-14":1},"wo_quick":{"2026-10-17":1},"wo_plan":{},"wo_run_2026-10-12":{"b":1,"s":{"rmain":1},"d":"4.1","f":"6"}}
     c,p=mk(b,"2026-10-18",SEED,9)
     for k,v in SEED.items(): ok(f"log compat: {k} unchanged after upgrade",ls(p,k)==v,(ls(p,k),v))
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     hist=p.locator("#hist li").all_inner_texts()
     ok("history lists every entry under its saved name",[h.split(" · ",1)[1].split(" – ")[0] for h in hist]==[x["name"] for x in LOG[::-1]],hist)
     opts=p.locator('#hist select[data-hd="2026-10-14"] option:checked').inner_text();ok("history Edit keeps the saved type",opts=="Run instead",opts)

@@ -21,7 +21,7 @@ with sync_playwright() as pw:
     ok("summary says what replaced the plan","did 5K easy run instead of Easy run 5 km 31:00" in od,od);p.click("#o_done")
     L=ls(p,"wo_log");e=L[0]
     ok("log: sub + plan recorded, type still main, actual values kept",len(L)==1 and e.get("sub")=="5K easy run" and e.get("plan")=="Easy run 5 km 31:00" and e["type"]=="main" and e["km"]=="5" and e["time"]=="28:30" and e["effort"]=="easy",e)
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("history line shows the substitution","did 5K easy run instead of Easy run 5 km 31:00" in p.locator("#hist li").first.inner_text(),p.locator("#hist li").first.inner_text())
     # edit from History
     p.click("#hist .erun");p.wait_for_timeout(100)
@@ -44,7 +44,7 @@ with sync_playwright() as pw:
     p.click('#r_sub [data-sub="1"]');p.wait_for_timeout(60);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input");p.fill("#r_d","5.1");p.dispatch_event("#r_d","input");p.fill("#r_t","30:00");p.dispatch_event("#r_t","input");p.click('#r_e [data-e="easy"]')
     fin(p);p.click("#o_done");e=ls(p,"wo_log")[0]
     ok("log: the run inside the session is replaced, plan is the run block",e.get("sub")=="5K easy run" and e.get("plan")=="Zone 2 run 12:00" and e["km"]=="5.1" and e["time"]=="30:00" and e["type"]=="main" and len(ls(p,"wo_log"))==1,e)
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("history: Edit run offered on the mixed session",p.locator("#hist .erun").count()==1)
     c.close()
     # ---------------- 2. outcome on a strength day ----------------
@@ -60,7 +60,7 @@ with sync_playwright() as pw:
     fin(p);od=p.locator("#o_d").inner_text();ok("summary shows the outcome","cut short" in od,od);p.click("#o_done")
     e=ls(p,"wo_log")[0]
     ok("log: oc + notes, sets still counted",e.get("oc")=="cut short" and e.get("notes")=="knee niggle" and e["sets"]==1 and e["type"]=="main",e)
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("history shows cut short and the note","cut short" in p.locator("#hist li").first.inner_text() and "knee niggle" in p.locator("#hist li").first.inner_text())
     ok("chips and notes restored after re-render",p.locator("#oc .rc.on").inner_text()=="cut short" and p.locator("#s_nt").input_value()=="knee niggle")
     c.close()
@@ -99,7 +99,7 @@ with sync_playwright() as pw:
     ok("planned but not logged: past programmed days without a log, not today, not rest days",miss and "2026-11-05 (" in miss[0] and "2026-11-07" not in miss[0] and "2026-11-03" not in miss[0] and "2026-11-02" not in miss[0] and "2026-10-11" not in miss[0],miss)
     ok("per-entry lines carry the substitution and the outcome","2026-11-02 · Easy 5 km Run (main) · 28 min · 5 km · 28:30 · easy · did 5K easy run instead of Easy run 5 km 31:00" in t and "cut short" in [l for l in lines if l.startswith("2026-11-03 · Strength")][0],[l for l in lines if l.startswith("2026-11-0")])
     ok("raw JSON still at the end, old entry untouched",json.loads(t.split("--- JSON (wo_log) ---\n")[1])[0]=={"date":"2026-10-20","name":"Old shape","type":"main","min":30,"sets":3,"of":6,"feel":"7"})
-    opend(p,"2026-11-07");p.evaluate("()=>document.querySelector('details').open=true")
+    opend(p,"2026-11-07");p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("history renders every entry incl. the old shape without errors",p.locator("#hist li").count()==6 and not errs,(p.locator("#hist li").count(),errs,p.locator("#hist li").all_inner_texts()))
     # empty log: summary degrades to just the heading
     c.close();c,p=view(b,"2026-11-07",open_day=False)

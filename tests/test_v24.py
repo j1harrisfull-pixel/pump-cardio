@@ -27,7 +27,7 @@ with sync_playwright() as pw:
     ok("distance label km",p.locator("label:has(#r_d)").inner_text().startswith("Distance (km)"))
     ok("day shows logged","Logged" in p.locator("#dnote").inner_text() or "Today" in p.locator("#dnote").inner_text())
     p.click("#close");ok("strip says Run",p.locator('button.day[data-d="2026-10-14"] .pl').inner_text()=="Run")
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     h=p.locator("#hist li").first.inner_text();ok("history says run","Run Intervals" in h and "Rower" not in h,h)
     # history edit -> main -> run
     p.select_option('#hist select[data-hd="2026-10-14"]',"main");p.wait_for_timeout(150)
@@ -44,7 +44,7 @@ with sync_playwright() as pw:
     p.click('button.day[data-d="2026-10-13"]');p.wait_for_timeout(250);p.click("#alt");p.wait_for_timeout(200);p.click("#fin");p.clock.fast_forward(1000);p.wait_for_timeout(200)
     e=ls(p,"wo_log")[-1];ok("backup logs as backup",e["name"]=="Backup · Upper (KB + Bodyweight)" and e["type"]=="backup" and e["sid"]=="bk13",e)
     ok("backup finish summary",p.locator("#o_n").inner_text()=="Backup · Upper (KB + Bodyweight)")
-    p.click("#o_done");p.evaluate("()=>document.querySelector('details').open=true");ok("backup history","Backup · Upper" in p.locator("#hist li").first.inner_text())
+    p.click("#o_done");p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})");ok("backup history","Backup · Upper" in p.locator("#hist li").first.inner_text())
     c.close()
     # 2b backup + run instead (Wed backup)
     c=ctx(b);p=pg(c,"index.html",T);p.evaluate(SEED);p.reload()

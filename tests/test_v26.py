@@ -75,7 +75,7 @@ with sync_playwright() as pw:
     e=ls(p,"wo_log")[-1];ok("logs under own name + type",e["name"]==Q and e["type"]=="quick" and e["sid"]=="kbq17",e)
     ok("summary name",p.locator("#o_n").inner_text()==Q);p.click("#o_done");p.wait_for_timeout(100)
     p.click("#close");ok("strip says KB 15",p.locator('button.day[data-d="2026-10-17"] .pl').inner_text()=="KB 15")
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("history shows quick name",Q in p.locator("#hist li").first.inner_text())
     opts=p.locator('#hist select[data-hd="2026-10-17"] option').evaluate_all("o=>o.map(x=>x.value+'|'+x.textContent)")
     ok("history Edit has 4 options incl quick",[o.split("|")[0] for o in opts]==["main","backup","run","quick"] or [o.split("|")[0] for o in opts]==["main","backup","quick"],opts)

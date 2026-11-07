@@ -80,7 +80,7 @@ with sync_playwright() as pw:
     ok("session minutes = actual elapsed time when nothing else is known",e["min"]==34,e["min"])
     p.fill("#r_t","41");p.dispatch_event("#r_t","input");fin(p);p.click("#o_done")
     ok("plain minutes normalise to mm:ss and update the same entry",ls(p,"wo_log")[0]["time"]=="41:00" and len(ls(p,"wo_log"))==1)
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("history shows the run line",re.search(r"6\.87 km · 41:00 · steady",p.locator("#hist li").first.inner_text()),p.locator("#hist li").first.inner_text())
     # edit from history
     p.click("#hist .erun");p.wait_for_timeout(100);ok("Edit run sheet prefilled",p.locator("#ers.show").count()==1 and p.locator("#er_km").input_value()=="6.87" and p.locator("#er_t").input_value()=="41:00" and p.locator("#er_e .rc.on").inner_text()=="steady")
@@ -104,7 +104,7 @@ with sync_playwright() as pw:
     if not p.locator("#panel.open").count(): p.click('button.day[data-d="2026-11-03"]');p.wait_for_timeout(200)
     ok("extra run card reopens with its values after reload",p.locator("#runx").count()==1 and p.locator("#r_d").input_value()=="5.5")
     ok("day still shows the strength session as logged",p.locator("#fin").inner_text()=="Update log" and "Logged" in p.locator("#dnote").inner_text() or p.locator("#dnote").inner_text().startswith("Today"))
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     items=p.locator("#hist li").all_inner_texts()
     ok("history lists both; extra run has Edit run but no type dropdown",len(items)==2 and any("Extra run" in x and "5.5 km · 28:10 · easy" in x for x in items) and p.locator('#hist li:has-text("Extra run") select').count()==0 and p.locator('#hist li:has-text("Extra run") .erun').count()==1,items)
     p.select_option('#hist select[data-hd="2026-11-03"]',"backup");p.wait_for_timeout(100)
@@ -117,7 +117,7 @@ with sync_playwright() as pw:
          {"date":"2026-10-17","name":"15-min KB Flow (16 kg)","type":"quick","sid":"kbq17","min":15}]
     c,p=mk(b,"2026-11-07",{"wo_log":OLD})
     ok("old logs without time/effort load unchanged",ls(p,"wo_log")==OLD)
-    p.evaluate("()=>document.querySelector('details').open=true")
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     items=p.locator("#hist li").all_inner_texts()
     ok("old entries render (km, feel, strength line)",len(items)==4 and any("4.1 km" in x and "felt 6/10" in x for x in items) and any("Incline dumbbell press 14 kg · 6/5/–/–" in x for x in items),items)
     ok("Export button in History",p.locator("#exp").is_visible())

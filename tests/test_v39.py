@@ -39,7 +39,7 @@ with sync_playwright() as pw:
     for f in files:
         r=V(json.load(open(f)));ok(f"weeks/{os.path.basename(f)} validates",r["errors"]==[],r["errors"][:3])
     print("built-in week files:",len(files))
-    ok("Weeks list shows the coded weeks and the import button",p.evaluate("()=>{document.querySelector('details').open=true;return document.querySelectorAll('#wks li').length}")>=4 and p.locator("#imp").count()==1)
+    ok("Weeks list shows the coded weeks and the import button",p.evaluate("()=>{document.querySelectorAll('details').forEach(function(d){d.open=true});return document.querySelectorAll('#wks li').length}")>=4 and p.locator("#imp").count()==1)
     c.close()
     # ---------------- 2. the sample week, imported, renders and audits clean ----------------
     c,p=view(b,"2027-01-05",seed=seedw(SAMPLE),open_day=False)
@@ -66,7 +66,7 @@ with sync_playwright() as pw:
     c,p=view(b,"2027-01-04",open_day=False)
     ok("no plan yet: the day says so",p.locator("#week button.day").first.inner_text().endswith("Soon"))
     opend(p,"2027-01-04");ok("tbc note points at import","import it from History" in p.locator("#sess").inner_text())
-    p.evaluate("()=>document.querySelector('details').open=true");p.click("#imp");p.wait_for_timeout(80)
+    p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})");p.click("#imp");p.wait_for_timeout(80)
     ok("import sheet opens",p.locator("#ims.show").count()==1 and p.locator("#im_ok").is_hidden())
     p.fill("#im_t","{not json");p.click("#im_chk");ok("bad JSON reported","Not valid JSON" in p.locator("#im_r").inner_text() and p.locator("#im_ok").is_hidden())
     w=copy.deepcopy(SAMPLE);w["days"]["2027-01-07"]={"main":"ghost"};p.fill("#im_t",json.dumps(w));p.click("#im_chk")
@@ -74,7 +74,7 @@ with sync_playwright() as pw:
     p.fill("#im_t",json.dumps(SAMPLE));p.click("#im_chk");ok("valid week: summary line and Save shown","4 sessions, 7 days" in p.locator("#im_r").inner_text() and p.locator("#im_ok").is_visible(),p.locator("#im_r").inner_text())
     p.click("#im_ok");p.wait_for_selector("#week button.day",timeout=10000);p.wait_for_timeout(200)
     ok("saved: page reloads with the week in place",(ls(p,"wo_weeks") or {}).get("2027-01-04",{}).get("week")=="2027-01-04" and p.locator("#week button.day").first.inner_text().endswith("Run"))
-    p.click('button.day[data-d="2027-01-04"]');p.wait_for_timeout(150);p.evaluate("()=>document.querySelector('details').open=true")
+    p.click('button.day[data-d="2027-01-04"]');p.wait_for_timeout(150);p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
     ok("Weeks list shows it as imported with Remove","imported" in p.locator("#wks").inner_text() and p.locator('[data-rmw="2027-01-04"]').count()==1,p.locator("#wks").inner_text())
     p.click('[data-rmw="2027-01-04"]');p.wait_for_selector("#week button.day",timeout=10000);p.wait_for_timeout(200)
     ok("removed: back to Plan coming Sunday, nothing else touched",not (ls(p,"wo_weeks") or {}) and p.locator("#week button.day").first.inner_text().endswith("Soon") and ls(p,"wo_ver")==12)
