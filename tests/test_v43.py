@@ -25,12 +25,12 @@ with sync_playwright() as pw:
     ok("export: blocks done line","blocks: Shoulder prep – upper, Straight sets sets (2 of 6)" in S and "blocks: none of 4 done" in S,[l for l in S.split("\n") if "blocks" in l])
     ok("export: feel average over the last 4 weeks","Feel (last 4 weeks): average 6/10 over 3 sessions" in S,[l for l in S.split("\n") if "Feel" in l])
     ok("export: misses limited to the last 3 weeks with readable dates",re.search(r"Planned but not logged \(last 3 weeks\): .*Thu 5 Nov \(Strength B4",S) and "2026-10-12" not in S and "Mon 12 Oct" not in S,[l for l in S.split("\n") if "Planned but" in l])
-    ok("export: next week line","Next week (w/c Mon 9 Nov): not planned yet" in S)
+    ok("export: next week line (week 5 is built in since pc-v44)","Next week (w/c Mon 9 Nov): planned" in S)
     ok("export: swapped days with names","Swapped days: Wed 4 Nov ran Fri 6 Nov's session" in S,[l for l in S.split("\n") if "Swapped" in l])
     ok("export: substitution line without a duplicate 'modified'","did 5K easy run instead of KB EMOM 15 · Round 2 + Run" in S and S.count("modified")==0,S)
-    # unplanned week
-    p.click("#next");p.wait_for_timeout(100);opend(p,"2026-11-09")
-    ok("unplanned week: 'No plan yet', names the week, points at Import week, hides Swap and Log",p.locator("#ttl").inner_text()=="No plan yet" and "Nothing planned for w/c Mon 9 Nov" in p.locator("#sess").inner_text() and "Import week" in p.locator("#sess").inner_text() and p.locator("#swap").is_hidden() and p.locator("#tolog").is_hidden())
+    # unplanned week (w/c 16 Nov since pc-v44 built in week 5)
+    p.click("#next");p.wait_for_timeout(100);p.click("#next");p.wait_for_timeout(100);opend(p,"2026-11-16")
+    ok("unplanned week: 'No plan yet', names the week, points at Import week, hides Swap and Log",p.locator("#ttl").inner_text()=="No plan yet" and "Nothing planned for w/c Mon 16 Nov" in p.locator("#sess").inner_text() and "Import week" in p.locator("#sess").inner_text() and p.locator("#swap").is_hidden() and p.locator("#tolog").is_hidden())
     ok("week strip still says Soon",p.locator("#week button.day").first.inner_text().endswith("Soon"))
     # import: days listed, toast, landing week
     p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})");p.click("#imp");p.fill("#im_t",json.dumps(shifted()));p.click("#im_chk");p.wait_for_timeout(100)

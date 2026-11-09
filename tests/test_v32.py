@@ -99,7 +99,7 @@ with sync_playwright() as pw:
     txt=json.dumps({k:D[k] for k in W4})
     ok("medical: no barbell, back squat, conventional deadlift, snatch, inversion",not re.search(r"barbell|back squat|conventional|snatch|handstand|headstand|inverted|valsalva",txt,re.I))
     p.click("#next");p.wait_for_timeout(150)
-    ok("9 Nov still 'Soon'",p.locator('button.day[data-d="2026-11-09"] .pl').inner_text()=="Soon")
+    ok("9 Nov shows week 5 (built in since pc-v44)",p.locator('button.day[data-d="2026-11-09"] .pl').inner_text()=="Upper",p.locator('button.day[data-d="2026-11-09"] .pl').inner_text())
     c.close()
     ok("no page errors",not errs,errs[:3])
     b.close()
