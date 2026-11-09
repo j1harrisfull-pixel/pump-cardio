@@ -1,39 +1,56 @@
-# Programme – Week 5 (Mon 9 – Sun 15 Nov 2026)
+# Programme – Week 5 (Mon 9 – Sun 15 Nov 2026) · rebuilt in pc-v45
 
-Added as `weeks/2026-11-09.json` (pc-v44) by the Health & Fitness bot. Weeks 1–4 are unchanged.
+`weeks/2026-11-09.json`. First written in pc-v44, then rebuilt in pc-v45 after James's feedback ("it is literally the
+same workout"). Weeks 1–4 are unchanged. `up0911` (the pc-v44 Monday) stays in the file so a Monday log made
+before the update still renders; Monday now points at `upb0911`.
 
-**Built from the 8 Nov export, not the plan.** Last completed upper: 6 Nov (all 14 sets, 30 min). Last completed
-lower: 23 Oct. James confirmed he skipped every lower session after 23 Oct, so lower restarts at the 23 Oct loads,
-not the week 3–4 prescriptions. Runs: 5.00 km (14 Oct), easy 5 km (2 Nov), 6.87 km (5 Nov, told in chat),
-5.02 km in 30:17 easy after the EMOM (7 Nov, chosen instead of the 12 min Zone 2 run). Feel averages 4.5/10, so
-the build is steady, not big jumps. The 180 min session time on 7 Nov is a recording error and is ignored.
+**Built from the 8 Nov export, not the plan.** Last completed upper session: 6 Nov. Last completed lower: 23 Oct. James
+skipped every lower session after 23 Oct, so the lower anchors restart at the 23 Oct loads. Runs: 5.00 km
+(14 Oct), easy 5 km (2 Nov), 6.87 km (5 Nov, told in chat), 5.02 km in 30:17 easy (7 Nov). Feel averages 4.5/10.
+**Tue 10 Nov 08:30: hospital outpatient appointment.** Mon is moderate (finisher steady RPE 5–6), Tue is rest.
 
-**Method: double progression.** Same weight, more reps up the range; at the top of the range, the next weight and
-back to the bottom. One compound anchors each strength day, then two-move supersets. One-sided moves: all left,
-then all right. RPE 6–7, 2 RIR, breathe out on the effort, no head-down positions, no heavy spinal loading, stop-signs
-line on every session. Kit: dumbbells, 16 kg and 24 kg kettlebells, 32 kg farmer's carry load, rower.
+## Why it's varied (and still a build)
+- **Model: Marcus Filly / Functional Bodybuilding.** Each strength day goes: warm-up → *strength intensity* anchor
+  paired with a mobility filler → *strength balance* (single-limb, tempo, submaximal "quality movement") → a
+  controlled "functional pump" finisher → mobility cool-down. Filly describes this order and runs conditioning
+  "in control" at about 80–85% rather than flat out ([Kresser interview](https://chriskresser.com/functional-bodybuilding-with-marcus-filly/),
+  [Persist PUMP CONDITION sample](https://intercom.help/functional-bodybuilding/en/articles/8392886-persist-training-sample-pump-condition)).
+- **Anchors stay fixed and measurable** (bench, chin-up, chest-supported row, rear-foot-elevated split squat, RDL),
+  progressed by double progression. Persist keeps "priority lifts" for about 6 weeks while the formats around them change
+  ([Persist highlights](https://functional-bodybuilding.com/blogs/news/persist-february-2023-highlights)). ACSM 2026
+  says consistency plus progressive overload matter more than periodisation for healthy adults
+  ([ACSM 2026](https://journals.lww.com/acsm-msse/fulltext/2026/04000/american_college_of_sports_medicine_position.21.aspx)).
+- **Variety is "same but different", not random.** Accessories, formats, kettlebell moves and runs all rotate
+  ([StrongFirst](https://www.strongfirst.com/introducing-the-strongfirst-wod/),
+  [Dan John, Easy Strength](https://danjohnuniversity.com/essays/even-easier-strength)). Carries are treated as a
+  movement pattern of their own, here as a medley.
+- **Running** stays mostly easy, with one "flavour" per run (hills, fartlek, hill-push walk), all at steady RPE 5–6.
+  The order follows the base-building approach of strides, then hills, then fartlek
+  ([Runner's World](https://www.runnersworld.com/training/a69786605/beginner-running-base-training-plan-12-weeks/),
+  [Jack Daniels](https://coacheseducation.com/endur/jack-daniels-aug-00.php)). The Runner's World fartlek uses RPE 7–8,
+  so ours is capped lower.
+Full notes: `/workspace/health/variety-research.md` (bot box).
 
-**Tue 10 Nov 08:30 is a hospital outpatient appointment**, so Monday is moderate (steady row finisher, no RPE 7
-intervals) and Tuesday is rest.
+| Day | Session · hook | Anchors (from the logs) | New this week | Beat this | Time |
+|---|---|---|---|---|---|
+| Mon 9 | **Upper · Slow Is Strong** | Bench 20 kg **4 × 7** @3110 (6×4 last); chin-up **3 × 8** (7) @3011; chest-supported row next dumbbells up (≈20 kg) **3 × 8** (10 at 17.5 kg) | Wall-slide filler; half-kneeling one-arm dumbbell press 3 × 8 each side; incline prone Y-raise 3 × 10; pump circuit × 3 (incline push-up, kettlebell halo, suitcase hold 24 kg) steady RPE 5–6 | Total push-ups over 3 rounds | ≈44 min |
+| Tue 10 | Rest · Hospital Day | – | Optional 12 min gentle flow; backup 15 min easy walk | – | optional |
+| Wed 11 | **Hill Hunter Run** | – | 10 min easy, **6 × 1:00 uphill / 1:30 walk down** steady RPE 5–6, 10 min easy | Same 6 hills, smoother | ≈39 min |
+| Thu 12 | **Lower · Carry Medley** | Split squat 10 kg **3 × 7 each side** (6); RDL 17.5 kg **3 × 10** (8) | 90/90 filler; single-leg calf raise 3 × 10; single-leg kettlebell RDL 16 kg 2 × 8; side plank 25 s; **Every 2:00 × 4**: farmer's 32 kg 40 m + suitcase 24 kg 20 m each hand | 4 smooth rounds → 5 next time | ≈43 min |
+| Fri 13 | Recovery · Reset Flow (Fri) | – | New optional 14 min flow | – | optional |
+| Sat 14 | **Swing EMOM + Fartlek 5 km** | – | **EMOM 60 s × 12**: complex left / right (16 kg one-arm swing ×6, split-stance row ×6), then 24 kg swing ×10 + halo ×6; run 8 min easy, **fartlek 6 × 1:00 steady / 2:00 jog**, 7 min easy (≈5 km) | 20 s rest left every minute → 5 rounds | ≈49 min |
+| Sun 15 | **Hill Push Walk + Stretch** | – | 10 min easy, **4 × 3:00 brisk uphill / 2:00 walk**, 10 min easy | – | ≈42 min |
 
-| Day | Session | From the logs → this week | Time |
-|---|---|---|---|
-| Mon 9 | Strength A5 · Upper | Bench 20 kg 6/6/6/6 → **20 kg 4 × 7** (8 next week, then 22 kg); chin-up 7 → **8**; chest-supported row 17.5 kg × 10 (top) → **next dumbbells up (≈20 kg) × 8**; seated press 10 → **12** same dumbbells (log the weight); farmer's carry 32 kg 50 → **60 m**; row 5 × 0:40 / 0:40 steady | ≈33 min |
-| Tue 10 | Rest · Hospital Day | Rest; optional 12 min gentle flow (backup: 15 min easy walk) | optional |
-| Wed 11 | Easy 5 km Run + Strides | The easy 5 km he chooses + **first taste of variety: 4 × 0:15 relaxed strides / 0:45 walk**, steady RPE 5–6, not a sprint | ≈39 min |
-| Thu 12 | Strength B5 · Lower + Pull | Split squat 10 kg 6 → **7 each side**; RDL 17.5 kg 8 → **10**; single-arm row 24 kg 5 → **6 each side**; suitcase carry 24 kg 40 → **50 m**; single-leg glute bridge 8 → **10 each side**; easy row 3:00 | ≈35 min |
-| Fri 13 | Recovery · Legs + Breathe Flow 2 | Rest or optional 15 min flow; fresh legs for Saturday | optional |
-| Sat 14 | KB EMOM 15 · Round 3 + 5 km Run | Same rotation on the 16 kg bell; minute 3 goblet squats 5 → **6**; then the **easy 5 km** he actually ran last Saturday | ≈51 min |
-| Sun 15 | Hill Walk 35 + Stretch | 32 → **35 min** steady | ≈39 min |
+Backups are unchanged from pc-v44: light upper with the 16 kg bell + bars, easy walk, Zone 2 row 20, light lower +
+pull, easy row 12, easy 5 km only, easy walk + stretch.
 
-**EMOM (Sat):** `EMOM 60 s × 15`, labels `Complex · left` / `Complex · right` / `Swing ×15 + goblet squat ×6`.
-Minute 1 left complex (3 cleans, 3 front rack squats, 3 presses), minute 2 right, minute 3 15 swings then 6 goblet squats. × 5.
+Safety: RPE 6–7 strength with 2 RIR, breathe out on the effort, no head-down positions, no heavy spinal loading,
+nothing RPE 8+, stop-signs line on every session, km/m and no paces.
 
-**Backups:** Mon light upper (16 kg KB + bars), Tue easy walk, Wed Zone 2 row 20, Thu light lower + pull,
-Fri easy row 12, Sat easy 5 km only, Sun easy walk + stretch.
-
-**Running variety plan (gradual, within the bands):** week 5 strides; then a gentle fartlek at steady effort; later
-short hill pieces at steady or moderate (RPE 7 max). Never hard (RPE 8+).
-
-**Next week:** bench 20 kg × 8 (then 22 kg), chest-supported row build to 10, split squat 8, RDL 12 then 2 kg more.
-Ask about any planned-but-not-logged day before progressing.
+## Weeks 6 onwards: rotation
+- **Anchors** (the same 5 lifts) stay for weeks 5–8 with double progression. In week 9, swap them for "same but different"
+  versions (e.g. incline dumbbell press, goblet split squat, single-leg RDL as the anchor).
+- **Accessories** rotate every week through 3 sets: A (wk 5/8), B (wk 6/9), C (wk 7/10). Each set has a different
+  single-limb press, pull, calf/core and mobility filler.
+- **Formats** rotate every week: Mon finisher circuit → density block → EMOM; Thu carry medley → ladder → chipper.
+  **Runs** rotate hills → strides → fartlek, and the Saturday run stays about 5 km.
