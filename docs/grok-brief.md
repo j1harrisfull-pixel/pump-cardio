@@ -1,8 +1,9 @@
 # Brief for Grok: how you deliver a week to Pump + Cardio (from pc-v39)
 
-You no longer edit src/app.js or any JavaScript, and you do not push code. A week is one JSON text file.
-James pastes it into the app (History → Weeks → Import week → Check → Save). The app validates it and
-builds the sessions itself. If you are asked for "this week's workouts", this file is the deliverable.
+**James's decision, 9 Nov 2026: he does not want to import anything by hand.** You push each week to `main`
+yourself, so it appears in the app when he refreshes. A week is one JSON file, `weeks/<monday>.json`. The app
+validates it and builds the sessions itself. You do not edit src/app.js or any JavaScript: Claude Code still
+owns the app's feature code. If you are asked for "this week's workouts", the pushed week is the deliverable.
 
 ## What you produce
 One JSON object per week. Follow docs/week-format.md in the repo and copy docs/week-sample.json as your
@@ -36,10 +37,14 @@ Every timer block needs a unique id, h (header type) and name; note is the instr
 - Safety line under 160 characters; strength sessions say breathe out on the effort.
 - Strength at RPE 6 to 7, two reps in reserve. Keep sessions around 30 to 40 minutes.
 
-## Delivery
-Send James the JSON as plain text in the chat (a code block is fine), nothing else in the block. If the app's
-Check rejects it he will send you the error lines; reply with a corrected full file. Put rationale and
-progression notes in a short message, not in the file.
+## Delivery (James's decision, 9 Nov 2026)
+Push the week to `main` yourself; James should never have to paste or import anything. For each week:
+1. Write `weeks/<monday>.json` and the rationale in `docs/programme-weekN.md`.
+2. Add the week's content checks in `tests/test_vNN.py` (written with `tests/lib.py`) and add the suite to `FULL` in `scripts/test.sh`.
+3. Bump the version (`bash scripts/bump.sh NN`), build (`bash scripts/build.sh`) and run the tests.
+4. Push to `main`, then check the live `sw.js` shows the new version.
+In chat, send James a short plain summary of the week (rationale and progression notes), not the JSON.
+History → Weeks → Import week stays in the app as a fallback only.
 
 ## What you get back
 His exported history. It shows, per day, planned versus actual for each exercise ("planned 4 × 6 → 22 kg ·
