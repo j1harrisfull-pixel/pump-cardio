@@ -1,0 +1,74 @@
+{"v":1,"week":"2026-11-09","title":"Week 5 · Build from the logs",
+ "notes":"Progressed from the 8 Nov export (logged weights, not the plan). Lower restarts at the 23 Oct loads. Tue 10 Nov is a hospital outpatient day, so Mon is moderate and Tue is rest. Runs are the easy 5 km James actually chooses, with a first taste of relaxed strides on Wed.",
+ "sess":{
+  "up0911":{"name":"Strength A5 · Upper","short":"Upper","safe":"Same bench weight, one more rep. RPE 6–7: breathe out on every rep, no grinding, stop 2 reps short (2 RIR).","blocks":[
+   {"k":"flow","id":"u09wu","h":"Warm-up","name":"Shoulder prep – upper","note":"No forcing.","moves":[["Shoulder CARs – each side",60],["Broomstick pass-throughs",40],["Wall slides",40],["Cat-cow, slow",40]],"phase":"WARM-UP"},
+   {"k":"ex","h":"A · Straight sets","mode":"sup","n":4,"rr":[90,120],"unit":"Set","tid":"u09a","items":[{"x":"db-bench","lab":"A1","rp":7,"tp":"3110","cue":"20 kg each hand, 7 reps (you hit 6/6/6/6 on 6 Nov). Next week 8, then 22 kg."}]},
+   {"k":"ex","h":"B · Superset","mode":"sup","n":3,"rr":[60,90],"unit":"Set","tid":"u09b","items":[{"x":"assisted-chinup","lab":"B1","rp":8,"tp":"3010","cue":"8 reps (was 7), same help from the block."},{"x":"cs-row","lab":"B2","rp":8,"tp":"2011","sw":15,"cue":"10 at 17.5 kg was the top: next dumbbells up (about 20 kg), 8 reps. Build back to 10."}]},
+   {"k":"ex","h":"C · Superset","mode":"sup","n":2,"rr":[45,75],"unit":"Round","tid":"u09c","items":[{"x":"db-shoulder-press","lab":"C1","rp":12,"tp":"2011","cue":"Same dumbbells as last time, 12 reps (was 10). Log the weight. Ribs down, breathe out as you press."},{"x":"farmers-carry","lab":"C2","rp":60,"ru":"m","sw":15,"cue":"Same 32 kg, 60 m (was 50). Tall, short steps, breathe."}]},
+   {"k":"iv","id":"u09iv","h":"Intervals","name":"Row intervals 5 × 0:40 / 0:40","note":"Each round: 0:40 work · 0:40 rest. Steady pace, RPE 5–6.","small":["Kept steady before Tuesday. Work 22–24 s/m · damper 4–5."],"n":5,"work":40,"rest":40,"wl":"steady pace","rl":"light paddle"},
+   {"k":"flow","id":"u09cd","h":"Cool-down","name":"Active stretch – upper","note":"Breathe out into each stretch.","moves":[["Doorway/rack chest stretch – each side",60],["Seated lat reach at bench – each side",60]]}]},
+  "rec1011":{"name":"Rest · Hospital Day","short":"Rest","rest":1,"safe":"Hospital appointment today. Rest, or a gentle walk and the optional flow – no head-down positions, no forcing, breathe slowly.","blocks":[
+   {"k":"rest","name":"Rest day","note":"Appointment day. Rest, or do the optional 12-min flow later. Walk, hydrate, sleep well."},
+   {"k":"flow","id":"m10","h":"Flow","name":"Gentle reset flow","note":"Slow and gentle. 10 s set-up only on position changes.","moves":[["Shoulder CARs – each side",60],["Hip CARs (standing, hold rack) – each side",80],["Cat-cow, slow",60],["Thoracic open book – each side",80],["Lying figure-4 stretch – each side",80],["Slow breathing lying on back",180]],"phase":"MOBILITY"}]},
+  "run1111":{"name":"Easy 5 km Run + Strides","short":"Run","safe":"Easy 5 km like you've been choosing, then 4 relaxed strides – quick feet, not a sprint. Walk whenever needed. Easy pace, RPE 3–4.","blocks":[
+   {"k":"flow","id":"r11wu","h":"Warm-up","name":"Dynamic stretch – run","moves":[["Leg swings – front to back",40],["Leg swings – side to side",40],["Ankle rocks – each side",60],["Standing hip CARs – each side",60]],"phase":"WARM-UP"},
+   {"k":"tm","id":"r11run","h":"Steady","name":"Easy run 5 km","note":"Easy run, RPE 3–4.","sec":1800,"phase":"JOG","counter":1,"small":["5 km at an easy, chatty effort – the time is a guide.","1:00 walk break whenever needed: tap +1 walk break."]},
+   {"k":"iv","id":"r11st","h":"Intervals","name":"Strides 4 × 0:15 / 0:45","note":"Each round: 0:15 work · 0:45 rest. Steady pace, RPE 5–6.","small":["Relaxed strides: smooth and tall, quick light feet. Not a sprint.","Walk back during the rest."],"n":4,"work":15,"rest":45,"wl":"steady","rl":"walk"},
+   {"k":"tm","id":"r11cd","h":"Cool-down","name":"Cool-down walk","note":"Easy walk, RPE 3–4.","sec":120,"phase":"COOL-DOWN","small":"Then stretch calves, hamstrings and hips."},
+   {"k":"fields"}]},
+  "lo1211":{"name":"Strength B5 · Lower + Pull","short":"Lower","safe":"Restart at your 23 Oct weights: more reps, same weight. No heavy spinal loading. RPE 6–7, breathe out on the effort, stop 2 reps short (2 RIR).","blocks":[
+   {"k":"flow","id":"l12wu","h":"Warm-up","name":"Hip prep – lower","note":"No forcing.","moves":[["Ankle rocks – each side",60],["Bodyweight squat, slow",40],["World's greatest stretch – each side",60],["Glute bridge, slow",40]],"phase":"WARM-UP"},
+   {"k":"ex","h":"A · Straight sets","mode":"sup","n":3,"rr":[60,90],"unit":"Set","tid":"l12a","items":[{"x":"rfess","lab":"A1","rp":7,"side":1,"tp":"3110","cue":"10 kg as on 23 Oct, 7 reps each side (was 6). All left, then all right. Hold the rack if needed."}]},
+   {"k":"ex","h":"B · Superset","mode":"sup","n":3,"rr":[60,90],"unit":"Set","tid":"l12b","items":[{"x":"db-rdl","lab":"B1","rp":10,"tp":"3111","cue":"17.5 kg as on 23 Oct, 10 reps (was 8). Head above hips."},{"x":"kb-sa-row","lab":"B2","rp":6,"side":1,"tp":"2011","sw":15,"cue":"24 kg bell, 6 each side (was 5). Hand on bench. All left, then all right."}]},
+   {"k":"ex","h":"C · Superset","mode":"sup","n":2,"rr":[45,75],"unit":"Round","tid":"l12c","items":[{"x":"suitcase-carry","lab":"C1","rp":50,"ru":"m","cue":"24 kg bell, 50 m in one hand (was 40), then switch hands. Stand tall, don't lean."},{"x":"sl-glute-bridge","lab":"C2","rp":10,"side":1,"tp":"2011","sw":15,"cue":"10 each side (was 8). All left, then all right."}]},
+   {"k":"tm","id":"l12fl","h":"Steady","name":"Easy row 3:00","note":"Easy pace, RPE 3–4.","sec":180,"phase":"EASY","small":"18–20 s/m · damper 4–5 · flush the legs."},
+   {"k":"flow","id":"l12cd","h":"Cool-down","name":"Active stretch – lower","note":"Breathe out into each stretch.","moves":[["Couch stretch – each side",60],["Lying figure-4 stretch – each side",60]]}]},
+  "mob1311":{"name":"Recovery · Legs + Breathe Flow 2","short":"Mobility","rest":1,"safe":"Recovery day. Slow controlled moves and gentle holds – no head-down positions, no forcing, breathe slowly.","blocks":[
+   {"k":"rest","name":"Recovery day","note":"Rest, or do the optional 15-min flow. Fresh legs for Saturday."},
+   {"k":"flow","id":"m13","h":"Flow","name":"Legs + breathe flow","note":"Gentle hips and calves. 10 s set-up only on position changes.","moves":[["Ankle CARs – each side",80],["Leg swings – front to back",60],["Calf stretch on block – each side",80],["Half-kneeling hip flexor with reach – each side",80],["Bird-dog, slow",60],["Glute bridge, slow",60],["Side-lying windmill – each side",80],["Lying figure-4 stretch – each side",80],["90/90 hold with lift-offs – each side",80],["Slow breathing lying on back",150]],"phase":"MOBILITY"}]},
+  "kb1411":{"name":"KB EMOM 15 · Round 3 + 5 km Run","short":"KB","safe":"One 16 kg kettlebell. Breathe out on every clean, press and swing; never hold your breath. Smooth reps at RPE 6–7, no grinding (2 RIR).","blocks":[
+   {"k":"flow","id":"k14wu","h":"Warm-up","name":"Kettlebell warm-up","note":"Slow and smooth with the 16 kg bell.","moves":[["Kettlebell halo, slow, alternate direction",40],["Kettlebell hip hinge drill",40],["Prying goblet squat",50],["World's greatest stretch – each side",60]],"phase":"WARM-UP","dir":"up"},
+   {"k":"emom","id":"k14a","h":"EMOM 60 s × 15","name":"Single-bell EMOM","note":"Each 60 s: complex left · right · swings + squats.","rounds":5,"win":60,"cycle":["Complex · left","Complex · right","Swing ×15 + goblet squat ×6"],"list":["Kettlebell clean – ×3 each side","Front-rack squat – ×3 each side","Single-arm press – ×3 each side","Kettlebell swing – ×15","Kettlebell goblet squat – ×6"]},
+   {"k":"tm","id":"k14run","h":"Steady","name":"Easy run 5 km","note":"Easy run, RPE 3–4.","sec":1800,"phase":"JOG","counter":1,"small":["The 5 km you chose last Saturday, now the plan. Time is a guide.","1:00 walk break whenever needed: tap +1 walk break."]},
+   {"k":"flow","id":"k14cd","h":"Cool-down","name":"Active stretch","note":"Breathe out into each stretch.","moves":[["Couch stretch – each side",60],["Calf stretch on block – each side",60],["Thoracic open book – each side",60]]}]},
+  "walk1511":{"name":"Hill Walk 35 + Stretch","short":"Walk","safe":"Three minutes longer than last Sunday: hills or incline, still able to talk. Steady pace, RPE 5–6.","blocks":[
+   {"k":"tm","id":"w15walk","h":"Steady","name":"Hill walk (Zone 2)","note":"Steady walk, RPE 5–6.","sec":2100,"phase":"STEADY","small":"Hills outside, or incline on the Assault Runner."},
+   {"k":"flow","id":"w15st","h":"Cool-down","name":"Stretch","note":"Breathe out into each stretch.","moves":[["Calf stretch on block – each side",60],["Half-kneeling hip flexor with reach – each side",60],["Lying figure-4 stretch – each side",60],["Slow breathing lying on back",60]]},
+   {"k":"fields"}]},
+  "bk0911":{"name":"Backup · Upper (16 kg KB + Bars) 2","short":"Upper","g0":100,"safe":"Less kit: the 16 kg kettlebell plus the bench and bars. RPE 6–7, breathe out on every press and pull, stop 2 reps short (2 RIR).","blocks":[
+   {"k":"flow","id":"x09wu","h":"Warm-up","name":"Shoulder prep – upper","note":"No forcing.","moves":[["Shoulder CARs – each side",60],["Wall slides",40],["Cat-cow, slow",40]],"phase":"WARM-UP"},
+   {"k":"ex","h":"A · Superset","mode":"sup","n":3,"rr":[60,90],"unit":"Set","tid":"x09a","items":[{"x":"kb-floor-press","lab":"A1","rp":8,"side":1,"tp":"3010","cue":"16 kg bell. All left, then all right."},{"x":"assisted-chinup","lab":"A2","rp":6,"tp":"3010","sw":15,"cue":"Easier than Monday: 6 reps, feet on the block."}]},
+   {"k":"ex","h":"B · Superset","mode":"sup","n":2,"rr":[45,75],"unit":"Set","tid":"x09b","items":[{"x":"incline-pushup","lab":"B1","rp":10,"tp":"2010","cue":"Hands on the bench, body straight."},{"x":"farmers-carry","lab":"B2","rp":40,"ru":"m","sw":15,"cue":"Tall, short steps."}]},
+   {"k":"flow","id":"x09cd","h":"Cool-down","name":"Active stretch – upper","note":"Breathe out into each stretch.","moves":[["Doorway/rack chest stretch – each side",60],["Thoracic open book – each side",60]]}]},
+  "bk1011":{"name":"Backup · Easy Walk 15","short":"Walk","g0":100,"safe":"Only if you feel like moving after the appointment. Zone 1 walk, nasal breathing. Easy pace, RPE 3–4.","blocks":[
+   {"k":"tm","id":"x10walk","h":"Steady","name":"Recovery walk (Zone 1)","note":"Easy walk, RPE 3–4.","sec":900,"phase":"EASY","small":"Outside if you can."}]},
+  "bk1111":{"name":"Backup · Zone 2 Row 20","short":"Row","g0":100,"safe":"No running. Zone 2 row with nasal breathing, then gentle stretches. Steady pace, RPE 5–6.","blocks":[
+   {"k":"tm","id":"x11row","h":"Steady","name":"Zone 2 row","note":"Steady pace, Zone 2, RPE 5–6.","sec":1200,"phase":"STEADY","small":"20:00 at 18–20 s/m · damper 4–5."},
+   {"k":"flow","id":"x11st","h":"Cool-down","name":"Stretch","note":"Gentle, no forcing.","moves":[["Couch stretch – each side",60],["Thoracic open book – each side",60],["Slow breathing lying on back",90]],"phase":"MOBILITY"},
+   {"k":"fields","dist":"Distance (m, from PM5)"}]},
+  "bk1211":{"name":"Backup · Lower + Pull (Light) 2","short":"Lower","g0":100,"safe":"Lower energy, light loads, no spinal loading. RPE 6, breathe out on the effort, hold the rack for balance.","blocks":[
+   {"k":"flow","id":"x12wu","h":"Warm-up","name":"Hip prep – lower","note":"No forcing.","moves":[["Ankle rocks – each side",60],["Bodyweight squat, slow",40],["Glute bridge, slow",40]],"phase":"WARM-UP"},
+   {"k":"ex","h":"A · Superset","mode":"sup","n":3,"rr":[60,90],"unit":"Set","tid":"x12a","items":[{"x":"goblet-squat","lab":"A1","rp":8,"tp":"3011","cue":"16 kg bell at your chest, 3 s down."},{"x":"kb-sa-row","lab":"A2","rp":8,"side":1,"tp":"2011","sw":15,"cue":"16 kg bell, hand on bench. All left, then all right."}]},
+   {"k":"ex","h":"B · Superset","mode":"sup","n":2,"rr":[45,75],"unit":"Round","tid":"x12b","items":[{"x":"glute-bridge","lab":"B1","rp":12,"tp":"2011","cue":"On the floor, squeeze at the top."},{"x":"suitcase-carry","lab":"B2","rp":30,"ru":"m","sw":15,"cue":"16 kg bell, switch hands at 30 m."}]},
+   {"k":"flow","id":"x12cd","h":"Cool-down","name":"Active stretch – lower","note":"Breathe out into each stretch.","moves":[["Couch stretch – each side",60],["Lying figure-4 stretch – each side",60]]}]},
+  "bk1311":{"name":"Backup · Easy Row 12 (Fri)","short":"Row","g0":100,"safe":"Recovery day. Very light rowing, nasal breathing. Easy pace, RPE 3–4.","blocks":[
+   {"k":"tm","id":"x13row","h":"Steady","name":"Easy row","note":"Easy pace, RPE 3–4.","sec":720,"phase":"EASY","small":"12:00 at 18–20 s/m · damper 3–4."},
+   {"k":"flow","id":"x13br","h":"Cool-down","name":"Down-regulate","note":"Slow, calm breathing.","moves":[["Calf stretch on block – each side",60],["Slow breathing lying on back",90]],"phase":"MOBILITY"}]},
+  "bk1411":{"name":"Backup · Easy 5 km Run Only","short":"Run","g0":100,"safe":"No kettlebell today: just the easy 5 km. Walk whenever needed. Easy pace, RPE 3–4.","blocks":[
+   {"k":"tm","id":"x14run","h":"Steady","name":"Easy run 5 km","note":"Easy run, RPE 3–4.","sec":1800,"phase":"JOG","counter":1,"small":"1:00 walk break whenever needed: tap +1 walk break."},
+   {"k":"flow","id":"x14cd","h":"Cool-down","name":"Active stretch","note":"Breathe out into each stretch.","moves":[["Couch stretch – each side",60],["Calf stretch on block – each side",60]]},
+   {"k":"fields"}]},
+  "bk1511":{"name":"Backup · Easy Walk + Stretch 2","short":"Walk","g0":100,"safe":"Lowest energy option. Easy walk, then gentle holds – no forcing, no head-down positions. Easy pace, RPE 3–4.","blocks":[
+   {"k":"tm","id":"x15walk","h":"Steady","name":"Easy walk (Zone 1)","note":"Easy walk, RPE 3–4.","sec":900,"phase":"EASY"},
+   {"k":"flow","id":"x15fl","h":"Flow","name":"Gentle stretch","note":"Gentle holds, no forcing.","moves":[["Doorway/rack chest stretch – each side",80],["Couch stretch – each side",80],["Slow breathing lying on back",120]],"phase":"MOBILITY"}]}
+ },
+ "days":{
+  "2026-11-09":{"main":"up0911","backup":"bk0911"},
+  "2026-11-10":{"main":"rec1011","backup":"bk1011"},
+  "2026-11-11":{"main":"run1111","backup":"bk1111"},
+  "2026-11-12":{"main":"lo1211","backup":"bk1211"},
+  "2026-11-13":{"main":"mob1311","backup":"bk1311"},
+  "2026-11-14":{"main":"kb1411","backup":"bk1411"},
+  "2026-11-15":{"main":"walk1511","backup":"bk1511"}}
+}
