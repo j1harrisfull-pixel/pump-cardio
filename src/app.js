@@ -684,7 +684,18 @@ function cue(kind){window.__cue&&window.__cue.push(kind);if(!cueOn())return;
  var c=$("cue");if(!c)return;c.className="";void c.offsetWidth;c.className=kind=="end"?"c2":"c1";hap();if(kind=="end")setTimeout(hap,600);}
 function flash(id){var e=$(id);if(!e)return;e.classList.remove("flash");void e.offsetWidth;e.classList.add("flash");setTimeout(function(){e.classList.remove("flash");},900);}
 function sndUI(){var e=$("snd");if(e)e.hidden=!((T||RT)&&(!ac||ac.state!="running"));}
-function loop(){var now=Date.now(),gap=now-lastTick;lastTick=now;restTick(gap);sndUI();
+// pc-v56: session clock. Starts with the session (first tick, first guided timer, or a tap on "Start session"), stops
+// at Finish (s.end). Tap it while running for a lap you can use on timed exercises; tap again to clear the lap.
+var LAP=null;
+function hms(ms){var t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");}
+function sclk(){var el=$("sclk");if(!el)return;var S=isOpen?S_(sel):null,r=isOpen?R(sel):null,s=isOpen?P(sel):null;
+ var show=!!(S&&!S.rest&&!S.tbc&&mode(sel)=="today"&&!(r.sub||s.oc=="skipped"));if(!show){if(!el.hidden){el.hidden=true;LAP=null;}return;}
+ var st=+LS.get("wo_runstart_"+sel,0)||s.start||0,en=s.end&&s.end>=st?s.end:0,lg=logFor(sel,S.name),h;
+ if(!st){h=lg?"":'<span class="si">▶</span> Start session';el.className="sclk idle";}
+ else if(en&&lg){h='<span class="si">✓</span> '+hms(en-st);el.className="sclk done";LAP=null;}
+ else{h='<span class="si">⏱</span> <b>'+hms(Date.now()-st)+'</b>'+(LAP&&LAP.d==sel?'<span class="lap">lap '+hms(Date.now()-LAP.t)+'</span>':'');el.className="sclk run";}
+ el.hidden=!h;if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
+function loop(){var now=Date.now(),gap=now-lastTick;lastTick=now;restTick(gap);sndUI();sclk();
 if(!T){if(hideAt&&now>hideAt){hideAt=0;$("bar").classList.remove("show");}return;}
 $("bar").classList.add("show");hideAt=0;$("tpause").textContent=T.pa?"Resume":"Pause";$("bar").classList.toggle("paused",!!T.pa);var s=tstate();$("cname").textContent=T.label;$("tround").hidden=!T.amrap;$("trn").textContent=T.rounds||0;
 if(s.i>=T.segs.length){if(gap>2500||T.ask||document.hidden){T.ask=1;LS.set("wo_timer",T);$("bar").classList.add("ask");$("ph").textContent="FINISHED WHILE LOCKED";$("ph").className="";$("now").textContent="Mark done?";$("time").textContent="0:00";$("sub").textContent=T.label;return;}doneT();return;}
@@ -929,7 +940,7 @@ function review(){var el=$("wrev");if(!el)return;var now=new Date(),mon=monOf(to
  for(var i=0;i<7;i++){var k=addDays(mon,i),S=k<=today&&mode(k)!="pre"?SESS[baseSid(k)]:null;if(S&&!S.rest&&!logged[k]&&sk.indexOf(k)<0)miss.push(sdl(k).split(" ")[0]+" "+S.name);}
  var nxt=addDays(mon,7),hasNext=Object.keys(PROG).some(function(d){return d>=nxt&&d<addDays(nxt,7);});
  el.innerHTML='<div class="tql">Your week</div><div class="wkbig"><div><b>'+w.dn+'<small>/'+w.pl+'</small></b><span>sessions</span></div><div><b>'+w.runs+'</b><span>run'+(w.runs==1?'':'s')+'</span></div><div><b>'+w.km+'<small> km</small></b><span>distance</span></div><div><b>'+w.min+'<small> min</small></b><span>running</span></div></div>'+(miss.length?'<div class="prow">Not logged: '+esc(miss.join(" · "))+'</div>':'')+(sk.length?'<div class="prow">Skipped: '+esc(sk.map(function(d){return sdl(d).split(" ")[0];}).join(", "))+'</div>':'')+'<div class="prow">Next week: '+(hasNext?"planned":"not planned yet")+'</div><div class="nagb"><button type="button" class="btn" id="rev_go">Send this week to Grok</button><button type="button" class="swb" id="rev_x">Done</button></div>';}
-function all(){title();week();if(isOpen)renderPanel();prog();hist();if(!RT)rbtnVis();nag();review();}
+function all(){title();week();if(isOpen)renderPanel();sclk();prog();hist();if(!RT)rbtnVis();nag();review();}
 function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();}
 function closeP(){isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
@@ -1043,6 +1054,7 @@ $("topq").addEventListener("click",function(e){var c=e.target.closest("[data-toc
  if(e.target.closest("#xconv")&&S){var l=logs(),i=extraFor(sel);if(i<0)return;var x=l[i],r2=R(sel),s2=P(sel);UNDOPRE={log:JSON.stringify(l),d:sel,s:JSON.stringify(s2),r:JSON.stringify(r2)};r2.sub=1;r2.at=x.act||"run";r2.d=x.km||"";r2.t=x.time||"";r2.e=x.effort||"";r2.f=x.feel||"";r2.sl="";r2.n=x.notes||r2.n||"";s2.oc="modified";
   l.splice(i,1);LS.set("wo_log",l);LS.set("wo_"+sel,s2);LS.set("wo_run_"+sel,r2);RUNOPEN[sel]=false;finBusy=false;$("fin").click();}});
 $("wrev").addEventListener("click",function(e){if(e.target.closest("#rev_go")){doExport();return;}if(e.target.closest("#rev_x")){LS.set("wo_rev",monOf(today));review();}});
+$("sclk").onclick=function(){var s=P(sel);if(!(+LS.get("wo_runstart_"+sel,0)||s.start)){s.start=Date.now();delete s.end;LS.set("wo_"+sel,s);unlock();wake();}else if(this.classList.contains("run")){LAP=LAP&&LAP.d==sel?null:{d:sel,t:Date.now()};}sclk();};
 $("chg").onclick=function(){DCO[sel]=!DCO[sel];renderPanel();};
 // yesterday's session not logged: one line under the week strip (pc-v50)
 function nag(){var el=$("ynag");if(!el)return;var y=addDays(today,-1),S=mode(y)=="pre"?null:S_(y),show=!!(S&&!S.rest&&!S.tbc&&!logFor(y,S.name)&&LS.get("wo_nag","")!=y&&!(isOpen&&sel==y)&&weekOff==0);el.hidden=!show;if(!show){el.innerHTML="";return;}
@@ -1077,8 +1089,9 @@ var bkd=[],bkn=0;S.blocks.forEach(function(b){b=VB(b);if(b.k!="timer"&&b.k!="ex"
 if(S.blocks.some(function(b){return VB(b).counter;})){e.breaks=r.b;if(r.b)x.push(r.b+" walk break"+(r.b==1?"":"s"));}if(s.sc&&Object.keys(s.sc).length)e.sc=s.sc;e.type=curType(d);e.sid=sid(d);if(S.isRun){e.ri=1;x.push("run instead");}else delete e.ri;if(old&&old.custom&&old.type==e.type){e.name=old.name;e.custom=1;}else if(old&&old.name&&old.name!=name&&isName(old.name,name))e.name=old.name;
 if(e.sub&&e.bk&&!e.bk.d.length)x=x.filter(function(l){return !/sets ticked$|blocks done$/.test(l);});  // the session was replaced: no "0 of 20 sets" noise
 if(!x.length)x.push(score(d).d+" of "+score(d).t+" parts done");
+if(st0&&d==today){s.end=Date.now();LS.set("wo_"+d,s);}
 var mins=st0?Math.round((Date.now()-st0)/60000):0;if(d!=today||mins>180||!st0)mins=old?old.min:(d==today?Math.min(mins,180):30);if(e.time&&tmin(e.time))mins=tmin(e.time);if(e.oc=="skipped"&&!e.time&&!e.sub)mins=0;e.min=mins;  // a run logged by its actual elapsed time
-UNDO=UNDOPRE||{log:JSON.stringify(logs()),d:d};UNDOPRE=null;$("o_undo").hidden=false;
+UNDO=UNDOPRE||{log:JSON.stringify(logs()),d:d,s:JSON.stringify((function(){var q=JSON.parse(JSON.stringify(s));delete q.end;return q;})())};UNDOPRE=null;$("o_undo").hidden=false;
 if(e.sub){var l2=[],ni=-1;l.forEach(function(q,qi){if(q&&q.date==d&&q.type=="extra"&&(q.act||"run")==(e.act||"run"))return;if(qi==idx)ni=l2.length;l2.push(q);});l=l2;idx=ni;RUNOPEN[d]=false;}
 if(idx>=0)l[idx]=e;else l.push(e);LS.set("wo_log",l);
 $("o_n").textContent=name+(d!=today?" · "+d:"");$("o_t").textContent=e.min+" min";$("o_d").innerHTML=x.map(esc).join("<br>");$("o_e").textContent=(old?"Log updated. ":"")+(e.oc=="skipped"?"Logged. Rest up, back at it next time.":e.oc=="cut short"?"Stopping early was the right call. Recover well.":(+e.feel>0&&+e.feel<=4)?ENC[1]:[ENC[0],ENC[2],ENC[3]][Math.floor(Math.random()*3)]);$("ov").classList.add("show");ovAt=Date.now();all();};
