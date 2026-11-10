@@ -97,6 +97,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
   - Audio uses one AudioContext, resumed on every tap and on `visibilitychange`. It handles the iOS "interrupted" state. `beep()` also pushes to `window.__bp` for tests.
   - **Never rely on `navigator.vibrate`**: iOS has no vibration API.
   - **Music first (pc-v54):** the pc-v36 silent clip (`#snda`, looped by `keepAudio` so beeps sound with the ring switch on silent) makes iOS treat the app as a music player and **paused the user's music** when a guided timer started (reported by James on his phone). It is now opt in: the tick box **Beep even when the phone is on silent (this pauses your music)** (`#loud`, `wo_loud`), off by default. By default `audioMode()` asks for `navigator.audioSession.type = "ambient"` (Safari 16.4+; ignored elsewhere) so the Web Audio beeps mix with other audio and follow the ring switch; with the opt in it asks for `"playback"` and the clip runs. `"transient"` (play over music with ducking) was not used: WebKit bug 264473 reports it silent on some iOS versions.
+  - **Cues you can see (pc-v55):** iOS WebKit only offers the Ambient category (mixes with music, muted by the ring switch) or Playback (ignores the switch, interrupts music); its `AudioSessionIOS.mm` sets no mix or duck options, so a web app cannot beep over music on a silent phone. `cue(kind)` therefore sits beside every beep: `"change"` washes the whole screen orange once (`#cue.c1`, 0.9 s fade), `"end"` twice (`#cue.c2`; block finished, rest over), `"tick"` pulses the digits on 3-2-1 (`.tk3`, scale only). No wash at timer start, never two washes within 500 ms. `hap()` clicks a hidden `<input type="checkbox" switch>` label on each wash: Safari may give a light haptic tap, best effort and untested on the phone. The tick box **Flash the screen at every change** (`#cueon`, `wo_cue`, default on) turns the visuals off. `window.__cue` records cues for tests.
   - Screen Wake Lock is held while today's panel is open.
 
 ### localStorage keys (all JSON). Compatibility rules
@@ -112,6 +113,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
 | `wo_timer`, `wo_rest`, `wo_restlast`, `wo_autorest` | running guided timer, running rest timer, last manual rest, auto-rest setting (default on) |
 | `wo_swaps` | queued "swap today's session" requests |
 | `wo_startdate`, `wo_ver` | programme start date and data version (migrations in `migrate()`) |
+| `wo_cue` | 0 = no screen flash or digit pulse at changes (pc-v55, default on) |
 | `wo_rev`, `wo_loud` | the Monday whose Sunday week review was dismissed (pc-v52); 1 = beep even on silent, which pauses music (pc-v54, default off) |
 | `wo_chg`, `wo_nag` | 1 = keep the Change session options open (tests); the date whose "yesterday is not logged" line was dismissed (pc-v50) |
 | `wo_weeks`, `wo_lastexport`, `wo_flash` | imported weeks `{monday: week JSON}` (pc-v39), the date of the last export / backup (pc-v41), one-shot `{week, msg}` shown as a toast after an import reload (pc-v43) |

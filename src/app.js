@@ -656,7 +656,7 @@ function tNext(){if(!T)return;var st=tstate();if(st.i>=T.segs.length-1){T.t0=tno
 function stopT(){T=null;LS.del("wo_timer");relWake();$("bar").classList.remove("show","ask","locked");}
 function doneT(noTick){var t=T;T=null;LS.del("wo_timer");relWake();$("bar").classList.remove("ask");var p=P(t.date);if(noTick){$("bar").classList.remove("show");if(isOpen)renderPanel();return;}
 if(t.id.indexOf("rest:")==0){var rk=t.id.slice(5),c=+p[rk]||1;if(c<(t.max||3))p[rk]=c+1;else p[rk]=c;}else if(t.amrap||t.score){scSheet(t);}else p.s[t.id]=1;LS.set("wo_"+t.date,p);
-$("ph").textContent="DONE";$("ph").className="rest";$("now").textContent="Done";$("time").textContent="0:00";$("sub").textContent=t.label;$("bar").className="show p-rest";beep(988,.3);setTimeout(function(){beep(988,.6);},380);flash("bar");hideAt=Date.now()+4000;if(isOpen)renderPanel();prog();}
+$("ph").textContent="DONE";$("ph").className="rest";$("now").textContent="Done";$("time").textContent="0:00";$("sub").textContent=t.label;$("bar").className="show p-rest";beep(988,.3);setTimeout(function(){beep(988,.6);},380);flash("bar");cue("end");hideAt=Date.now()+4000;if(isOpen)renderPanel();prog();}
 // AMRAP: score entered once at the end (rounds, kg, effort word), then the block is ticked
 var SCT=null;
 function scSheet(t){SCT={id:t.id,date:t.date,e:""};$("sc_d").textContent=t.label;$("sc_r").value=t.rounds||(t.score?t.segs.filter(function(g){return g[0]=="WORK";}).length:0);$("sc_k").value="";[].forEach.call($("sc_e").children,function(x){x.classList.remove("on");});$("scs").classList.add("show");}
@@ -675,6 +675,13 @@ function ctr(i){var k=T.kind,N=0,done=0,pre=T.pre?T.segs[0][1]:0;T.segs.forEach(
  if(k=="iv"||k=="circ"){var n=0,r=0;T.segs.forEach(function(g){n=Math.max(n,g[3]||0);});for(var j=Math.min(i,T.segs.length-1);j>=0&&!r;j--)r=T.segs[j][3]||0;return "Round "+Math.max(1,r)+" of "+(n||N);}
  var tot=dur(T.segs)-pre,el=Math.max(0,Math.floor((tnow()-T.t0)/1000-pre));return fmt(Math.min(tot,el))+" of "+fmt(tot);}
 var lastTick=0;
+// pc-v55: cues you can see (and, where iOS allows, feel) for a phone on silent with music playing. cue("change") washes
+// the whole screen orange once, cue("end") twice, cue("tick") pulses the digits on 3-2-1. Never faster than two a second.
+function cueOn(){return LS.get("wo_cue",1)!=0;}
+function hap(){try{var l=$("hxl");if(l)l.click();}catch(e){}}  // best effort: Safari gives a light tap when a switch input toggles
+function cue(kind){window.__cue&&window.__cue.push(kind);if(!cueOn())return;
+ if(kind=="tick"){["time","rtime"].forEach(function(i){var e=$(i);if(!e)return;e.classList.remove("tk3");void e.offsetWidth;e.classList.add("tk3");});return;}
+ var c=$("cue");if(!c)return;c.className="";void c.offsetWidth;c.className=kind=="end"?"c2":"c1";hap();if(kind=="end")setTimeout(hap,600);}
 function flash(id){var e=$(id);if(!e)return;e.classList.remove("flash");void e.offsetWidth;e.classList.add("flash");setTimeout(function(){e.classList.remove("flash");},900);}
 function sndUI(){var e=$("snd");if(e)e.hidden=!((T||RT)&&(!ac||ac.state!="running"));}
 function loop(){var now=Date.now(),gap=now-lastTick;lastTick=now;restTick(gap);sndUI();
@@ -682,11 +689,11 @@ if(!T){if(hideAt&&now>hideAt){hideAt=0;$("bar").classList.remove("show");}return
 $("bar").classList.add("show");hideAt=0;$("tpause").textContent=T.pa?"Resume":"Pause";$("bar").classList.toggle("paused",!!T.pa);var s=tstate();$("cname").textContent=T.label;$("tround").hidden=!T.amrap;$("trn").textContent=T.rounds||0;
 if(s.i>=T.segs.length){if(gap>2500||T.ask||document.hidden){T.ask=1;LS.set("wo_timer",T);$("bar").classList.add("ask");$("ph").textContent="FINISHED WHILE LOCKED";$("ph").className="";$("now").textContent="Mark done?";$("time").textContent="0:00";$("sub").textContent=T.label;return;}doneT();return;}
 $("cctr").textContent=ctr(s.i);
-var g=T.segs[s.i];if(s.i!=lastI){if(lastI!=-2){beep(988,.6);flash("bar");}lastI=s.i;var rd=g[0]=="READY",rs=g[0]=="REST";$("ph").textContent=rd?"GET READY":rs?"REST":"WORK";$("ph").className=rd?"ready":rs?"rest":"work";
+var g=T.segs[s.i];if(s.i!=lastI){if(lastI!=-2){beep(988,.6);flash("bar");if(lastI>=0)cue("change");}lastI=s.i;var rd=g[0]=="READY",rs=g[0]=="REST";$("ph").textContent=rd?"GET READY":rs?"REST":"WORK";$("ph").className=rd?"ready":rs?"rest":"work";
  ["p-work","p-rest","p-ready"].forEach(function(c){$("bar").classList.remove(c);});$("bar").classList.add(rd?"p-ready":rs?"p-rest":"p-work");
  var eg=rd||rs?null:emomGroup(s.i);$("nowd").textContent=eg&&eg.side?eg.text:"";$("nowd").hidden=!(eg&&eg.side);
  $("now").textContent=rd?"Get ready":eg?(eg.side?eg.side.charAt(0).toUpperCase()+eg.side.slice(1):eg.text):T.amrap&&!rs&&T.list?T.list.slice(0,4).join("\n"):segLab(g);var nx=nextLab(s.i);$("sub").textContent=nx?"Next: "+nx:(T.plan?"Last minute":"Last one");}
-if(s.left!=lastL){$("time").textContent=fmt(s.left);if(!T.pa&&s.left<=3&&lastL>s.left)beep(440,.1);lastL=s.left;}}
+if(s.left!=lastL){$("time").textContent=fmt(s.left);if(!T.pa&&s.left<=3&&lastL>s.left){beep(440,.1);cue("tick");}lastL=s.left;}}
 // rest timer (strength blocks)
 var RT=LS.get("wo_rest",null);
 function autoRest(){return LS.get("wo_autorest",true)!==false;}
@@ -695,8 +702,8 @@ function rbtnVis(){var S=isOpen?S_(sel):null,off=isOpen&&(R(sel).sub||P(sel).oc=
 function stopRest(){RT=null;LS.del("wo_rest");$("rbar").classList.remove("show","zero");rbtnVis();relWake();}
 function restAdj(d){if(!RT)return;RT.end=Math.max(Date.now()+1000,RT.end+d*1000);LS.set("wo_rest",RT);restTick(0);}
 function restTick(gap){var rb=$("rbar");if(!RT){rb.classList.remove("show");rbtnVis();return;}$("rbtn").hidden=true;rb.classList.add("show");var left=Math.ceil((RT.end-Date.now())/1000);
-if(left<=0){if(!RT.z){RT.z=Date.now();LS.set("wo_rest",RT);rb.classList.add("zero");$("rtime").textContent="0:00";$("rlab").textContent="Rest over · next set";beep(1175,.8);flash("rbar");}else if(Date.now()-RT.z>6000)stopRest();return;}
-$("rtime").textContent=fmt(left);$("rlab").textContent=RT.label;if(left<=3&&RT.ll>left)beep(440,.08);RT.ll=left;}
+if(left<=0){if(!RT.z){RT.z=Date.now();LS.set("wo_rest",RT);rb.classList.add("zero");$("rtime").textContent="0:00";$("rlab").textContent="Rest over · next set";beep(1175,.8);flash("rbar");cue("end");}else if(Date.now()-RT.z>6000)stopRest();return;}
+$("rtime").textContent=fmt(left);$("rlab").textContent=RT.label;if(left<=3&&RT.ll>left){beep(440,.08);cue("tick");}RT.ll=left;}
 setInterval(loop,250);
 // rendering
 function ticks(s){return Object.keys(s.t).filter(function(k){return s.t[k];}).length;}
@@ -956,6 +963,7 @@ $("tround").onclick=function(){if(!T)return;T.rounds=(T.rounds||0)+1;LS.set("wo_
 $("rskip").onclick=stopRest;$("rm15").onclick=function(){restAdj(-15);};$("rp15").onclick=function(){restAdj(15);};
 $("rbtn").onclick=function(){startRest(+LS.get("wo_restlast",90)||90,"Rest");};
 $("snd").onclick=function(){unlock();};
+(function(){var c=$("cueon");c.checked=cueOn();c.onchange=function(){LS.set("wo_cue",c.checked?1:0);if(c.checked)cue("change");};})();
 (function(){var c=$("loud");c.checked=loud();c.onchange=function(){LS.set("wo_loud",c.checked?1:0);audioMode();keepAudio(!!(T||RT));};audioMode();})();
 (function(){var c=$("autorest");c.checked=autoRest();c.onchange=function(){LS.set("wo_autorest",c.checked);if(isOpen)renderSess();};})();
 var SX=$("sess");

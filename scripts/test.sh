@@ -9,8 +9,8 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 PY=${PY:-python3}; JOBS=${JOBS:-3}
-FULL="test_audit test_v25 test_app test_wt test_v18 test_v20 test_v24 test_v26 test_v28 test_v29 test_v30 test_v31 test_v32 test_v33 test_v34 test_v35 test_v37 test_v39 test_v40 test_v41 test_v42 test_v43 test_v44 test_v46 test_v47 test_v48 test_v49 test_v50 test_v51 test_v52 test_v53 test_v54 test_sw"
-FAST="test_audit test_app test_v31 test_v34 test_v35 test_v37 test_v39 test_v40 test_v41 test_v42 test_v43 test_v44 test_v46 test_v47 test_v48 test_v49 test_v50 test_v51 test_v52 test_v53 test_v54"
+FULL="test_audit test_v25 test_app test_wt test_v18 test_v20 test_v24 test_v26 test_v28 test_v29 test_v30 test_v31 test_v32 test_v33 test_v34 test_v35 test_v37 test_v39 test_v40 test_v41 test_v42 test_v43 test_v44 test_v46 test_v47 test_v48 test_v49 test_v50 test_v51 test_v52 test_v53 test_v54 test_v55 test_sw"
+FAST="test_audit test_app test_v31 test_v34 test_v35 test_v37 test_v39 test_v40 test_v41 test_v42 test_v43 test_v44 test_v46 test_v47 test_v48 test_v49 test_v50 test_v51 test_v52 test_v53 test_v54 test_v55"
 if [ "${1:-}" = "--fast" ]; then SUITES=$FAST; export WEEK=${WEEK:-current}; else SUITES=${*:-$FULL}; fi
 bash scripts/build.sh
 mkdir -p test-output; rm -f test-output/*.rc
