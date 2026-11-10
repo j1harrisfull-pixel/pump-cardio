@@ -15,11 +15,11 @@ with sync_playwright() as pw:
     ok("Log ↓ is gone (pc-v50: the top question replaced it), Swap still there",p.locator("#tolog").count()==0 and p.locator("#swap").is_visible())
     ok("Reset is a small link away from Finish, Finish alone in the actions",p.locator("#acts button").all_inner_texts()==["Finish workout"] and p.locator("#rst").inner_text()=="Reset this day…" and p.locator("#rst").evaluate("e=>getComputedStyle(e).fontSize")=="15px")
     T("30:05");p.fill("#r_d","5.02");p.dispatch_event("#r_d","input");p.click('#r_e [data-e="easy"]');p.fill("#r_f","5");p.dispatch_event("#r_f","input")
-    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input")
-    ok("different run chip is on and stored as modified + sub",p.locator("#oc .rc.on").inner_text()=="different run" and ls(p,"wo_run_2026-11-07")["sub"]==1 and ls(p,"wo_2026-11-07")["oc"]=="modified")
-    p.click('#oc [data-oc="planned"]');p.wait_for_timeout(60)
-    ok("as planned clears the different run flag and the text field",ls(p,"wo_run_2026-11-07")["sub"]==0 and p.locator("#r_sl").count()==0 and p.locator("#oc .rc.on").inner_text()=="as planned")
-    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input")
+    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);det(p);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input")
+    ok("different run chip is on and stored as modified + sub",p.locator("#toc .rc.on").inner_text()=="Something else" and ls(p,"wo_run_2026-11-07")["sub"]==1 and ls(p,"wo_2026-11-07")["oc"]=="modified")
+    p.click('#toc [data-toc="plan"]');p.wait_for_timeout(60)
+    ok("The plan (top chip) clears the different run flag and the form",ls(p,"wo_run_2026-11-07")["sub"]==0 and p.locator("#r_sl").count()==0 and p.locator("#toc .rc.on").inner_text()=="The plan")
+    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);det(p);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input")
     fin(p);od=p.locator("#o_d").inner_text()
     ok("summary: whole session replaced, no sets/blocks noise (pc-v46), no 'modified' duplicate, no '0 walk breaks'","did 5K easy run instead of KB EMOM 15 · Round 2 + Run" in od and "blocks done" not in od and "sets" not in od and "modified" not in od and "walk break" not in od,od)
     ok("feel 5 is not a flat day",p.locator("#o_e").inner_text()!="Showing up on a flat day is the win.")
@@ -34,7 +34,7 @@ with sync_playwright() as pw:
     if p.locator("#bar.show").count(): p.click("#stop")
     emom=p.evaluate("()=>[...document.querySelectorAll('#sess [data-t]')].map(e=>e.dataset.t).find(x=>x=='k07a')");R=run_block(p,"k07a")
     if p.locator("#bar.show").count(): p.click("#stop")
-    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input");fin(p);p.click("#o_done");e=ls(p,"wo_log")[0]
+    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);det(p);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input");fin(p);p.click("#o_done");e=ls(p,"wo_log")[0]
     ok("EMOM done + different run: plan is the run piece, bk lists the done blocks",e["plan"]=="Zone 2 run 12:00" and e["bk"]["d"]==["Kettlebell warm-up","Single-bell EMOM"] and e["bk"]["n"]==4,e)
     c.close()
     # strength: rest bar label and clearing; Progress weight; Edit run only on run logs

@@ -13,7 +13,7 @@ with sync_playwright() as pw:
     ok("run day: one set of outcome chips incl. different run, none on, no text field yet (pc-v42)",p.locator("#oc .rc").all_inner_texts()==["as planned","different run","modified","cut short","skipped"] and p.locator("#oc .rc.on").count()==0 and p.locator("#r_sl").count()==0 and p.locator("#r_sub").count()==0)
     ok("notes stay in the Actual card on a run day",p.locator("#s_nt").count()==0 and p.locator("#r_n").count()==1)
     p.click('#oc [data-oc="different run"]');p.wait_for_timeout(80)
-    ok("different run chip: flag saved, outcome modified, text field appears and takes focus",(ls(p,"wo_run_"+RUN) or {}).get("sub")==1 and (ls(p,"wo_"+RUN) or {}).get("oc")=="modified" and p.locator("#r_sl").count()==1 and p.evaluate("()=>document.activeElement&&document.activeElement.id")=="r_sl")
+    ok("different run chip: flag saved, outcome modified, the name field sits under Add details (pc-v53)",(ls(p,"wo_run_"+RUN) or {}).get("sub")==1 and (ls(p,"wo_"+RUN) or {}).get("oc")=="modified" and (det(p),p.locator("#r_sl").count())[-1]==1)
     p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input");p.fill("#r_d","5");p.dispatch_event("#r_d","input");p.fill("#r_t","28:30");p.dispatch_event("#r_t","input");p.click('#r_e [data-e="easy"]')
     ok("what you ran instead is saved as typed",ls(p,"wo_run_"+RUN).get("sl")=="5K easy run")
     fin(p)
@@ -41,7 +41,7 @@ with sync_playwright() as pw:
     # a run inside a mixed session (Sat 7 Nov: KB EMOM 15 + Zone 2 run) gets the same Actual card (pc-v38)
     c,p=view(b,"2026-11-07")
     ok("mixed session with a run block: Actual card, different run chip, no Add a run",p.locator("#r_d").count()==1 and p.locator('#oc [data-oc="different run"]').count()==1 and p.locator("#addrun").count()==0 and p.locator("#runx").count()==0)
-    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input");p.fill("#r_d","5.1");p.dispatch_event("#r_d","input");p.fill("#r_t","30:00");p.dispatch_event("#r_t","input");p.click('#r_e [data-e="easy"]')
+    p.click('#oc [data-oc="different run"]');p.wait_for_timeout(60);det(p);p.fill("#r_sl","5K easy run");p.dispatch_event("#r_sl","input");p.fill("#r_d","5.1");p.dispatch_event("#r_d","input");p.fill("#r_t","30:00");p.dispatch_event("#r_t","input");p.click('#r_e [data-e="easy"]')
     fin(p);p.click("#o_done");e=ls(p,"wo_log")[0]
     ok("log: nothing else done, so the whole session was replaced (plan = session name)",e.get("sub")=="5K easy run" and e.get("plan")=="KB EMOM 15 · Round 2 + Run" and e.get("bk",{}).get("n")==4 and e["km"]=="5.1" and e["time"]=="30:00" and e["type"]=="main" and len(ls(p,"wo_log"))==1,e)
     p.evaluate("()=>document.querySelectorAll('details').forEach(function(d){d.open=true})")
