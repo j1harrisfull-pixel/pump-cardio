@@ -726,7 +726,7 @@ function score(k){var S=S_(k);if(!S||S.rest)return null;var s=P(k),d=0,t=0;S.blo
 function bn(b,s){return b.n+((s&&s.xs&&+s.xs[b.tid||b.id])||0);}
 function skp(s,gi){return !!(s&&s.sk&&s.sk[gi]);}
 function setsTotal(S,s){var n=0;s=s||P(sel);S.blocks.forEach(function(b){if(b.k=="ex")b.items.forEach(function(it){if(!skp(s,it.gi))n+=bn(b,s);});});return n;}
-function prog(){var k=isOpen?sel:today,sc=score(k),f=sc?Math.min(1,sc.d/sc.t):0;var S=S_(k),lgp=S&&!S.rest?logFor(k,S.name):null;if(lgp&&(lgp.km||lgp.time||lgp.oc=="planned"||lgp.oc=="modified"))f=1;$("rg").style.strokeDashoffset=194.8*(1-f);$("pct").textContent=sc?Math.round(f*100)+"%":"–";}
+function prog(){var k=isOpen?sel:today,sc=score(k),f=sc?Math.min(1,sc.d/sc.t):0;var S=S_(k),lgp=S&&!S.rest?logFor(k,S.name):null;if(lgp&&(lgp.km||lgp.time||lgp.oc=="planned"||lgp.oc=="modified"))f=1;$("rg").style.strokeDashoffset=194.8*(1-f);$("pct").textContent=sc?Math.round(f*100)+"%":"–";var pb=$("sbp");if(pb)pb.textContent=!sc?"":lgp&&!lgp.sub?"✓ Logged":lgp?"✓ "+(lgp.min||0)+" min":sc.d+" of "+sc.t;}
 var EDK=null,MO={},SM={};
 function unitOf(it){return it.ru=="s"?"s":it.ru=="m"?"m":"";}
 function rxOf(b,it){return b.n+" × "+it.rp+(it.ru=="s"?" s":it.ru=="m"?" m":"")+(it.side?" each side":"");}
@@ -767,9 +767,10 @@ var SHOWP={},ACTS={run:"Run",walk:"Walk",row:"Row",gym:"Gym",mob:"Mobility",othe
 // pc-v49: the question sits at the top of the day. "Something else" / "Skipped it" put the day in off-plan mode: the log
 // card leads, the planned blocks fold behind "Show the planned session", and a Save button sits right under the form.
 function topQ(S,s,r){var tq=$("topq");if(!tq)return;var m=mode(sel);if(!S||S.rest||S.tbc||m=="future"||m=="pre"){tq.hidden=true;tq.innerHTML="";return;}tq.hidden=false;
- var cur=r.sub?"else":s.oc=="skipped"?"skip":"plan",h='<div class="tql">What did you do?</div><div class="rcs" id="toc">'+[["plan","The plan"],["else","Something else"],["skip","Skipped"]].map(function(c){return '<button type="button" class="rc'+(cur==c[0]?" on":"")+'" data-toc="'+c[0]+'">'+c[1]+'</button>';}).join("")+'</div>';
+ var cur=r.sub?"else":s.oc=="skipped"?"skip":"plan",coll=TABS&&m=="today"&&cur=="plan"&&!logFor(sel,S.name)&&extraFor(sel)<0&&!TQO[sel],h='<div class="tql">What did you do?</div><div class="rcs" id="toc">'+[["plan","The plan"],["else","Something else"],["skip","Skipped"]].map(function(c){return '<button type="button" class="rc'+(cur==c[0]?" on":"")+'" data-toc="'+c[0]+'">'+c[1]+'</button>';}).join("")+'</div>';
  var xi=extraFor(sel),lgm=logFor(sel,S.name);if(xi>=0&&!r.sub&&(!lgm||lgm.oc=="skipped")){var x=logs()[xi],rl=runLine(x).replace(/<[^>]*>/g,"");h+='<div class="conv">You logged <b>'+esc(x.name||"an activity")+(rl?" · "+esc(rl):"")+'</b> on this day.<button type="button" class="btn" id="xconv">It replaced '+esc(S.name)+'</button></div>';}
- tq.innerHTML=h;}
+ tq.classList.toggle("q",coll);if(coll)h='<button type="button" class="tqq" data-tqx="1">Doing something else or skipping?<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>';tq.innerHTML=h;}
+var TQO={};
 function renderSess(){var S=S_(sel),s=P(sel),r=R(sel),h="",hA="",hX="",hO="",n=0,hasF=false,nDone=0,firstOpen=-1;
 S.blocks.forEach(function(b){
  if(b.k=="rest"){var nmx=b.name,ntx=b.note;if(S.tbc){nmx="No plan yet";ntx="Nothing planned for w/c "+sdl(monOf(sel))+". Ask Health & Fitness for the week file, then "+(TABS?"Settings on the Today screen → Import week.":"History → Weeks → Import week.")+(sel<=today?(TABS?" Until then, rest or log any activity below.":" Until then, pick a backup from another day or rest."):"");}h+='<div class="card"><div class="name">'+nmx+'</div><div class="note">'+ntx+'</div></div>';return;}
@@ -884,7 +885,7 @@ renderSess();hist();}
 var DCO={};
 function subLog(k){var S=S_(k),lg=S&&!S.rest?logFor(k,S.name):null;return lg&&lg.sub?lg:null;}
 function stripLab(k){var lg=subLog(k);return lg&&lg.act&&ACTS[lg.act]?ACTS[lg.act]:plan(k);}
-function title(){var k=isOpen?sel:today,S=S_(k),sl=subLog(k);$("ttl").textContent=sl?sl.sub:S?S.name:"Pump + Cardio";$("date").textContent=pd(k).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(sl?" · instead of "+(sl.plan||S.name):"");}
+function title(){var k=isOpen?sel:today,S=S_(k),sl=subLog(k);$("ttl").textContent=sl?sl.sub:S?S.name:"Pump + Cardio";var sb=$("sbt");if(sb)sb.textContent=$("ttl").textContent;$("date").textContent=pd(k).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(sl?" · instead of "+(sl.plan||S.name):"");}
 function monday(){var d=pd(today),off=(d.getDay()+6)%7;return addDays(today,-off+weekOff*7);}
 function editable(k){return k>=today&&k>=SD&&(k<=LEGACY_END||!!baseSid(k));}
 function week(){var m=monday(),h="",done={};logs().forEach(function(e){if(e&&e.date&&!(e.oc=="skipped"&&!e.sub&&!e.km&&!e.time))done[e.date]=1;});
@@ -981,7 +982,7 @@ function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP(
 var SCY={};
 function place(k,to){var y=SCY[k],el=null;if(to=="actual")[].forEach.call(document.querySelectorAll("#sess h2"),function(x){if(!el&&x.textContent=="Actual")el=x;});else if(to)el=document.querySelector(to);if(el){el.scrollIntoView({block:"start"});window.scrollBy(0,-70);return;}if(y>0){window.scrollTo(0,y);return;}
  var u=k==today?document.querySelector("#sess .upnext"):null;if(u){u.scrollIntoView({block:"start"});window.scrollBy(0,-64);}else window.scrollTo(0,0);}
-function closeP(){if(TABS&&isOpen){SCY[sel]=window.scrollY;var r0=R(sel),s0=P(sel);
+function closeP(){if(TABS&&isOpen){SCY[sel]=window.scrollY;delete TQO[sel];var r0=R(sel),s0=P(sel);
   if(r0.sub&&!subLog(sel)&&!(r0.d||r0.t||r0.n||r0.sl||r0.e||r0.f)){r0.sub=0;if(s0.oc=="modified")s0.oc="";LS.set("wo_run_"+sel,r0);LS.set("wo_"+sel,s0);}}
  isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();if(TABS&&TAB=="week")window.scrollTo(0,WSY);}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
@@ -1090,7 +1091,7 @@ function weeksList(){var ks=Object.keys(WEEKS).sort(),h=ks.map(function(k){var w
  var codeWeeks={};Object.keys(PROG).forEach(function(d){var m=monOf(d);if(!WEEKS[m]&&d>LEGACY_END)codeWeeks[m]=1;});h=Object.keys(codeWeeks).sort().map(function(k){return "<li><span>w/c "+esc(sdl(k))+" · built in</span></li>";}).join("")+h;$("wks").innerHTML=h||"<li>No weeks loaded</li>";}
 var IMW=null;
 document.addEventListener("click",function(e){if(e.target.closest("#bknow"))doExport();});
-$("topq").addEventListener("click",function(e){var c=e.target.closest("[data-toc]"),S=S_(sel);if(c&&S){var s=P(sel),r=R(sel),w=c.dataset.toc,was=r.sub?"else":s.oc=="skipped"?"skip":"plan";if(w==was)return;
+$("topq").addEventListener("click",function(e){if(e.target.closest("[data-tqx]")){TQO[sel]=true;renderSess();return;}var c=e.target.closest("[data-toc]"),S=S_(sel);if(c&&S){var s=P(sel),r=R(sel),w=c.dataset.toc,was=r.sub?"else":s.oc=="skipped"?"skip":"plan";if(w==was)return;
   if(w=="else"){r.sub=1;s.oc="modified";}else if(w=="skip"){r.sub=0;s.oc="skipped";}else{r.sub=0;s.oc="";}LS.set("wo_"+sel,s);LS.set("wo_run_"+sel,r);renderSess();prog();if(!RT)rbtnVis();return;}
  if(e.target.closest("#xconv")&&S){var l=logs(),i=extraFor(sel);if(i<0)return;var x=l[i],r2=R(sel),s2=P(sel);UNDOPRE={log:JSON.stringify(l),d:sel,s:JSON.stringify(s2),r:JSON.stringify(r2)};r2.sub=1;r2.at=x.act||"run";r2.d=x.km||"";r2.t=x.time||"";r2.e=x.effort||"";r2.f=x.feel||"";r2.sl="";r2.n=x.notes||r2.n||"";s2.oc="modified";
   l.splice(i,1);LS.set("wo_log",l);LS.set("wo_"+sel,s2);LS.set("wo_run_"+sel,r2);RUNOPEN[sel]=false;finBusy=false;$("fin").click();}});

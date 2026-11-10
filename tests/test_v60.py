@@ -16,7 +16,7 @@ with sync_playwright() as pw:
     p.click("#next");p.wait_for_timeout(200);ok("another week: its own title and dates",p.locator("#ttl").inner_text()=="Next week" and p.locator("#date").inner_text()=="Mon 16 Nov to Sun 22 Nov",p.locator("#date").inner_text());p.click("#prev");p.wait_for_timeout(200)
     p.click("#ed");p.wait_for_timeout(200);ok("Edit plan brings the strip back",p.locator("#week").is_visible());p.click("#ed");p.wait_for_timeout(200)
     p.click(f'#wlist [data-d="{WED}"]');p.wait_for_timeout(300)
-    ok("an open day is just the workout with its own title",p.locator("#week").is_hidden() and p.locator("#wlist").is_hidden() and p.locator("#ttl").inner_text()=="Hill Hunter Run" and p.locator(".ring").is_visible())
+    ok("an open day is just the workout with its own title",p.locator("#week").is_hidden() and p.locator("#wlist").is_hidden() and p.locator("#ttl").inner_text()=="Hill Hunter Run" and p.locator("#sbar").is_visible())
     p.click("#close");p.wait_for_timeout(300);ok("Back returns to the list",p.locator("#wlist").is_visible() and p.locator("#week").is_hidden() and p.locator("#ttl").inner_text()=="This week")
     c.close()
     # Finish asks first when barely started

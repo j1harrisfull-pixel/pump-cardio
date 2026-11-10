@@ -81,6 +81,7 @@ with sync_playwright() as pw:
     c.close();c,p=tabs_app(b,THU,scheme="dark");p.click('#home [data-hm="start"]');p.wait_for_timeout(300)
     ok("dark: the dock is a dark surface",p.evaluate("()=>{var m=getComputedStyle(document.getElementById('dock')).backgroundColor.match(/\\d+/g);return +m[0]+ +m[1]+ +m[2]<200}"))
     c.close();c,p=tabs_app(b,THU,w=375,h=667);p.click('#home [data-hm="start"]');p.wait_for_timeout(300)
+    p.click("[data-tqx]");p.wait_for_timeout(150)
     ok("small iPhone: the three top chips stay inside their card",p.evaluate("()=>{var c=document.getElementById('topq').getBoundingClientRect();return [].every.call(document.querySelectorAll('#toc .rc'),function(b){return b.getBoundingClientRect().right<=c.right-8})}"))
     ok("no page errors",not errs,errs);c.close();b.close()
 exit(done())
