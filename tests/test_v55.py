@@ -7,7 +7,7 @@ with sync_playwright() as pw:
     b=launch(pw)
     c=b.new_context(viewport={"width":390,"height":844},device_scale_factor=2,is_mobile=True,has_touch=True,service_workers="block")
     c.add_init_script(HOOK);c.add_init_script("window.__cue=[];");p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.clock.install(time=dt.datetime(2026,11,3,9,0));p.goto(URL)
-    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_selector("#week button.day");p.click('button.day[data-d="2026-11-03"]');p.wait_for_timeout(200)
+    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_selector("#week button.day");p.click('button.day[data-d="2026-11-03"]');p.wait_for_timeout(200)
     cues=lambda:p.evaluate("()=>window.__cue.slice()")
     ok("setting on by default, worded for the silent phone",p.locator("#cueon").is_checked() and "Flash the screen at every change" in p.locator("label.setr:has(#cueon)").inner_text())
     ok("the cue layer never blocks a tap and is invisible at rest",p.evaluate("()=>{var s=getComputedStyle(document.getElementById('cue'));return s.pointerEvents+'|'+s.opacity+'|'+s.position}")=="none|0|fixed")

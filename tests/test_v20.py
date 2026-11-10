@@ -9,7 +9,7 @@ with sync_playwright() as pw:
     b=pw.chromium.launch(executable_path=CHROME,args=["--no-sandbox"])
     c=b.new_context(viewport={"width":390,"height":844},service_workers="block")
     p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.clock.install(time=dt.datetime(2026,10,13,9,0));p.goto(URL)
-    p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');
+    p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');
       localStorage.setItem('wo_log',JSON.stringify([{date:'2026-10-12',name:'Easy Run',min:34,feel:6}]))}""");p.reload()
     D=p.evaluate("""()=>{var W=__wk,H=__how,o={};Object.keys(W.BK).forEach(function(d){var k=W.BK[d],s=H.SESS[k],ids=[],mv=[];
       s.blocks.forEach(function(b){(b.items||b.ex||[]).forEach(function(e){if(e.x)ids.push(e.x)});var t=b.timer||b;(t.segs||[]).forEach(function(g){if(g[0]!="READY"&&g[0]!="REST")mv.push(g[2])})});

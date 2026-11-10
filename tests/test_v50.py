@@ -12,7 +12,7 @@ def fresh(b,d,seed=None,open_day=True,standalone=False):
     c.add_init_script(HOOK)
     if standalone: c.add_init_script("Object.defineProperty(navigator,'standalone',{get:function(){return true}})")
     p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.on("dialog",lambda x:x.accept());p.clock.install(time=dt.datetime(y,m,dd,9,0));p.goto(URL)
-    p.evaluate("t=>{localStorage.clear();localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');for(var k in t)localStorage.setItem(k,JSON.stringify(t[k]));}",seed or {})
+    p.evaluate("t=>{localStorage.clear();localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');for(var k in t)localStorage.setItem(k,JSON.stringify(t[k]));}",seed or {})
     p.reload();p.wait_for_selector("#week button.day",timeout=10000);p.wait_for_timeout(120)
     if open_day and not p.locator("#panel.open").count(): p.click(f'button.day[data-d="{d}"]');p.wait_for_selector("#panel.open",timeout=5000);p.wait_for_timeout(100)
     return c,p

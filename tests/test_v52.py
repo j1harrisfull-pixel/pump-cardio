@@ -44,7 +44,7 @@ with sync_playwright() as pw:
     # ---- dark mode ----
     c=b.new_context(viewport={"width":390,"height":844},device_scale_factor=2,is_mobile=True,has_touch=True,service_workers="block",color_scheme="dark")
     p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.clock.install(time=dt.datetime(2026,11,3,9,0));p.goto(URL)
-    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_selector("#week button.day");p.click('button.day[data-d="2026-11-03"]');p.wait_for_timeout(250)
+    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_selector("#week button.day");p.click('button.day[data-d="2026-11-03"]');p.wait_for_timeout(250)
     cs=lambda sel,prop:p.evaluate("a=>getComputedStyle(document.querySelector(a[0]))[a[1]]",[sel,prop])
     ok("dark: page background is dark, body text light",lum(cs("body","backgroundColor"))<0.02 and lum(cs("#ttl","color"))>0.8,(cs("body","backgroundColor"),cs("#ttl","color")))
     pairs=[("#sess .card","backgroundColor","#sess .card .name","color"),(".topq","backgroundColor",".topq .rc:not(.on)","color"),(".day:not(.today):not(.sel)","backgroundColor",".day:not(.today):not(.sel) .dd","color"),("#fin","backgroundColor","#fin","color"),(".day.today","backgroundColor",".day.today .dd","color")]

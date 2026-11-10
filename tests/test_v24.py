@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 BASE="http://localhost:8765/";res=[];errs=[]
 def ok(n,c,i=""): res.append(bool(c)); print(("PASS " if c else "FAIL ")+n+("" if c else " "+str(i)))
 def ls(p,k): return p.evaluate("k=>JSON.parse(localStorage.getItem(k)||'null')",k)
-SEED="""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');}"""
+SEED="""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');}"""
 def ctx(b): return b.new_context(viewport={"width":390,"height":844},device_scale_factor=3,is_mobile=True,has_touch=True,service_workers="block")
 def pg(c,file,t):
     p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.clock.install(time=t);p.goto(BASE+file);return p
@@ -56,7 +56,7 @@ with sync_playwright() as pw:
     ROW={"date":"2026-10-14","name":"Rower Intervals","min":31,"km":"5","feel":"4","notes":"easy 5k outside","breaks":0}
     for flag in (True,False):
         c=ctx(b);p=pg(c,"index.html",dt.datetime(2026,10,14,18,0))
-        p.evaluate("""([lg,f])=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');localStorage.setItem('wo_log',JSON.stringify(lg));if(f)localStorage.setItem('wo_ri',JSON.stringify({'2026-10-14':1}));}""",[OTHER+[ROW],flag]);p.reload()
+        p.evaluate("""([lg,f])=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');localStorage.setItem('wo_log',JSON.stringify(lg));if(f)localStorage.setItem('wo_ri',JSON.stringify({'2026-10-14':1}));}""",[OTHER+[ROW],flag]);p.reload()
         L=ls(p,"wo_log");m=[x for x in L if x["date"]=="2026-10-14"][0]
         ok(f"migr(flag={flag}) relabelled",m["name"]=="Easy run 5 km" and m["type"]=="run" and m["ri"]==1,m)
         ok(f"migr(flag={flag}) rest intact",all(m[k]==ROW[k] for k in ROW if k!="name"),m)
@@ -69,7 +69,7 @@ with sync_playwright() as pw:
         c.close()
     # other dates' Rower entries untouched by migration
     c=ctx(b);p=pg(c,"index.html",T);x=[{"date":"2026-10-21","name":"Rower Intervals","min":30}]
-    p.evaluate("lg=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');localStorage.setItem('wo_log',JSON.stringify(lg))}",x);p.reload()
+    p.evaluate("lg=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');localStorage.setItem('wo_log',JSON.stringify(lg))}",x);p.reload()
     ok("migration ignores other dates",ls(p,"wo_log")==x);c.close()
     ok("no page errors",not errs,errs[:3])
     b.close()

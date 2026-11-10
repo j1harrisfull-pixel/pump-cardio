@@ -8,7 +8,7 @@ with sync_playwright() as pw:
     b=launch(pw)
     c=b.new_context(viewport={"width":390,"height":844},device_scale_factor=2,is_mobile=True,has_touch=True,service_workers="block")
     c.add_init_script(HOOK);c.add_init_script(AS);p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.clock.install(time=dt.datetime(2026,11,3,9,0));p.goto(URL)
-    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_selector("#week button.day");p.click('button.day[data-d="2026-11-03"]');p.wait_for_timeout(200)
+    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_flat','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_selector("#week button.day");p.click('button.day[data-d="2026-11-03"]');p.wait_for_timeout(200)
     paused=lambda:p.evaluate("()=>document.getElementById('snda').paused")
     ok("the app asks for the ambient audio session (mixes with music)",p.evaluate("()=>navigator.audioSession.type")=="ambient",p.evaluate("()=>window.__as"))
     ok("the setting exists, off by default, and says what it costs",p.locator("#loud").is_checked()==False and p.locator("label.setr:has(#loud)").inner_text().strip()=="Beep even when the phone is on silent (this pauses your music)")

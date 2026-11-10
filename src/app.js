@@ -944,8 +944,24 @@ function review(){var el=$("wrev");if(!el)return;var now=new Date(),mon=monOf(to
  for(var i=0;i<7;i++){var k=addDays(mon,i),S=k<=today&&mode(k)!="pre"?SESS[baseSid(k)]:null;if(S&&!S.rest&&!logged[k]&&sk.indexOf(k)<0)miss.push(sdl(k).split(" ")[0]+" "+S.name);}
  var nxt=addDays(mon,7),hasNext=Object.keys(PROG).some(function(d){return d>=nxt&&d<addDays(nxt,7);});
  el.innerHTML='<div class="tql">Your week</div><div class="wkbig"><div><b>'+w.dn+'<small>/'+w.pl+'</small></b><span>sessions</span></div><div><b>'+w.runs+'</b><span>run'+(w.runs==1?'':'s')+'</span></div><div><b>'+w.km+'<small> km</small></b><span>distance</span></div><div><b>'+w.min+'<small> min</small></b><span>running</span></div></div>'+(miss.length?'<div class="prow">Not logged: '+esc(miss.join(" · "))+'</div>':'')+(sk.length?'<div class="prow">Skipped: '+esc(sk.map(function(d){return sdl(d).split(" ")[0];}).join(", "))+'</div>':'')+'<div class="prow">Next week: '+(hasNext?"planned":"not planned yet")+'</div><div class="nagb"><button type="button" class="btn" id="rev_go">Send this week to Grok</button><button type="button" class="swb" id="rev_x">Done</button></div>';}
-function all(){title();week();if(isOpen)renderPanel();sclk();prog();hist();if(!RT)rbtnVis();nag();review();}
-function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();}
+// pc-v58: three screens. Visibility is pure CSS on body classes (tabs, t-today / t-week / t-prog, open), so the DOM the
+// audit reads is unchanged. wo_flat=1 keeps the old one page layout (every older test suite seeds it).
+var TABS=!LS.get("wo_flat",0),TAB="today";
+function layout(){var c=document.body.classList;c.toggle("tabs",TABS);if(!TABS)return;["today","week","prog"].forEach(function(t){c.toggle("t-"+t,TAB==t);});c.toggle("open",isOpen);
+ [].forEach.call(document.querySelectorAll("#tabbar [data-tab]"),function(b){var on=b.dataset.tab==TAB;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false");});
+ $("close").textContent="‹ Back";}
+function setTab(t){if(isOpen)closeP();TAB=t;if(t!="week"&&weekOff){weekOff=0;}if(t=="prog"){var d=$("prg");if(d)d.open=true;}all();window.scrollTo(0,0);}
+function home(){var el=$("home");if(!el||!TABS)return;var S=mode(today)=="pre"?null:S_(today),h="";
+ if(S){var s=P(today),lg=!S.rest?logFor(today,S.name):null,st=+LS.get("wo_runstart_"+today,0)||s.start||0,en=s.end&&s.end>=st?s.end:0,xi=extraFor(today);
+  if(S.tbc)h+='<div class="hline">Nothing planned for this week yet.</div><button type="button" class="btn ghost" data-hm="open">Log an activity</button>';
+  else if(S.rest)h+='<div class="hline">Rest day'+(S.blocks.some(function(b){return b.k=="timer";})?" · optional mobility inside":"")+(xi>=0?" · activity logged ✓":"")+'</div><button type="button" class="btn ghost" data-hm="open">Open today</button>';
+  else if(lg)h+='<div class="hline good">✓ Logged'+(lg.min?" · "+lg.min+" min":"")+(lg.sub?" · "+esc(lg.sub):"")+'</div><button type="button" class="btn ghost" data-hm="open">View today</button>';
+  else if(st&&!en)h+='<div class="hline">In progress · started '+esc(new Date(st).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}))+' · '+score(today).d+' of '+score(today).t+' parts done</div><button type="button" class="btn" data-hm="open">Continue</button><button type="button" class="link hlink" data-hm="else">I did something else</button>';
+  else h+='<div class="hline">'+(S.tot>0?(S.est?"≈ ":"")+Math.round(S.tot/60)+" min · ":"")+S.blocks.filter(function(b){return b.k=="timer"||b.k=="ex";}).length+' blocks</div><button type="button" class="btn" data-hm="start">Start session</button><button type="button" class="link hlink" data-hm="else">I did something else</button>';}
+ var w=weekRows(1)[0];h+='<button type="button" class="hweek" data-hm="week">This week · '+w.dn+' of '+w.pl+' sessions'+(w.runs?' · '+w.km+' km':'')+' ›</button>';
+ if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
+function all(){layout();title();week();if(isOpen)renderPanel();sclk();prog();hist();if(!RT)rbtnVis();nag();review();home();}
+function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();if(TABS&&TAB!="week")window.scrollTo(0,0);}
 function closeP(){isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
 var swapping=false,swA=null;
@@ -1115,7 +1131,17 @@ migrate();if(T&&(!T.segs||!T.t0))stopT();if(T){lastI=-2;wake();}
 (function(){var f=LS.get("wo_flash",null);if(f&&f.week){LS.del("wo_flash");weekOff=Math.round((pd(f.week)-pd(monOf(today)))/604800000);toast(f.msg||"Saved");}})();
 all();loop();
 // installed on the Home Screen: open straight on today's session (a browser tab keeps the week view)
-(function(){var sa=false;try{sa=navigator.standalone===true||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);}catch(e){}if(sa&&weekOff==0&&!isOpen&&mode(today)!="pre"&&S_(today))openDay(today);})();
+if(TABS){document.addEventListener("click",function(e){var tb=e.target.closest("#tabbar [data-tab]");if(tb){setTab(tb.dataset.tab);return;}
+  var hm=e.target.closest("#home [data-hm]");if(hm){var w=hm.dataset.hm;if(w=="week"){setTab("week");return;}
+   if(w=="start"){var s=P(today);if(!s.start&&!LS.get("wo_runstart_"+today,0)){s.start=Date.now();delete s.end;LS.set("wo_"+today,s);unlock();}}
+   if(w=="else"){var s2=P(today),r2=R(today);r2.sub=1;s2.oc="modified";LS.set("wo_"+today,s2);LS.set("wo_run_"+today,r2);}
+   if(!(isOpen&&sel==today))openDay(today);window.scrollTo(0,0);return;}
+  if(e.target.closest("#cog")){$("sets").classList.add("show");return;}});
+ $("sets").addEventListener("click",function(e){if(e.target===this||e.target.closest(".swx"))this.classList.remove("show");});
+ // settings and the weeks list live in the settings sheet
+ (function(){var b=$("sets_b");[].forEach.call(document.querySelectorAll("label.setr"),function(l){b.appendChild(l);});var wk=document.querySelector(".wkl");if(wk)b.appendChild(wk);})();
+ $("imp").addEventListener("click",function(){$("sets").classList.remove("show");});all();}
+(function(){if(TABS)return;var sa=false;try{sa=navigator.standalone===true||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);}catch(e){}if(sa&&weekOff==0&&!isOpen&&mode(today)!="pre"&&S_(today))openDay(today);})();
 if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){var reload=false;navigator.serviceWorker.addEventListener("controllerchange",function(){if(reload)return;reload=true;location.reload();});
 navigator.serviceWorker.register("sw.js").then(function(reg){function show(){var u=$("upd");u.style.display="block";u.onclick=function(){if(reg.waiting)reg.waiting.postMessage("skip");else location.reload();};}
 if(reg.waiting&&navigator.serviceWorker.controller)show();reg.addEventListener("updatefound",function(){var w=reg.installing;if(w)w.addEventListener("statechange",function(){if(w.state=="installed"&&navigator.serviceWorker.controller)show();});});

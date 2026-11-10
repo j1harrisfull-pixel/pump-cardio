@@ -9,7 +9,7 @@ with sync_playwright() as pw:
     p=b.new_context(viewport={"width":390,"height":844},service_workers="block").new_page(); p.on("pageerror",lambda e:errs.append(str(e)))
     p.clock.install(time=dt.datetime(2026,10,11,10,0,0)); p.goto(URL)
     # migration from v9 per-date weights
-    p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_ver','9');localStorage.setItem('wo_startdate','"2026-10-10"');
+    p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_flat','1');localStorage.setItem('wo_ver','9');localStorage.setItem('wo_startdate','"2026-10-10"');
       localStorage.setItem('wo_2026-10-10',JSON.stringify({t:{'0_0':true},w:{'0':'18','4':'12'},r:1,s:{},start:1}));
       localStorage.setItem('wo_plan',JSON.stringify({'2026-10-11':'Pump','2026-10-12':'Pump'}));}""")
     p.reload()
