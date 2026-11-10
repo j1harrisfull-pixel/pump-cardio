@@ -19,7 +19,7 @@ with sync_playwright() as pw:
     p.clock.fast_forward(1000);p.click("#o_done");p.wait_for_timeout(150);L=ls(p,"wo_log");e=L[0]
     ok("ONE entry now: the extra is merged into Monday's record with its feel and note",len(L)==1 and e["type"]=="main" and e["sub"]=="Run 5 km 29:40" and e["plan"]=="Upper · Slow Is Strong" and e["act"]=="run" and e["km"]=="5" and e["time"]=="29:40" and e["effort"]=="easy" and e["feel"]=="6" and e["notes"]=="river loop" and e["oc"]=="modified" and e["min"]==30,L)
     ok("the day reads as what was done: title, date line, strip, ring, header",p.locator("#ttl").inner_text()=="Run 5 km 29:40" and p.locator("#date").inner_text()=="Monday 9 November · instead of Upper · Slow Is Strong" and p.locator(f'button.day[data-d="{MON}"]').inner_text().replace("\n"," ")=="MON 9 Run ✓" and p.locator("#pct").inner_text()=="100%" and p.locator("#dnote").inner_text()=="Logged · Mon 9 Nov · 30 min",(p.locator("#ttl").inner_text(),p.locator("#date").inner_text(),p.locator(f'button.day[data-d="{MON}"]').inner_text(),p.locator("#dnote").inner_text()))
-    ok("planned blocks folded away, the log card leads, the offer is gone",p.locator("#sess h2").all_inner_texts()==["HOW DID IT GO?"] and p.locator("#showp").inner_text()=="Show the planned session" and p.locator(".conv").count()==0 and p.locator("#toc .rc.on").inner_text()=="Something else")
+    ok("planned blocks folded away, the log card leads, the offer is gone",p.locator("#sess h2").all_inner_texts()==["ACTUAL","HOW DID IT GO?"] and p.locator("#showp").inner_text()=="Show the planned session" and p.locator(".conv").count()==0 and p.locator("#toc .rc.on").inner_text()=="Something else")
     ok("session safety note hidden, stop-signs line stays",p.locator("#safe1").is_hidden() and p.locator(".safe .stop").is_visible())
     ok("rest timer pill out of the way on an off-plan day",p.locator("#rbtn").is_hidden())
     p.click("#showp");p.wait_for_timeout(80);ok("Show the planned session brings the blocks back",p.locator("#sess h2").count()>=6 and p.locator("#showp").inner_text()=="Hide the planned session")
@@ -36,7 +36,7 @@ with sync_playwright() as pw:
     c,p=view(b,THU)
     H0=p.locator("#sess h2").all_inner_texts()
     p.click('#toc [data-toc="else"]');p.wait_for_timeout(80)
-    ok("Something else: the form leads the day with a Save button, plan folded",p.locator("#sess h2").first.inner_text()=="HOW DID IT GO?" and p.locator("#logsec #r_at .rc.on").inner_text()=="Run" and p.locator("#fin2").inner_text()=="Save this day" and p.locator("#sess .card.ex").count()==0 and p.locator("#oc .rc.on").inner_text()=="something else")
+    ok("Something else: the form leads the day with a Save button, plan folded",p.locator("#sess h2").all_inner_texts()[:2]==["ACTUAL","HOW DID IT GO?"] and p.locator("#r_at .rc.on").inner_text()=="Run" and p.locator("#fin2").inner_text()=="Save this day" and p.locator("#sess .card.ex").count()==0 and p.locator("#oc .rc.on").inner_text()=="something else")
     top=p.evaluate("()=>document.getElementById('fin2').getBoundingClientRect().bottom+window.scrollY")
     ok("Save sits within about two screens of the top (no long scroll)",top<1900,top)
     p.fill("#r_d","5");p.dispatch_event("#r_d","input");p.fill("#r_t","2940");p.dispatch_event("#r_t","change");p.click('#r_e [data-e="easy"]');p.click("#fin2");p.wait_for_selector("#ov.show",timeout=3000)
