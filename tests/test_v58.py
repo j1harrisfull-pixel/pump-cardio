@@ -34,7 +34,7 @@ with sync_playwright() as pw:
     ok("after Finish the card says logged, with View today",p.locator("#home .hline").inner_text().startswith("✓ Logged") and p.locator('#home [data-hm="open"]').inner_text()=="View today",p.locator("#home").inner_text())
     # ---- Week ----
     p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300)
-    ok("Week shows the day list and Edit plan, not the home card or history",vis(p,"#wlist","#ed","#home","#more")==["#wlist","#ed"])
+    ok("Week shows the day list and Edit plan, not the home card or history",vis(p,"#wlist","#ed2","#home","#more")==["#wlist","#ed2"])
     p.click(f'#wlist [data-d="{WED}"]');p.wait_for_timeout(400)
     ok("tapping a day opens just the workout: no strip, no week row",p.locator("#panel.open").count()==1 and p.locator("#week").is_hidden() and p.locator(".wk").is_hidden() and p.locator("#ttl").inner_text()=="Hill Hunter Run")
     p.click("#close");p.wait_for_timeout(300);p.click(f'#wlist [data-d="{MON}"]');p.wait_for_timeout(300);ok("another day: Back, then one tap",p.locator("#ttl").inner_text()=="Easy 5km")

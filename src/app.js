@@ -900,10 +900,19 @@ for(var i=0;i<7;i++){var k=addDays(m,i),d=pd(k),md=mode(k),dn=d.toLocaleDateStri
 if(md=="pre"){h+='<div class="day pre"><div class="dn">'+dn+'</div><div class="dd">'+d.getDate()+'</div><div class="pl">–</div></div>';continue;}
 h+='<button class="day '+md+(k==today?" today":"")+(isOpen&&k==sel?" sel":"")+(editable(k)?" ed":"")+(srcOf(k)!=k?" moved":"")+(swA==k?" pick":"")+'" data-d="'+k+'"><div class="dn">'+dn+'</div><div class="dd">'+d.getDate()+'</div><div class="pl">'+stripLab(k)+'</div>'+(done[k]?'<span class="ok">✓</span>':"")+"</button>";}
 $("week").innerHTML=h;wlist(m);$("week").classList.toggle("editing",editing);$("prev").disabled=m<=SD;swUI();$("wlab").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":pd(m).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-var none=weekOff>=0&&[0,1,2,3,4,5,6].every(function(i){var k=addDays(m,i);return sid(k)=="tbc";});$("hint").classList.toggle("np",!!none);$("hint").textContent=none?"Nothing planned for this week yet. Health & Fitness adds the week file; you can still log any activity on a day.":"Tap a day to see its workout";}
-function wlist(m){var el=$("wlist");if(!el||!TABS)return;var h="";for(var i=0;i<7;i++){var k=addDays(m,i),md=mode(k);if(md=="pre")continue;var S=S_(k),d=pd(k),lg=S&&!S.rest?logFor(k,S.name):null,sl=lg&&lg.sub?lg:null,sk=lg&&lg.oc=="skipped"&&!lg.sub,xi=extraFor(k);
-  var st=lg?(sk?"Skipped":"✓ Done"):xi>=0?"✓ Extra":k==today?"Today":md=="past"&&S&&!S.rest&&!S.tbc?"Not logged":"";
-  h+='<button type="button" class="wrow'+(k==today?" today":"")+'" data-d="'+k+'"><span class="wd">'+d.toLocaleDateString("en-GB",{weekday:"short"})+'<b>'+d.getDate()+'</b></span><span class="wn">'+esc(sl?sl.sub:S?S.name:"–")+(function(){var mv=srcOf(k)!=k?" · ⇄ moved from "+sdl(srcOf(k)).split(" ")[0]:"";if(sl)return '<small>'+(sl.min?sl.min+' min · ':'')+'instead of '+esc(sl.plan||S.name)+'</small>';if(lg&&!sk)return '<small>'+(lg.min?lg.min+' min':'logged')+mv+'</small>';if(S&&S.tot>0&&!S.tbc&&!S.rest)return '<small>'+(S.est?"≈ ":"")+Math.round(S.tot/60)+' min'+mv+'</small>';return mv?'<small>'+mv.slice(3)+'</small>':'';})()+'</span><span class="ws'+(lg&&!sk||xi>=0?" ok":"")+'">'+st+'</span></button>';}
+var none=weekOff>=0&&[0,1,2,3,4,5,6].every(function(i){var k=addDays(m,i);return sid(k)=="tbc";});$("hint").classList.toggle("np",!!none);if(TABS){$("wlab").textContent=wrange(m);var eh=$("ehint");if(eh)eh.hidden=!editing;}$("hint").textContent=none?"Nothing planned for this week yet. Health & Fitness adds the week file; you can still log any activity on a day.":"Tap a day to see its workout";}
+function wrange(m){var A0=pd(m),B0=pd(addDays(m,6)),mo=function(d){return d.toLocaleDateString("en-GB",{month:"short"});};return A0.getDate()+(mo(A0)!=mo(B0)?" "+mo(A0):"")+" to "+B0.getDate()+" "+mo(B0);}
+function wlist(m){var el=$("wlist");if(!el||!TABS)return;var h="",dots="",none=weekOff>=0&&[0,1,2,3,4,5,6].every(function(i){return sid(addDays(m,i))=="tbc";});
+ for(var i=0;i<7;i++){var k=addDays(m,i),md=mode(k),d=pd(k),dl=d.toLocaleDateString("en-GB",{weekday:"short"});
+  if(md=="pre"){dots+='<span class="wd1 rest"><i></i><b>'+dl.charAt(0)+'</b></span>';continue;}
+  var S=S_(k),lg=S&&!S.rest?logFor(k,S.name):null,sl=lg&&lg.sub?lg:null,sk=lg&&lg.oc=="skipped"&&!lg.sub,xi=extraFor(k),planned=!!(S&&!S.rest&&!S.tbc);
+  var st=lg?(sk?"Skipped":"✓ Done"):xi>=0?"✓ Extra":k==today?"Today":md=="past"&&planned?"Not logged":"",cl=lg&&!sk||xi>=0?"ok":sk?"sk":st=="Today"?"td":st?"nl":"";
+  var mv=srcOf(k)!=k?" · ⇄ moved from "+sdl(srcOf(k)).split(" ")[0]:"",sm="";
+  if(sl)sm='<small>'+(sl.min?sl.min+' min · ':'')+'instead of '+esc(sl.plan||S.name)+'</small>';else if(lg&&!sk)sm='<small>'+(lg.min?lg.min+' min':'logged')+mv+'</small>';else if(planned&&S.tot>0)sm='<small>'+(S.est?"≈ ":"")+Math.round(S.tot/60)+' min'+mv+'</small>';else if(mv)sm='<small>'+mv.slice(3)+'</small>';
+  var dc=lg&&!sk||xi>=0?"done":sk?"skip":!S||S.rest||S.tbc?"rest":k==today?"today":md=="past"?"miss":"fut";
+  dots+='<span class="wd1 '+dc+'"><i></i><b>'+dl.charAt(0)+'</b></span>';
+  h+='<button type="button" class="wrow'+(k==today?" today":"")+(S&&S.rest?" rest":"")+'" data-d="'+k+'"><span class="wd">'+dl+'<b>'+d.getDate()+'</b></span><span class="wn">'+esc(sl?sl.sub:S?S.name:"–")+sm+'</span>'+(st?'<span class="ws '+cl+'">'+st+'</span>':'')+'</button>';}
+ h='<div class="wdots" aria-hidden="true">'+dots+'</div>'+(none?'<div class="wnp"><b>Nothing planned for this week yet.</b> Ask Health &amp; Fitness for the week file, then Settings on the Today screen, Import week. You can still log any activity: tap a day.</div>':'')+h+'<button type="button" class="wedit" id="ed2">Edit this week\'s plan</button>';
  if(el.__h!==h){el.innerHTML=h;el.__h=h;}
  if(TAB=="week"&&!isOpen){var sun=addDays(m,6),w=weekOff==0?weekRows(1)[0]:null;$("ttl").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":"Week of "+sdl(m).replace(/^\w+ /,"");
   $("date").textContent=w?(w.plw||w.dn?w.dn+" of "+w.plw+" sessions":"Nothing planned")+(w.runs?" · "+w.runs+" run"+(w.runs==1?"":"s")+" · "+w.km+" km":""):sdl(m)+" to "+sdl(sun);}}
@@ -961,7 +970,7 @@ function review(){var el=$("wrev");if(!el)return;var now=new Date(),mon=monOf(to
 // pc-v58: three screens. Visibility is pure CSS on body classes (tabs, t-today / t-week / t-prog, open), so the DOM the
 // audit reads is unchanged. wo_flat=1 keeps the old one page layout (every older test suite seeds it).
 var TABS=!LS.get("wo_flat",0),TAB="today";
-function layout(){var c=document.body.classList;c.toggle("tabs",TABS);if(!TABS)return;["today","week","prog"].forEach(function(t){c.toggle("t-"+t,TAB==t);});c.toggle("open",isOpen);
+function layout(){var c=document.body.classList;c.toggle("tabs",TABS);if(!TABS)return;["today","week","prog"].forEach(function(t){c.toggle("t-"+t,TAB==t);});c.toggle("open",isOpen);c.toggle("ed",!!editing);
  [].forEach.call(document.querySelectorAll("#tabbar [data-tab]"),function(b){var on=b.dataset.tab==TAB;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false");});
  $("close").textContent="‹ Back";}
 function setTab(t){if(isOpen)closeP();TAB=t;if(t!="week"&&weekOff){weekOff=0;}if(t=="prog"){var d=$("prg");if(d)d.open=true;}all();window.scrollTo(0,0);}
@@ -1017,11 +1026,14 @@ var lpT=null,lp=false,sx=0,sy=0,moved=false;
 $("week").addEventListener("pointerdown",function(e){var b=e.target.closest("button.day");sx=e.clientX;sy=e.clientY;moved=false;lp=false;clearTimeout(lpT);if(!b)return;var k=b.dataset.d;if(editable(k))lpT=setTimeout(function(){lp=true;cyc(k);},550);});
 $("week").addEventListener("pointermove",function(e){if(Math.abs(e.clientX-sx)>10||Math.abs(e.clientY-sy)>10){moved=true;clearTimeout(lpT);}});
 $("week").addEventListener("pointerup",function(e){clearTimeout(lpT);var dx=e.clientX-sx;if(moved&&Math.abs(dx)>50&&Math.abs(dx)>Math.abs(e.clientY-sy)){if(dx<0)weekOff++;else if(!$("prev").disabled)weekOff--;week();}});
+var WSW=false,wsx=0,wsy=0;
+$("wlist").addEventListener("pointerdown",function(e){wsx=e.clientX;wsy=e.clientY;WSW=false;});
+$("wlist").addEventListener("pointerup",function(e){var dx=e.clientX-wsx;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(e.clientY-wsy)*1.5){WSW=true;setTimeout(function(){WSW=false;},400);if(dx<0)weekOff++;else if(!$("prev").disabled)weekOff--;week();}});
 $("week").addEventListener("pointercancel",function(){clearTimeout(lpT);});
 $("week").addEventListener("contextmenu",function(e){e.preventDefault();});
 $("week").addEventListener("click",function(e){var b=e.target.closest("button.day");if(!b||lp||moved){lp=false;return;}var k=b.dataset.d;if(editing){if(swapping){pickSwap(k);return;}cyc(k);return;}openDay(k);});
 $("prev").onclick=function(){if(!this.disabled){weekOff--;week();}};$("next").onclick=function(){weekOff++;week();};
-$("ed").onclick=function(){editing=!editing;this.textContent=editing?"Done":"Edit plan";week();};
+$("ed").onclick=function(){editing=!editing;this.textContent=editing?"Done":"Edit plan";week();layout();};
 $("swd").onclick=function(){swapping=!swapping;swA=null;week();};
 $("swreset").onclick=function(){resetWeek();swapping=false;swA=null;all();$("swh").textContent="Week order reset.";};
 $("close").onclick=closeP;$("stop").onclick=function(){if(TABS)$("stq").hidden=false;else stopT();};$("stqy").onclick=stopT;$("stqn").onclick=function(){$("stq").hidden=true;};$("sct").onclick=function(){if(!T)return;var d=T.date,s=P(d);if(s.end)return;LAP=LAP&&LAP.d==d?null:{d:d,t:Date.now()};sct();};$("tpause").onclick=tPause;$("tback").onclick=tBack;$("tnext").onclick=tNext;
@@ -1182,7 +1194,8 @@ if(TABS){lockLab(false);document.addEventListener("click",function(e){var tb=e.t
    if(w=="run"||w=="conv"||w=="else")delete SCY[today];
    if(!(isOpen&&sel==today))openDay(today);if(w=="run")place(today,"actual");else if(w=="conv")place(today,"#xconv");else if(w=="else"||w=="start"||w=="peek")window.scrollTo(0,0);return;}
   if(e.target.closest("#cog")){$("sets").classList.add("show");return;}
-  var wr=e.target.closest("#wlist [data-d]");if(wr){openDay(wr.dataset.d);return;}});
+  if(e.target.closest("#ed2")){$("ed").click();return;}
+  var wr=e.target.closest("#wlist [data-d]");if(wr){if(WSW){WSW=false;return;}openDay(wr.dataset.d);return;}});
  $("sets").addEventListener("click",function(e){if(e.target===this||e.target.closest(".swx"))this.classList.remove("show");});
  // settings and the weeks list live in the settings sheet
  (function(){var b=$("sets_b");[].forEach.call(document.querySelectorAll("label.setr"),function(l){b.appendChild(l);});var wk=document.querySelector(".wkl");if(wk)b.appendChild(wk);})();

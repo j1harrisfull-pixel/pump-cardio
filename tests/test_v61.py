@@ -23,7 +23,7 @@ with sync_playwright() as pw:
     p.click("#close");p.wait_for_timeout(300);ok("Back restores the list position",abs(p.evaluate("scrollY")-y)<4,(y,p.evaluate("scrollY")))
     c.close()
     # editing still shows the strip, and swapping is untouched
-    c,p=tabs_app(b,THU);p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300);p.click("#ed");p.wait_for_timeout(200)
+    c,p=tabs_app(b,THU);p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300);p.click("#ed2");p.wait_for_timeout(200)
     ok("Edit plan on the Week list shows the strip",p.locator("#week").is_visible() and p.locator("#swr").is_visible())
     ok("no page errors",not errs,errs);c.close();b.close()
 exit(done())
