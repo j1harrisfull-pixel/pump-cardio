@@ -96,7 +96,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
   - A gap over 2.5 s after the end (phone locked) shows "FINISHED WHILE LOCKED · Mark done / Not done".
   - Audio uses one AudioContext, resumed on every tap and on `visibilitychange`. It handles the iOS "interrupted" state. `beep()` also pushes to `window.__bp` for tests.
   - **Never rely on `navigator.vibrate`**: iOS has no vibration API.
-  - **Silent switch (pc-v36):** iPhone mutes Web Audio when the ring switch is on silent unless an audio element is playing, so `keepAudio(true)` loops the tiny silent clip `#snda` while a guided or rest timer runs and `relWake()` pauses it when both are stopped. Untested on a real iPhone so far.
+  - **Music first (pc-v54):** the pc-v36 silent clip (`#snda`, looped by `keepAudio` so beeps sound with the ring switch on silent) makes iOS treat the app as a music player and **paused the user's music** when a guided timer started (reported by James on his phone). It is now opt in: the tick box **Beep even when the phone is on silent (this pauses your music)** (`#loud`, `wo_loud`), off by default. By default `audioMode()` asks for `navigator.audioSession.type = "ambient"` (Safari 16.4+; ignored elsewhere) so the Web Audio beeps mix with other audio and follow the ring switch; with the opt in it asks for `"playback"` and the clip runs. `"transient"` (play over music with ducking) was not used: WebKit bug 264473 reports it silent on some iOS versions.
   - Screen Wake Lock is held while today's panel is open.
 
 ### localStorage keys (all JSON). Compatibility rules
@@ -112,7 +112,7 @@ BRIEF.md              older brief (pc-v28 layout/timer); kept for history
 | `wo_timer`, `wo_rest`, `wo_restlast`, `wo_autorest` | running guided timer, running rest timer, last manual rest, auto-rest setting (default on) |
 | `wo_swaps` | queued "swap today's session" requests |
 | `wo_startdate`, `wo_ver` | programme start date and data version (migrations in `migrate()`) |
-| `wo_rev` | the Monday whose Sunday week review was dismissed (pc-v52) |
+| `wo_rev`, `wo_loud` | the Monday whose Sunday week review was dismissed (pc-v52); 1 = beep even on silent, which pauses music (pc-v54, default off) |
 | `wo_chg`, `wo_nag` | 1 = keep the Change session options open (tests); the date whose "yesterday is not logged" line was dismissed (pc-v50) |
 | `wo_weeks`, `wo_lastexport`, `wo_flash` | imported weeks `{monday: week JSON}` (pc-v39), the date of the last export / backup (pc-v41), one-shot `{week, msg}` shown as a toast after an import reload (pc-v43) |
 

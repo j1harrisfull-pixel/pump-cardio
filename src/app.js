@@ -605,7 +605,7 @@ function sameE(e,k,name){return e.date==k&&(!name||isName(e.name||"Pump + Cardio
 function logFor(k,name){var l=logs();for(var i=0;i<l.length;i++)if(sameE(l[i],k,name))return l[i];return null;}
 function sdone(d,id){return !!(P(d).s[id]||R(d).s[id]);}
 // audio
-var ac=null;function unlock(){try{if(!ac){var C=window.AudioContext||window.webkitAudioContext;if(!C)return;ac=new C();var b=ac.createBuffer(1,1,22050),s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(0);}if(ac.state!="running")ac.resume();}catch(e){}sndUI();}
+var ac=null;function unlock(){audioMode();try{if(!ac){var C=window.AudioContext||window.webkitAudioContext;if(!C)return;ac=new C();var b=ac.createBuffer(1,1,22050),s=ac.createBufferSource();s.buffer=b;s.connect(ac.destination);s.start(0);}if(ac.state!="running")ac.resume();}catch(e){}sndUI();}
 document.addEventListener("pointerdown",unlock,{passive:true});document.addEventListener("touchend",unlock,{passive:true});
 function beep(f,d){try{if(ac){var o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f||880;g.gain.value=.3;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(d||.25));}}catch(e){}window.__bp&&window.__bp.push(f);}
 var wl=null;function wake(){try{if("wakeLock" in navigator&&!wl&&document.visibilityState=="visible")navigator.wakeLock.request("screen").then(function(l){wl=l;l.addEventListener("release",function(){wl=null;});}).catch(function(){});}catch(e){}}
@@ -613,7 +613,12 @@ function unwake(){try{if(wl)wl.release();}catch(e){}wl=null;}
 function wantWake(){return isOpen&&sel==today;}
 function relWake(){if(!(T||RT||wantWake()))unwake();if(!T&&!RT)keepAudio(false);}
 // iPhone mutes Web Audio beeps when the ring switch is on silent unless an audio element is playing: loop a silent clip while a timer runs
-function keepAudio(on){var a=$("snda");if(!a)return;try{if(on){if(a.paused){var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}}else if(!a.paused)a.pause();}catch(e){}}
+// pc-v54: music first. The silent clip makes iOS treat the app as a music player, which pauses whatever is playing, so it
+// only runs when "Beep even on silent" is switched on (wo_loud). By default the app asks for the ambient audio session:
+// beeps mix with the user's music and follow the ring switch.
+function loud(){return !!LS.get("wo_loud",0);}
+function audioMode(){try{if(navigator.audioSession)navigator.audioSession.type=loud()?"playback":"ambient";}catch(e){}}
+function keepAudio(on){var a=$("snda");if(!a)return;if(!loud())on=false;try{if(on){if(a.paused){var pr=a.play();if(pr&&pr.catch)pr.catch(function(){});}}else if(!a.paused)a.pause();}catch(e){}}
 // timer
 var T=LS.get("wo_timer",null),lastI=-2,lastL=-1,hideAt=0;
 function tnow(){return T&&T.pa?T.pa:Date.now();}
@@ -781,7 +786,7 @@ if(!hasF&&!(r.sub&&!S.rest&&!S.tbc)){var xi=extraFor(sel),open=RUNOPEN[sel]||xi>
 // B. outcome of the session, for the log and for the coach: as planned / modified / cut short / skipped (+ a note on days without the run card)
 if(!S.rest&&!S.tbc){var chips=hasF?["planned","different run","modified","cut short","skipped"]:["planned","something else","modified","cut short","skipped"],cur=r.sub?(hasF?"different run":"something else"):(s.oc||""),off=!!(r.sub||s.oc=="skipped");
  hO+='<h2>How did it go?</h2><div class="card lock ocard" id="logsec"><div class="rcs" id="oc">'+chips.map(function(w){return '<button type="button" class="rc'+(cur==w?" on":"")+'" data-oc="'+w+'">'+(w=="planned"?"as planned":w)+'</button>';}).join("")+'</div>'+(hasF||subF?'':'<label class="l">Notes<textarea class="f" id="s_nt" rows="2" placeholder="anything Grokbot should know"></textarea></label>')+(off&&!r.sub?'<button type="button" class="btn" id="fin2">Save</button>':'')+'</div>';}
-var offp=!S.rest&&!S.tbc&&!!(r.sub||s.oc=="skipped");topQ(S,s,r);$("safe1").hidden=offp;var bare=offp&&!SHOWP[sel];$("acts").hidden=!!S.rest||bare;$("rstw").hidden=!!S.rest||bare;var sr=document.querySelector(".setr");if(sr)sr.hidden=bare;
+var offp=!S.rest&&!S.tbc&&!!(r.sub||s.oc=="skipped");topQ(S,s,r);$("safe1").hidden=offp;var bare=offp&&!SHOWP[sel];$("acts").hidden=!!S.rest||bare;$("rstw").hidden=!!S.rest||bare;[].forEach.call(document.querySelectorAll(".setr"),function(sr){sr.hidden=bare;});
 h=offp?(r.sub?hA:hO)+'<button type="button" class="link showp" id="showp">'+(SHOWP[sel]?"Hide":"Show")+' the planned session</button>'+(SHOWP[sel]?h:"")+hX:h+hA+hX+hO;
 $("sess").innerHTML=h;foldCards();if(firstOpen>0&&nDone>0){var hx=null;[].forEach.call($("sess").querySelectorAll("h2"),function(x){if(!hx&&x.textContent.indexOf(firstOpen+" · ")==0)hx=x;});if(hx){var up=document.createElement("div");up.className="upnext";up.textContent="Up next";var ref=hx.parentNode.classList.contains("bh")?hx.parentNode:hx;ref.parentNode.insertBefore(up,ref);}}["d","t","f","n","sl"].forEach(function(k){var el=$("r_"+k);if(el)el.value=r[k]||"";});var nt=$("s_nt");if(nt)nt.value=s.nt||"";}
 // save or update the one "Extra run" entry for this date (never a second strength log)
@@ -951,6 +956,7 @@ $("tround").onclick=function(){if(!T)return;T.rounds=(T.rounds||0)+1;LS.set("wo_
 $("rskip").onclick=stopRest;$("rm15").onclick=function(){restAdj(-15);};$("rp15").onclick=function(){restAdj(15);};
 $("rbtn").onclick=function(){startRest(+LS.get("wo_restlast",90)||90,"Rest");};
 $("snd").onclick=function(){unlock();};
+(function(){var c=$("loud");c.checked=loud();c.onchange=function(){LS.set("wo_loud",c.checked?1:0);audioMode();keepAudio(!!(T||RT));};audioMode();})();
 (function(){var c=$("autorest");c.checked=autoRest();c.onchange=function(){LS.set("wo_autorest",c.checked);if(isOpen)renderSess();};})();
 var SX=$("sess");
 SX.addEventListener("click",function(e){var xh=e.target.closest("[data-xh]");if(xh){xhist(xh.dataset.xh);return;}var hb=e.target.closest("[data-h]");if(hb){howto(hb.dataset.h);return;}
