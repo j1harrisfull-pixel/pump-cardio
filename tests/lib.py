@@ -46,7 +46,7 @@ def fin(p):
     """Finish workout and wait for the summary overlay (then its 700 ms tap guard). The app ignores a second tap
     within 1.5 s (finBusy), so if the overlay doesn't show, move the clock on and tap again."""
     for _ in range(3):
-        p.click("#fin" if p.locator("#fin").is_visible() else "#fin2")  # pc-v53: an off-plan day has one Save in its card
+        p.click("#fin" if p.locator("#fin").is_visible() else "#fin_c" if p.locator("#fin_c").is_visible() else "#fin2")  # pc-v53: an off-plan day has one Save in its card
         try: p.wait_for_selector("#ov.show",timeout=1500);break
         except Exception: p.clock.run_for(2000);p.wait_for_timeout(80)
     p.clock.fast_forward(1000);p.wait_for_timeout(120)
