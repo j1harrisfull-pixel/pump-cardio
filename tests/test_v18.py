@@ -15,7 +15,7 @@ NEW=["easyrun12","strA","row","mob","strB","kb","walk"];DAYS=["2026-10-%d"%x for
 with sync_playwright() as pw:
     b=pw.chromium.launch(executable_path=CHROME,args=["--no-sandbox"])
     p=page(b,dt.datetime(2026,10,12,9,0))
-    p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');
+    p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');
      localStorage.setItem('wo_wt',JSON.stringify({'goblet-squat':{'2026-10-10':'18'},'farmers-carry':{'2026-10-10':'22'},'cs-row':{'2026-10-10':'16'}}));}""");p.reload()
     # ---- data checks: timings and switch time
     D=p.evaluate("""()=>{var S=__how.SESS,o={};%s.forEach(function(k){var s=S[k];o[k]={tot:s.tot,blocks:s.blocks.map(function(b){var t=b.timer||b;return{h:b.h||b.k,k:b.k,mode:b.mode||'',segs:t.segs||[],list:!!b.list,est:b.est||0,items:(b.items||[]).length}})}});return o;}""" % str(NEW))

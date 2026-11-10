@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright
 URL="http://localhost:8765/index.html";res=[];errs=[]
 def ok(n,c,i=""): res.append(bool(c)); print(("PASS " if c else "FAIL ")+n+("" if c else " "+str(i)[:300]))
 def ls(p,k): return p.evaluate("k=>JSON.parse(localStorage.getItem(k)||'null')",k)
-SEED="""()=>{localStorage.clear();localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');}"""
+SEED="""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','"2026-10-10"');localStorage.setItem('wo_ver','12');}"""
 HOOK="window.__bp=[];window.__vib=0;try{navigator.vibrate=function(){window.__vib++;return true}}catch(e){}"
 def sec(s): m=re.search(r"(\d+):(\d\d)",s); return int(m.group(1))*60+int(m.group(2)) if m else -1
 Q="15-min KB Flow (16 kg)"

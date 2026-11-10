@@ -12,7 +12,7 @@ with sync_playwright() as pw:
     p=ctx.new_page(); p.on("pageerror",lambda e:errs.append(str(e))); p.on("dialog",lambda d:d.accept())
     p.clock.install(time=dt.datetime(2026,10,10,16,0,0))
     # seed legacy data: duplicate logs, unnamed, raw wo_tab
-    p.goto(URL); p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_tab','pump');localStorage.setItem('wo_log',JSON.stringify([{date:'2026-10-10',min:5,w:{}},{date:'2026-10-10',min:7,w:{}}]));}""")
+    p.goto(URL); p.evaluate("""()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_tab','pump');localStorage.setItem('wo_log',JSON.stringify([{date:'2026-10-10',min:5,w:{}},{date:'2026-10-10',min:7,w:{}}]));}""")
     p.reload()
     ok("migration dedup", len(ls(p,"wo_log"))==1 and ls(p,"wo_log")[0]["name"]=="Pump + Cardio", ls(p,"wo_log"))
     ok("startdate", ls(p,"wo_startdate")=="2026-10-10"); ok("version", ls(p,"wo_ver")==12)

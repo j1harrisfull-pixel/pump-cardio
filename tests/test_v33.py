@@ -15,7 +15,7 @@ with sync_playwright() as pw:
     b=pw.chromium.launch(executable_path=CHROME,args=["--no-sandbox"])
     c=b.new_context(viewport={"width":390,"height":844},device_scale_factor=2,is_mobile=True,has_touch=True,service_workers="block");p=c.new_page()
     p.on("pageerror",lambda e:errs.append(str(e)));p.clock.install(time=dt.datetime(2026,11,3,8,0));p.goto(URL)
-    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_timeout(200)
+    p.evaluate("()=>{localStorage.clear();localStorage.setItem('wo_chg','1');localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');}");p.reload();p.wait_for_timeout(200)
     cs=lambda sel,prop:p.locator(sel).first.evaluate(f"e=>getComputedStyle(e).{prop}")
     h=lambda sel:p.locator(sel+":visible").first.evaluate("e=>e.getBoundingClientRect().height")
     ok("page background #F5F5F7",cs("body","backgroundColor")==BG,cs("body","backgroundColor"))

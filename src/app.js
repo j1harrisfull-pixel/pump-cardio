@@ -840,7 +840,13 @@ $("fin").textContent=lg?"Update log":"Finish workout";
 var o=LS.get("wo_plan",{})||{},hasBk=!!(bkOf(sel)&&SESS[bkOf(sel)]&&o[sel]!="Rest"&&sel>LEGACY_END),on=altOn(sel);$("dctl").hidden=!(hasBk||m=="today"||m=="future")||!!S.tbc;
 var hasQ=!!(qkOf(sel)&&SESS[qkOf(sel)]&&o[sel]!="Rest"),qo=qOn(sel);$("qk").hidden=!hasQ;if(hasQ){$("qk").textContent=qo?"↩ Back to main: "+SESS[baseSid(sel)].name:"Quick option: "+SESS[qkOf(sel)].name;$("qk").classList.toggle("on",qo);$("dctl").hidden=false;}
 $("alt").hidden=!hasBk;if(hasBk){on=on&&!qo;$("alt").textContent=on?"↩ Back to main: "+SESS[baseSid(sel)].name:"Use backup session: "+SESS[bkOf(sel)].name.replace("Backup · ","");$("alt").classList.toggle("on",on);}
-if(m=="today")wake();$("swap").hidden=!(m=="today"||m=="future")||!!S.tbc;$("swap").textContent=m=="today"?"Swap today's session":"Swap this session";$("tolog").hidden=!!S.rest||!!S.tbc||m=="future";var hr=hasRI(S);$("ri").hidden=!hr;if(hr){var ro=riOn(sel);$("ri").textContent=ro?"↩ Back to "+(sid(sel)=="row"?"row":"Assault Runner / walk"):"Run instead (outdoor run)";$("ri").classList.toggle("on",ro);if(hr)$("dctl").hidden=false;}renderSess();hist();}
+if(m=="today")wake();$("swap").hidden=!(m=="today"||m=="future")||!!S.tbc;$("swap").textContent=m=="today"?"Swap today's session":"Swap this session";var hr=hasRI(S);$("ri").hidden=!hr;if(hr){var ro=riOn(sel);$("ri").textContent=ro?"↩ Back to "+(sid(sel)=="row"?"row":"Assault Runner / walk"):"Run instead (outdoor run)";$("ri").classList.toggle("on",ro);if(hr)$("dctl").hidden=false;}
+// pc-v50: the rare options (backup, quick option, run instead, swap) sit behind one "Change session" button; the menu
+// stays open while one of them is active so "↩ Back to main" is always in reach (wo_chg=1 keeps it open, used by the tests)
+var anyOpt=["alt","qk","ri","swap"].some(function(i){return !$(i).hidden;}),act=altOn(sel)||qOn(sel)||(hr&&riOn(sel)),openM=!!(DCO[sel]||act||LS.get("wo_chg",0));
+$("chg").hidden=!anyOpt||!!act||!!LS.get("wo_chg",0);$("chg").textContent=DCO[sel]?"Hide session options":"Change session";$("chg").setAttribute("aria-expanded",openM?"true":"false");$("dcm").hidden=!openM;if(!anyOpt)$("dctl").hidden=true;
+renderSess();hist();}
+var DCO={};
 function subLog(k){var S=S_(k),lg=S&&!S.rest?logFor(k,S.name):null;return lg&&lg.sub?lg:null;}
 function stripLab(k){var lg=subLog(k);return lg&&lg.act&&ACTS[lg.act]?ACTS[lg.act]:plan(k);}
 function title(){var k=isOpen?sel:today,S=S_(k),sl=subLog(k);$("ttl").textContent=sl?sl.sub:S?S.name:"Pump + Cardio";$("date").textContent=pd(k).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(sl?" · instead of "+(sl.plan||S.name):"");}
@@ -898,7 +904,7 @@ $("exp").onclick=doExport;$("ex_copy").onclick=function(){var t=$("ex_t").value;
 $("exs").addEventListener("click",function(e){if(e.target===this||e.target.closest(".exx"))$("exs").classList.remove("show");});
 function typeOpts(d){if(d<=LEGACY_END)return [];var b=baseSid(d);if(!b||!SESS[b])return [];var o=[["main","Main"]];if(bkOf(d)&&SESS[bkOf(d)])o.push(["backup","Backup"]);if(hasRI(SESS[b]))o.push(["run","Run instead"]);if(qkOf(d)&&SESS[qkOf(d)])o.push(["quick",SESS[qkOf(d)].name]);return o;}
 function setType(d,t,oldName){setAlt(d,t=="backup");setRI(d,t=="run");setQ(d,t=="quick");var l=logs(),S=S_(d);for(var i=0;i<l.length;i++){var e=l[i];if(e.date==d&&(e.name||"")==oldName){e.type=t;e.sid=sid(d);e.name=S.name;delete e.custom;if(t=="run")e.ri=1;else delete e.ri;}}LS.set("wo_log",l);all();hist();}
-function all(){title();week();if(isOpen)renderPanel();prog();hist();if(!RT)rbtnVis();}
+function all(){title();week();if(isOpen)renderPanel();prog();hist();if(!RT)rbtnVis();nag();}
 function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();}
 function closeP(){isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
@@ -1008,7 +1014,13 @@ $("topq").addEventListener("click",function(e){var c=e.target.closest("[data-toc
   if(w=="else"){r.sub=1;s.oc="modified";}else if(w=="skip"){r.sub=0;s.oc="skipped";}else{r.sub=0;s.oc="";}LS.set("wo_"+sel,s);LS.set("wo_run_"+sel,r);renderSess();prog();if(!RT)rbtnVis();return;}
  if(e.target.closest("#xconv")&&S){var l=logs(),i=extraFor(sel);if(i<0)return;var x=l[i],r2=R(sel),s2=P(sel);r2.sub=1;r2.at=x.act||"run";r2.d=x.km||"";r2.t=x.time||"";r2.e=x.effort||"";r2.f=x.feel||"";r2.sl="";if(x.notes){if(hasRun(S))r2.n=r2.n||x.notes;else s2.nt=s2.nt||x.notes;}s2.oc="modified";
   l.splice(i,1);LS.set("wo_log",l);LS.set("wo_"+sel,s2);LS.set("wo_run_"+sel,r2);RUNOPEN[sel]=false;finBusy=false;$("fin").click();}});
-$("tolog").onclick=function(){var el=$("logsec")||$("fin");if(el)el.scrollIntoView({behavior:"smooth",block:"start"});};
+$("chg").onclick=function(){DCO[sel]=!DCO[sel];renderPanel();};
+// yesterday's session not logged: one line under the week strip (pc-v50)
+function nag(){var el=$("ynag");if(!el)return;var y=addDays(today,-1),S=mode(y)=="pre"?null:S_(y),show=!!(S&&!S.rest&&!S.tbc&&!logFor(y,S.name)&&LS.get("wo_nag","")!=y&&!(isOpen&&sel==y)&&weekOff==0);el.hidden=!show;if(!show){el.innerHTML="";return;}
+ el.innerHTML='<span>Yesterday\'s <b>'+esc(S.name)+'</b> is not logged.</span><div class="nagb"><button type="button" class="btn" data-ng="log">Log it</button><button type="button" class="swb" data-ng="skip">Skipped</button><button type="button" class="swb" data-ng="x" aria-label="Dismiss">Not now</button></div>';}
+$("ynag").addEventListener("click",function(e){var b=e.target.closest("[data-ng]");if(!b)return;var y=addDays(today,-1),w=b.dataset.ng;if(w=="x"){LS.set("wo_nag",y);nag();return;}
+ if(w=="skip"){var s=P(y),r=R(y);s.oc="skipped";r.sub=0;LS.set("wo_"+y,s);LS.set("wo_run_"+y,r);}
+ if(!(isOpen&&sel==y))openDay(y);if(w=="skip"){finBusy=false;$("fin").click();}else{var t=$("topq");if(t&&t.scrollIntoView)t.scrollIntoView({block:"center"});}});
 $("imp").onclick=function(){IMW=null;$("im_t").value="";$("im_r").innerHTML="";$("im_ok").hidden=true;$("ims").classList.add("show");setTimeout(function(){$("im_t").focus();},50);};
 $("hist").addEventListener("click",function(ev){var b=ev.target.closest("[data-del]");if(!b)return;var l=logs(),i=+b.dataset.del,e=l[i];if(!e)return;if(!confirm("Delete this entry?\n"+e.date+" · "+(e.name||"Pump + Cardio")))return;
  l.splice(i,1);LS.set("wo_log",l);if(e.sub||e.oc=="skipped"){var r=R(e.date),s=P(e.date);r.sub=0;if(s.oc)s.oc="";LS.set("wo_run_"+e.date,r);LS.set("wo_"+e.date,s);}all();});
@@ -1047,6 +1059,8 @@ setInterval(checkDay,30000);
 migrate();if(T&&(!T.segs||!T.t0))stopT();if(T){lastI=-2;wake();}
 (function(){var f=LS.get("wo_flash",null);if(f&&f.week){LS.del("wo_flash");weekOff=Math.round((pd(f.week)-pd(monOf(today)))/604800000);toast(f.msg||"Saved");}})();
 all();loop();
+// installed on the Home Screen: open straight on today's session (a browser tab keeps the week view)
+(function(){var sa=false;try{sa=navigator.standalone===true||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);}catch(e){}if(sa&&weekOff==0&&!isOpen&&mode(today)!="pre"&&S_(today))openDay(today);})();
 if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){var reload=false;navigator.serviceWorker.addEventListener("controllerchange",function(){if(reload)return;reload=true;location.reload();});
 navigator.serviceWorker.register("sw.js").then(function(reg){function show(){var u=$("upd");u.style.display="block";u.onclick=function(){if(reg.waiting)reg.waiting.postMessage("skip");else location.reload();};}
 if(reg.waiting&&navigator.serviceWorker.controller)show();reg.addEventListener("updatefound",function(){var w=reg.installing;if(w)w.addEventListener("statechange",function(){if(w.state=="installed"&&navigator.serviceWorker.controller)show();});});
