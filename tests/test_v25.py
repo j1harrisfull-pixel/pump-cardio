@@ -92,7 +92,8 @@ with sync_playwright() as pw:
     p.evaluate("()=>{window.__bp=[]}")
     for x in ("cs-row","hk-db-press"):
         p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(0).click()
-    ok("auto rest bar after round",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15" and p.locator("#rlab").inner_text().startswith("Next: set 2 · 8") and p.locator("#rlab").inner_text().endswith("· B1"),p.locator("#rlab").inner_text())
+    p.wait_for_timeout(80)  # let the rest bar paint under parallel load
+    ok("auto rest bar after round",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15" and p.locator("#rlab").inner_text().startswith("Next: set 2 · 8") and p.locator("#rlab").inner_text().endswith("· B1"),(p.locator("#rbar.show").count(),p.locator("#rtime").inner_text(),p.locator("#rlab").inner_text()))
     p.click("#rp15");ok("+15 s",p.locator("#rtime").inner_text()=="1:30");p.click("#rm15");p.click("#rm15");ok("−15 s",p.locator("#rtime").inner_text()=="1:00")
     p.clock.run_for(61000);p.wait_for_timeout(50);ok("rest over: 0:00 + beeps + flash",p.locator("#rtime").inner_text()=="0:00" and "Rest over" in p.locator("#rlab").inner_text() and p.evaluate("window.__bp.length")>=4 and p.locator("#rbar.zero").count()==1)
     p.screenshot(path="/tmp/x2.png")
