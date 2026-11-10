@@ -772,7 +772,7 @@ function topQ(S,s,r){var tq=$("topq");if(!tq)return;var m=mode(sel);if(!S||S.res
  tq.innerHTML=h;}
 function renderSess(){var S=S_(sel),s=P(sel),r=R(sel),h="",hA="",hX="",hO="",n=0,hasF=false,nDone=0,firstOpen=-1;
 S.blocks.forEach(function(b){
- if(b.k=="rest"){var nmx=b.name,ntx=b.note;if(S.tbc){nmx="No plan yet";ntx="Nothing planned for w/c "+sdl(monOf(sel))+". Ask Health & Fitness for the week file, then History → Weeks → Import week."+(sel<=today?" Until then, pick a backup from another day or rest.":"");}h+='<div class="card"><div class="name">'+nmx+'</div><div class="note">'+ntx+'</div></div>';return;}
+ if(b.k=="rest"){var nmx=b.name,ntx=b.note;if(S.tbc){nmx="No plan yet";ntx="Nothing planned for w/c "+sdl(monOf(sel))+". Ask Health & Fitness for the week file, then "+(TABS?"Settings on the Today screen → Import week.":"History → Weeks → Import week.")+(sel<=today?(TABS?" Until then, rest or log any activity below.":" Until then, pick a backup from another day or rest."):"");}h+='<div class="card"><div class="name">'+nmx+'</div><div class="note">'+ntx+'</div></div>';return;}
  if(b.k=="fields"){hA+='<h2>Actual</h2>'+runCard(b.dist||"Distance (km)",r,false);hasF=true;return;}
  n++;b=VB(b);var tt=b.timer||b,D=dur(tt.segs);var bdn=blockDone(b,s),fold=bdn&&!UNF[sel+"|"+(b.id||b.tid)]&&!(b.k=="ex"&&LASTB==sel+"|"+(b.tid||b.id));if(bdn)nDone++;else if(firstOpen<0)firstOpen=n;
  if(b.k=="timer"){h+='<h2>'+n+' · '+b.h+' · '+mmss(D)+'</h2>'+foldLine(fold,b.id,b.name)+'<div class="card tcard'+(sdone(sel,b.id)?" done":"")+'" id="c_'+b.id+'"><div class="name">'+b.name+'</div>'+(b.note?'<div class="note">'+b.note+'</div>':'')+lastScore(b.id);
@@ -808,7 +808,7 @@ if(!hasF&&!(r.sub&&!S.rest&&!S.tbc)){var xi=extraFor(sel),open=RUNOPEN[sel]||xi>
 // B. outcome of the session, for the log and for the coach: as planned / modified / cut short / skipped (+ a note on days without the run card)
 if(!S.rest&&!S.tbc){var chips=hasF?["planned","different run","modified","cut short","skipped"]:["planned","something else","modified","cut short","skipped"],cur=r.sub?(hasF?"different run":"something else"):(s.oc||""),off=!!(r.sub||s.oc=="skipped");
  hO+='<h2>How did it go?</h2><div class="card lock ocard" id="logsec"><div class="rcs" id="oc">'+chips.map(function(w){return '<button type="button" class="rc'+(cur==w?" on":"")+'" data-oc="'+w+'">'+(w=="planned"?"as planned":w)+'</button>';}).join("")+'</div>'+(hasF||subF?'':'<label class="l">Notes<textarea class="f" id="s_nt" rows="2" placeholder="anything Grokbot should know"></textarea></label>')+(off&&!r.sub?'<button type="button" class="btn" id="fin2">Save</button>':'')+'</div>';}
-var offp=!S.rest&&!S.tbc&&!!(r.sub||s.oc=="skipped");topQ(S,s,r);$("safe1").hidden=offp;var bare=offp&&!SHOWP[sel];$("acts").hidden=!!S.rest||bare;$("rstw").hidden=!!S.rest||bare;[].forEach.call(document.querySelectorAll(".setr"),function(sr){sr.hidden=bare;});
+var offp=!S.rest&&!S.tbc&&!!(r.sub||s.oc=="skipped");$("panel").classList.toggle("offp",offp&&!SHOWP[sel]);topQ(S,s,r);$("safe1").hidden=offp;var bare=offp&&!SHOWP[sel];$("acts").hidden=!!S.rest||bare;$("rstw").hidden=!!S.rest||bare;[].forEach.call(document.querySelectorAll(".setr"),function(sr){sr.hidden=bare;});
 h=offp?(r.sub?hA:hO)+'<button type="button" class="link showp" id="showp">'+(SHOWP[sel]?"Hide":"Show")+' the planned session</button>'+(SHOWP[sel]?h:"")+hX:h+hA+hX+hO;
 $("sess").innerHTML=h;foldCards();if(firstOpen>0&&nDone>0){var hx=null;[].forEach.call($("sess").querySelectorAll("h2"),function(x){if(!hx&&x.textContent.indexOf(firstOpen+" · ")==0)hx=x;});if(hx){var up=document.createElement("div");up.className="upnext";up.textContent="Up next";var ref=hx.parentNode.classList.contains("bh")?hx.parentNode:hx;ref.parentNode.insertBefore(up,ref);}}["d","t","f","n","sl"].forEach(function(k){var el=$("r_"+k);if(el)el.value=r[k]||"";});var nt=$("s_nt");if(nt)nt.value=s.nt||"";}
 // save or update the one "Extra run" entry for this date (never a second strength log)
@@ -830,17 +830,17 @@ function sugHTML(x,it){var g=suggest(x,it);if(!g)return "";var cur=dayW(x,sel);i
  return '<div class="sug"><button type="button" class="btn sm sfill lock" data-sf="'+x+'|'+g.kg+'">Use '+g.kg+' kg</button><span>'+esc(g.why)+' · only if it felt RPE 6–7</span></div>';}
 function fillKg(x,kg){var S=S_(sel),s=P(sel);s.kg=s.kg||{};S.blocks.forEach(function(b){if(b.k!="ex")return;b.items.forEach(function(it){if(it.x!=x)return;for(var q=0;q<bn(b,s);q++){var k=it.gi+"_"+q;if(!s.t[k])s.kg[k]=String(kg);}});});LS.set("wo_"+sel,s);setW(x,sel,kg);renderSess();}
 // ---- Progress screen (pc-v40): the last weeks, strength by exercise, recent runs; all from wo_log and the programme
-function weekRows(n){var rows=[],m=monOf(today),l=logs();for(var i=0;i<n;i++){var mon=addDays(m,-7*i),sun=addDays(mon,6),pl=0,dn={},runs=0,km=0,min=0;
-  Object.keys(PROG).forEach(function(d){if(d<mon||d>sun||d>today||d<=LEGACY_END)return;var S=SESS[baseSid(d)];if(S&&!S.rest)pl++;});
+function weekRows(n){var rows=[],m=monOf(today),l=logs();for(var i=0;i<n;i++){var mon=addDays(m,-7*i),sun=addDays(mon,6),pl=0,plw=0,dn={},runs=0,km=0,min=0;
+  Object.keys(PROG).forEach(function(d){if(d<mon||d>sun||d<=LEGACY_END)return;var S=SESS[baseSid(d)];if(S&&!S.rest){plw++;if(d<=today)pl++;}});
   l.forEach(function(e){if(!e||!e.date||e.date<mon||e.date>sun)return;if(e.type!="extra"&&!(e.oc=="skipped"))dn[e.date]=1;if(e.km||e.time){runs++;km+=parseFloat(e.km)||0;min+=tmin(e.time||"");}});
-  rows.push({mon:mon,pl:pl,dn:Object.keys(dn).length,runs:runs,km:Math.round(km*10)/10,min:min});}return rows;}
+  rows.push({mon:mon,pl:pl,plw:plw,dn:Object.keys(dn).length,runs:runs,km:Math.round(km*10)/10,min:min});}return rows;}
 function exRows(){var by={};logs().forEach(function(e){if(!e||!e.rp)return;Object.keys(e.rp).forEach(function(x){(by[x]=by[x]||[]).push({d:e.date,w:e.wt&&e.wt[x],r:e.rp[x]});});});
  return Object.keys(by).map(function(x){var a=by[x].sort(function(p,q){return p.d<q.d?-1:1;}),last=a.slice(-3),prev=a.length>1?a[a.length-2]:null,now=a[a.length-1],kn=kgOfLog(now),kp=prev?kgOfLog(prev):null;
   return {x:x,name:nm(x),rows:last,trend:(now.r.sub||(prev&&prev.r.sub))?"":kn!=null&&kp!=null?(kn>kp&&!(now.r.v||[]).some(function(v){return v=="–"||v===""||v==null;})?"up":kn<kp?"down":"same"):""};}).sort(function(p,q){return p.rows[p.rows.length-1].d<q.rows[q.rows.length-1].d?1:-1;});}
 function kgOfLog(e){var k=(e.r&&e.r.k||[]).filter(function(v){return v&&v!="–"&&!isNaN(+v);}).map(Number);if(k.length)return Math.max.apply(null,k);return e.w&&!isNaN(+e.w)?+e.w:null;}
 function progress(){var el=$("prog_b");if(!el)return;var h="",wr=weekRows(4),tw=wr[0],lw=wr[1];
- h+='<div class="wkbig"><div><b>'+tw.dn+'<small>/'+tw.pl+'</small></b><span>sessions</span></div><div><b>'+tw.runs+'</b><span>run'+(tw.runs==1?'':'s')+'</span></div><div><b>'+tw.km+'<small> km</small></b><span>'+(lw?'last week '+lw.km+' km':'this week')+'</span></div><div><b>'+tw.min+'<small> min</small></b><span>'+(lw?'last week '+lw.min+' min':'running')+'</span></div></div>';
- h+='<div class="hs_h">Last 4 weeks</div>'+wr.map(function(r){return '<div class="prow"><b>w/c '+esc(sdl(r.mon).replace(/^\w+ /,""))+'</b> · '+(r.pl||r.dn?r.dn+' of '+r.pl+' sessions':'nothing planned')+(r.runs?' · '+r.runs+' run'+(r.runs==1?'':'s')+' · '+r.km+' km'+(r.min?' · '+r.min+' min':''):'')+'</div>';}).join("");
+ h+='<div class="wkbig"><div><b>'+tw.dn+'<small>/'+(TABS?tw.plw:tw.pl)+'</small></b><span>sessions</span></div><div><b>'+tw.runs+'</b><span>run'+(tw.runs==1?'':'s')+'</span></div><div><b>'+tw.km+'<small> km</small></b><span>'+(lw?'last week '+lw.km+(TABS?'':' km'):'this week')+'</span></div><div><b>'+tw.min+'<small> min</small></b><span>'+(lw&&!TABS?'last week '+lw.min+' min':'running')+'</span></div></div>';
+ h+='<div class="hs_h">Last 4 weeks</div>'+wr.map(function(r,ri){var pl=TABS&&ri==0?r.plw:r.pl;return '<div class="prow"><b>w/c '+esc(sdl(r.mon).replace(/^\w+ /,""))+'</b> · '+(pl||r.dn?r.dn+' of '+pl+' sessions':'nothing planned')+(r.runs?' · '+r.runs+' run'+(r.runs==1?'':'s')+' · '+r.km+' km'+(r.min?' · '+r.min+' min':''):'')+'</div>';}).join("");
  var ex=exRows();if(ex.length)h+='<div class="hs_h">Strength · last 3 per exercise</div>'+ex.map(function(e){return '<div class="prow"><b>'+esc(e.name)+'</b>'+(e.trend=="up"?' <span class="up">↑</span>':e.trend=="down"?' <span class="dn">↓</span>':'')+'<br><small>'+e.rows.map(function(r){return esc(sdl(r.d).replace(/^\w+ /,""))+': '+esc((r.r.v||[]).join("/")+(r.r.u?" "+r.r.u:""))+(kgOfLog(r)!=null?' @ '+kgOfLog(r)+' kg':'')+(r.r.sub?' (as '+esc(r.r.sub)+')':'')+(r.r.n?' · '+esc(r.r.n):'');}).join(" · ")+'</small></div>';}).join("");
  var runs=logs().filter(function(e){return e&&(e.km||e.time);}).slice(-5).reverse();if(runs.length)h+='<div class="hs_h">Recent runs</div>'+runs.map(function(e){return '<div class="prow"><b>'+esc(sdl(e.date).replace(/^\w+ /,""))+'</b> · '+esc(runLine(e).replace(/<[^>]*>/g,""))+(e.sub?' · instead of '+esc(e.plan||"the plan"):'')+(e.type=="extra"?' · extra':'')+'</div>';}).join("");
  el.innerHTML=h||"<div class=\"prow\">Nothing logged yet.</div>";}
@@ -891,8 +891,12 @@ function week(){var m=monday(),h="",done={};logs().forEach(function(e){if(e&&e.d
 for(var i=0;i<7;i++){var k=addDays(m,i),d=pd(k),md=mode(k),dn=d.toLocaleDateString("en-GB",{weekday:"short"});
 if(md=="pre"){h+='<div class="day pre"><div class="dn">'+dn+'</div><div class="dd">'+d.getDate()+'</div><div class="pl">–</div></div>';continue;}
 h+='<button class="day '+md+(k==today?" today":"")+(isOpen&&k==sel?" sel":"")+(editable(k)?" ed":"")+(srcOf(k)!=k?" moved":"")+(swA==k?" pick":"")+'" data-d="'+k+'"><div class="dn">'+dn+'</div><div class="dd">'+d.getDate()+'</div><div class="pl">'+stripLab(k)+'</div>'+(done[k]?'<span class="ok">✓</span>':"")+"</button>";}
-$("week").innerHTML=h;$("week").classList.toggle("editing",editing);$("prev").disabled=m<=SD;swUI();$("wlab").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":pd(m).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
-var none=weekOff>=0&&[0,1,2,3,4,5,6].every(function(i){var k=addDays(m,i);return sid(k)=="tbc";});$("hint").textContent=none?"Nothing planned for this week yet. Health & Fitness adds the week file; you can still log any activity on a day.":"Tap a day to see its workout";}
+$("week").innerHTML=h;wlist(m);$("week").classList.toggle("editing",editing);$("prev").disabled=m<=SD;swUI();$("wlab").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":pd(m).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+var none=weekOff>=0&&[0,1,2,3,4,5,6].every(function(i){var k=addDays(m,i);return sid(k)=="tbc";});$("hint").classList.toggle("np",!!none);$("hint").textContent=none?"Nothing planned for this week yet. Health & Fitness adds the week file; you can still log any activity on a day.":"Tap a day to see its workout";}
+function wlist(m){var el=$("wlist");if(!el||!TABS)return;var h="";for(var i=0;i<7;i++){var k=addDays(m,i),md=mode(k);if(md=="pre")continue;var S=S_(k),d=pd(k),lg=S&&!S.rest?logFor(k,S.name):null,sl=lg&&lg.sub?lg:null,sk=lg&&lg.oc=="skipped"&&!lg.sub,xi=extraFor(k);
+  var st=lg?(sk?"Skipped":"✓ Done"):xi>=0?"✓ Extra":k==today?"Today":md=="past"&&S&&!S.rest&&!S.tbc?"Not logged":"";
+  h+='<button type="button" class="wrow'+(k==today?" today":"")+'" data-d="'+k+'"><span class="wd">'+d.toLocaleDateString("en-GB",{weekday:"short"})+'<b>'+d.getDate()+'</b></span><span class="wn">'+esc(sl?sl.sub:S?S.name:"–")+(S&&S.tot>0&&!S.tbc&&!S.rest&&!sl?'<small>'+(S.est?"≈ ":"")+Math.round(S.tot/60)+' min</small>':sl?'<small>instead of '+esc(sl.plan||S.name)+'</small>':'')+'</span><span class="ws'+(lg&&!sk||xi>=0?" ok":"")+'">'+st+'</span></button>';}
+ if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
 function nm(id){return X[id]?X[id][0]:id;}
 function repParts(kg,r){var k=r.k||[],mix=k.filter(function(x,i,a){return x!="–"&&a.indexOf(x)==i;}).length>1,kk=!kg&&!mix?k.filter(function(x){return x!="–";})[0]:null;return {kg:(kg||kk)&&!mix?(kg||kk)+" kg":"",reps:(mix?r.v.map(function(v,i){return v+(k[i]&&k[i]!="–"?"@"+k[i]:"");}):r.v).join("/")+(r.u?" "+r.u:"")+(mix?" (kg)":""),note:r.n?"note: "+r.n:""};}
 function repBody(kg,r){var p=repParts(kg,r);return [p.kg,p.reps,p.note].filter(Boolean).join(" · ");}
@@ -951,18 +955,32 @@ function layout(){var c=document.body.classList;c.toggle("tabs",TABS);if(!TABS)r
  [].forEach.call(document.querySelectorAll("#tabbar [data-tab]"),function(b){var on=b.dataset.tab==TAB;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false");});
  $("close").textContent="‹ Back";}
 function setTab(t){if(isOpen)closeP();TAB=t;if(t!="week"&&weekOff){weekOff=0;}if(t=="prog"){var d=$("prg");if(d)d.open=true;}all();window.scrollTo(0,0);}
+function hprev(S,s){var rows=[];S.blocks.forEach(function(b){b=VB(b);if(b.k!="timer"&&b.k!="ex")return;var dn=blockDone(b,s),nmb,meta;
+  if(b.k=="timer"){nmb=b.name||b.h;var tt=0;(b.segs||[]).forEach(function(g){tt+=g[1];});meta=tt?fmt(tt):"";}else{nmb=b.items.map(function(it){return nm(it.x);}).join(" + ");meta=bn(b,s)+" rounds";}
+  rows.push('<div'+(dn?' class="dn"':'')+'><span>'+(dn?"✓ ":"")+esc(nmb)+'</span><small>'+esc(meta)+'</small></div>');});
+ return rows.length?'<button type="button" class="hprev" data-hm="peek" aria-label="Look at the session">'+rows.join("")+'</button>':"";}
 function home(){var el=$("home");if(!el||!TABS)return;var S=mode(today)=="pre"?null:S_(today),h="";
- if(S){var s=P(today),lg=!S.rest?logFor(today,S.name):null,st=+LS.get("wo_runstart_"+today,0)||s.start||0,en=s.end&&s.end>=st?s.end:0,xi=extraFor(today);
+ if(S){var s=P(today),r=R(today),lg=!S.rest?logFor(today,S.name):null,st=+LS.get("wo_runstart_"+today,0)||s.start||0,en=s.end&&s.end>=st?s.end:0,xi=extraFor(today),sc=S.rest?null:score(today);
+  var lk=function(k,txt){return '<button type="button" class="link hlink" data-hm="'+k+'">'+txt+'</button>';},lks=[];
   if(S.tbc)h+='<div class="hline">Nothing planned for this week yet.</div><button type="button" class="btn ghost" data-hm="open">Log an activity</button>';
   else if(S.rest)h+='<div class="hline">Rest day'+(S.blocks.some(function(b){return b.k=="timer";})?" · optional mobility inside":"")+(xi>=0?" · activity logged ✓":"")+'</div><button type="button" class="btn ghost" data-hm="open">Open today</button>';
+  else if(lg&&lg.oc=="skipped"&&!lg.sub)h+='<div class="hline">Skipped today</div><button type="button" class="btn ghost" data-hm="open">View today</button>';
   else if(lg)h+='<div class="hline good">✓ Logged'+(lg.min?" · "+lg.min+" min":"")+(lg.sub?" · "+esc(lg.sub):"")+'</div><button type="button" class="btn ghost" data-hm="open">View today</button>';
-  else if(st&&!en)h+='<div class="hline">In progress · started '+esc(new Date(st).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}))+' · '+score(today).d+' of '+score(today).t+' parts done</div><button type="button" class="btn" data-hm="open">Continue</button><button type="button" class="link hlink" data-hm="else">I did something else</button>';
-  else h+='<div class="hline">'+(S.tot>0?(S.est?"≈ ":"")+Math.round(S.tot/60)+" min · ":"")+S.blocks.filter(function(b){return b.k=="timer"||b.k=="ex";}).length+' blocks</div><button type="button" class="btn" data-hm="start">Start session</button><button type="button" class="link hlink" data-hm="else">I did something else</button>';}
- var w=weekRows(1)[0];h+='<button type="button" class="hweek" data-hm="week">This week · '+w.dn+' of '+w.pl+' sessions'+(w.runs?' · '+w.km+' km':'')+' ›</button>';
+  else if(r.sub||s.oc=="skipped"){h+='<div class="hline">Marked as '+(r.sub?"something else":"skipped")+' · not saved yet</div><button type="button" class="btn" data-hm="open">Finish logging</button>';lks.push(lk("plan","Back to the plan"));}
+  else if(st){h+='<div class="hline">'+(en?"Paused at "+hms(en-st):"In progress · started "+esc(new Date(st).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})))+' · '+sc.d+' of '+sc.t+' parts done</div>'+hprev(S,s)+'<button type="button" class="btn" data-hm="'+(en?"resume":"open")+'">Continue</button>';lks.push(lk("else","I did something else"));}
+  else{h+='<div class="hline">'+(S.tot>0?(S.est?"≈ ":"")+Math.round(S.tot/60)+" min · ":"")+S.blocks.filter(function(b){return b.k=="timer"||b.k=="ex";}).length+' blocks'+(xi>=0?" · "+esc(logs()[xi].name||"activity")+" logged ✓":"")+'</div>'+hprev(S,s)+'<button type="button" class="btn" data-hm="start">Start session</button>';
+   if(hasRun(S))lks.push(lk("run","Log my run"));lks.push(lk("else","I did something else"));if(xi>=0)lks.push(lk("conv","It replaced this session"));}
+  if(lks.length)h+='<div class="hlinks">'+lks.join("")+'</div>';}
+ var w=weekRows(1)[0];h+='<button type="button" class="hweek" data-hm="week">This week · '+(w.plw||w.dn?w.dn+' of '+w.plw+' sessions':'nothing planned')+(w.runs?' · '+w.km+' km':'')+' ›</button>';
  if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
 function all(){layout();title();week();if(isOpen)renderPanel();sclk();prog();hist();if(!RT)rbtnVis();nag();review();home();}
-function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();if(TABS&&TAB!="week")window.scrollTo(0,0);}
-function closeP(){isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();}
+function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();if(TABS)place(k);}
+var SCY={};
+function place(k,to){var y=SCY[k],el=null;if(to=="actual")[].forEach.call(document.querySelectorAll("#sess h2"),function(x){if(!el&&x.textContent=="Actual")el=x;});else if(to)el=document.querySelector(to);if(el){el.scrollIntoView({block:"start"});window.scrollBy(0,-70);return;}if(y>0){window.scrollTo(0,y);return;}
+ var u=k==today?document.querySelector("#sess .upnext"):null;if(u){u.scrollIntoView({block:"start"});window.scrollBy(0,-64);}else if(TAB!="week")window.scrollTo(0,0);}
+function closeP(){if(TABS&&isOpen){SCY[sel]=window.scrollY;var r0=R(sel),s0=P(sel);
+  if(r0.sub&&!subLog(sel)&&!(r0.d||r0.t||r0.n||r0.sl||r0.e||r0.f)){r0.sub=0;if(s0.oc=="modified")s0.oc="";LS.set("wo_run_"+sel,r0);LS.set("wo_"+sel,s0);}}
+ isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
 var swapping=false,swA=null;
 function curWeekDays(){var d=pd(today),m=addDays(today,-((d.getDay()+6)%7)),a=[];for(var i=0;i<7;i++)a.push(addDays(m,i));return a;}
@@ -1105,6 +1123,7 @@ var finBusy=false,ovAt=0,UNDO=null,UNDOPRE=null;
 $("fin").onclick=function(){var d=sel,S=S_(d),m=mode(d);if(finBusy||m=="future"||m=="pre"||!S||S.rest)return;finBusy=true;setTimeout(function(){finBusy=false;},1500);
 var name=S.name,l=logs(),old=null,idx=-1;for(var i=0;i<l.length;i++)if(sameE(l[i],d,name)){old=l[i];idx=i;}
 var s=P(d),r=R(d),st0=+LS.get("wo_runstart_"+d,0)||s.start||0,e={name:name,date:d},x=[],tot=setsTotal(S);
+if(TABS&&r.sub&&s.oc!="skipped"&&!(r.d||tnorm(r.t||"")||(r.sl||"").trim()||(r.n||"").trim())){finBusy=false;toast("Add a time or a distance first.");var ft=$("r_t");if(ft)ft.focus();return;}
 if(tot){var w={},wt={};items(S).forEach(function(it){var v=dayW(it.x,d);if(v!=null&&X[it.x][3]&&!(s.rx&&s.rx[it.gi])){wt[it.x]=v;if(sid(d)=="pump")w[it.gi]=v;}});e.w=w;e.wt=wt;e.sets=ticks(s);e.of=setsTotal(S,s);x.push(e.sets+" of "+tot+" sets ticked");
  var rp={},ln=[],skx=[];S.blocks.forEach(function(b){if(b.k=="ex")b.items.forEach(function(it){if(skp(s,it.gi)){skx.push(it.x);return;}if(!it.rp)return;var a=[],kk=[],hk=false,any=false;for(var q=0;q<bn(b,s);q++){var k=it.gi+"_"+q;if(s.t[k]){any=true;a.push(repV(s,k,it));var kv=s.kg&&s.kg[k]!=null&&s.kg[k]!==""?String(s.kg[k]):null;kk.push(kv||"–");if(kv)hk=true;}else{a.push("–");kk.push("–");}}if(any){rp[it.x]={v:a,u:it.ru||""};if(hk)rp[it.x].k=kk;if(s.rx&&s.rx[it.gi])rp[it.x].sub=s.rx[it.gi];if(s.xn&&s.xn[it.gi])rp[it.x].n=s.xn[it.gi];ln.push(repLine(it.x,wt[it.x],rp[it.x]));}else if(s.xn&&s.xn[it.gi]){rp[it.x]={v:[],u:it.ru||"",n:s.xn[it.gi]};}});});if(Object.keys(rp).length){e.rp=rp;x=x.concat(ln);}else delete e.rp;if(skx.length){e.skx=skx;x.push("skipped: "+skx.map(nm).join(", "));}else delete e.skx;}
 if(hasRun(S)){e.km=r.d||"";e.time=tnorm(r.t||"");e.effort=r.e||"";e.feel=r.f||"";e.notes=r.n||"";if(e.km)x.push(e.km+" "+(sid(d)=="row"&&!S.isRun?"m":"km"));if(e.time)x.push(e.time);if(e.effort)x.push(e.effort+" effort");if(e.feel)x.push("felt "+e.feel+"/10");}
@@ -1120,23 +1139,28 @@ var mins=st0?Math.round(((stopped||Date.now())-st0)/60000):0;if(d!=today||mins>1
 UNDO=UNDOPRE||{log:JSON.stringify(logs()),d:d,s:JSON.stringify((function(){var q=JSON.parse(JSON.stringify(s));delete q.end;return q;})())};UNDOPRE=null;$("o_undo").hidden=false;
 if(e.sub){var l2=[],ni=-1;l.forEach(function(q,qi){if(q&&q.date==d&&q.type=="extra"&&(q.act||"run")==(e.act||"run"))return;if(qi==idx)ni=l2.length;l2.push(q);});l=l2;idx=ni;RUNOPEN[d]=false;}
 if(idx>=0)l[idx]=e;else l.push(e);LS.set("wo_log",l);
-$("o_n").textContent=name+(d!=today?" · "+d:"");$("o_t").textContent=e.min+" min";$("o_d").innerHTML=x.map(esc).join("<br>");$("o_e").textContent=(old?"Log updated. ":"")+(e.oc=="skipped"?"Logged. Rest up, back at it next time.":e.oc=="cut short"?"Stopping early was the right call. Recover well.":(+e.feel>0&&+e.feel<=4)?ENC[1]:[ENC[0],ENC[2],ENC[3]][Math.floor(Math.random()*3)]);$("ov").classList.add("show");ovAt=Date.now();all();};
+$("o_n").textContent=name+(d!=today?" · "+(TABS?sdl(d):d):"");document.querySelector("#ov .kicker").textContent=TABS&&e.oc=="skipped"&&!e.sub?"Logged as skipped":"Workout saved";$("o_t").textContent=e.min+" min";$("o_d").innerHTML=x.map(esc).join("<br>");$("o_e").textContent=(old?"Log updated. ":"")+(e.oc=="skipped"?"Logged. Rest up, back at it next time.":e.oc=="cut short"?"Stopping early was the right call. Recover well.":(+e.feel>0&&+e.feel<=4)?ENC[1]:[ENC[0],ENC[2],ENC[3]][Math.floor(Math.random()*3)]);$("ov").classList.add("show");ovAt=Date.now();all();};
 $("o_undo").onclick=function(){if(!UNDO||Date.now()-ovAt<700)return;try{LS.set("wo_log",JSON.parse(UNDO.log));}catch(e){}if(UNDO.s)LS.set("wo_"+UNDO.d,JSON.parse(UNDO.s));if(UNDO.r)LS.set("wo_run_"+UNDO.d,JSON.parse(UNDO.r));UNDO=null;$("ov").classList.remove("show");all();toast("Undone. Nothing was saved.");};
-$("o_done").onclick=function(){if(Date.now()-ovAt<700)return;$("ov").classList.remove("show");};$("ov").onclick=function(e){if(e.target===this&&Date.now()-ovAt>700)this.classList.remove("show");};
+function ovClose(){$("ov").classList.remove("show");if(TABS&&isOpen){if(RT)stopRest();closeP();delete SCY[sel];window.scrollTo(0,0);}}
+$("o_done").onclick=function(){if(Date.now()-ovAt<700)return;ovClose();};$("ov").onclick=function(e){if(e.target===this&&Date.now()-ovAt>700)ovClose();};
 $("rst").onclick=function(){var d=sel,S=S_(d);if(mode(d)=="future"||!S)return;if(!confirm("Reset "+(d==today?"today":d)+"'s ticks, timers and weights?"))return;LS.del("wo_"+d);LS.del("wo_run_"+d);LS.del("wo_runstart_"+d);items(S).forEach(function(it){setW(it.x,d,"");});if(T&&T.date==d)stopT();all();};
 document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible"){unlock();if(T||RT||wantWake())wake();checkDay();loop();}});
 function checkDay(){var n=ymd(new Date());if(n!=today){today=n;weekOff=0;all();}}
 setInterval(checkDay,30000);
 migrate();if(T&&(!T.segs||!T.t0))stopT();if(T){lastI=-2;wake();}
-(function(){var f=LS.get("wo_flash",null);if(f&&f.week){LS.del("wo_flash");weekOff=Math.round((pd(f.week)-pd(monOf(today)))/604800000);toast(f.msg||"Saved");}})();
+(function(){var f=LS.get("wo_flash",null);if(f&&f.week){LS.del("wo_flash");if(TABS)TAB="week";weekOff=Math.round((pd(f.week)-pd(monOf(today)))/604800000);toast(f.msg||"Saved");}})();
 all();loop();
 // installed on the Home Screen: open straight on today's session (a browser tab keeps the week view)
 if(TABS){document.addEventListener("click",function(e){var tb=e.target.closest("#tabbar [data-tab]");if(tb){setTab(tb.dataset.tab);return;}
   var hm=e.target.closest("#home [data-hm]");if(hm){var w=hm.dataset.hm;if(w=="week"){setTab("week");return;}
    if(w=="start"){var s=P(today);if(!s.start&&!LS.get("wo_runstart_"+today,0)){s.start=Date.now();delete s.end;LS.set("wo_"+today,s);unlock();}}
-   if(w=="else"){var s2=P(today),r2=R(today);r2.sub=1;s2.oc="modified";LS.set("wo_"+today,s2);LS.set("wo_run_"+today,r2);}
-   if(!(isOpen&&sel==today))openDay(today);window.scrollTo(0,0);return;}
-  if(e.target.closest("#cog")){$("sets").classList.add("show");return;}});
+   if(w=="else"){var s2=P(today),r2=R(today);r2.sub=1;s2.oc="modified";LS.set("wo_"+today,s2);LS.set("wo_run_"+today,r2);delete SCY[today];}
+   if(w=="plan"){var s3=P(today),r3=R(today);r3.sub=0;s3.oc="";LS.set("wo_"+today,s3);LS.set("wo_run_"+today,r3);all();return;}
+   if(w=="resume"){var s4=P(today),now4=Date.now(),rs=+LS.get("wo_runstart_"+today,0),gap=now4-(s4.end||now4);if(rs)LS.set("wo_runstart_"+today,rs+gap);else s4.start=(s4.start||now4)+gap;delete s4.end;LS.set("wo_"+today,s4);unlock();}
+   if(w=="run"||w=="conv"||w=="else")delete SCY[today];
+   if(!(isOpen&&sel==today))openDay(today);if(w=="run")place(today,"actual");else if(w=="conv")place(today,"#xconv");else if(w=="else"||w=="start"||w=="peek")window.scrollTo(0,0);return;}
+  if(e.target.closest("#cog")){$("sets").classList.add("show");return;}
+  var wr=e.target.closest("#wlist [data-d]");if(wr){openDay(wr.dataset.d);return;}});
  $("sets").addEventListener("click",function(e){if(e.target===this||e.target.closest(".swx"))this.classList.remove("show");});
  // settings and the weeks list live in the settings sheet
  (function(){var b=$("sets_b");[].forEach.call(document.querySelectorAll("label.setr"),function(l){b.appendChild(l);});var wk=document.querySelector(".wkl");if(wk)b.appendChild(wk);})();

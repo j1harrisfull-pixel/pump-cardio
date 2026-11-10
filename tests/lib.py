@@ -215,3 +215,11 @@ def audit_view(vw,V,dev):
     chk(vw,"§6 no numeric paces",not re.search(r"min/km|km/h|/500|drag factor|\d:\d\d–\d:\d\d/",txt))
     notsmall=[x for bl in V["blocks"] for x in [bl["title"],bl["note"]]+bl["gn"]+[str(s[2]) for s in bl["segs"] if len(s)>2]]
     chk(vw,"§6 stroke rate only in small print",not [x for x in notsmall if "s/m" in x],[x for x in notsmall if "s/m" in x][:2])
+
+def tabs_app(b,d,seed=None,hour=9,scheme=None,w=390,h=844):
+    """pc-v58 three screen layout (no wo_flat): open the app on date d at hour:00 with the given localStorage seed."""
+    y,m,dd=map(int,d.split("-"));kw={"color_scheme":scheme} if scheme else {}
+    c=b.new_context(viewport={"width":w,"height":h},device_scale_factor=2,is_mobile=True,has_touch=True,service_workers="block",**kw)
+    c.add_init_script(HOOK);p=c.new_page();p.on("pageerror",lambda e:errs.append(str(e)));p.on("dialog",lambda x:x.accept());p.clock.install(time=dt.datetime(y,m,dd,hour,0));p.goto(URL)
+    p.evaluate("t=>{localStorage.clear();localStorage.setItem('wo_startdate','\"2026-10-10\"');localStorage.setItem('wo_ver','12');for(var k in t)localStorage.setItem(k,JSON.stringify(t[k]));}",seed or {})
+    p.reload();p.wait_for_selector("#tabbar button",timeout=10000);p.wait_for_timeout(200);return c,p

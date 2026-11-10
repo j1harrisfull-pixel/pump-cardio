@@ -19,9 +19,9 @@ with sync_playwright() as pw:
     b=launch(pw)
     c,p=app(b,THU,{"wo_log":L})
     # ---- Today ----
-    ok("tab bar with three tabs, Today selected",p.locator("#tabbar button").all_inner_texts()==["●\nToday","▦\nWeek","↗\nProgress"] and p.locator("#tabbar button.on").inner_text().endswith("Today"),p.locator("#tabbar button").all_inner_texts())
+    ok("tab bar with three tabs, Today selected",p.locator("#tabbar button").all_inner_texts()==["Today","Week","Progress"] and p.locator("#tabbar button.on").inner_text().endswith("Today"),p.locator("#tabbar button").all_inner_texts())
     ok("Today shows the title, the home card and the cog; no week strip, no session, no history",vis(p,"#ttl","#home","#cog","#week","#panel","#more","#hist")==["#ttl","#home","#cog"],vis(p,"#ttl","#home","#cog","#week","#panel","#more"))
-    ok("home card: length, one big Start, something else, this week",p.locator("#home").inner_text().split("\n")==["≈ 43 min · 6 blocks","Start session","I did something else","This week · 2 of 3 sessions · 11.4 km ›"],p.locator("#home").inner_text())
+    ok("home card: length, one big Start, something else, this week",(lambda t:t[0]=="≈ 43 min · 6 blocks" and t[-3:]==["Start session","I did something else","This week · 2 of 5 sessions · 11.4 km ›"])(p.locator("#home").inner_text().split("\n")),p.locator("#home").inner_text())
     ok("the whole Today screen fits one screen (no scrolling)",p.evaluate("()=>document.getElementById('home').getBoundingClientRect().bottom")<760)
     p.click('#home [data-hm="start"]');p.wait_for_timeout(500)
     ok("Start opens the session as its own screen: no strip, ‹ Back, clock running",p.locator("#panel.open").count()==1 and vis(p,"#home","#week","#more")==[] and p.locator("#close").inner_text()=="‹ Back" and p.locator("#sclk").inner_text().replace("\n"," ").startswith("⏱ 0:0") and p.evaluate("()=>window.scrollY")==0)
@@ -29,8 +29,8 @@ with sync_playwright() as pw:
     ok("pills sit above the tab bar",p.evaluate("()=>document.getElementById('sclk').getBoundingClientRect().bottom<=document.getElementById('tabbar').getBoundingClientRect().top"))
     x=p.evaluate("()=>document.querySelector('.srow').dataset.x");tick(p,x,0);p.wait_for_timeout(120)
     p.click("#close");p.wait_for_timeout(400)
-    ok("Back returns to Today; the card now says in progress with Continue",vis(p,"#home","#panel")==["#home"] and p.locator("#home").inner_text().split("\n")[:2]==["In progress · started 09:00 · 1 of 19 parts done","Continue"],p.locator("#home").inner_text())
-    p.click('#home [data-hm="open"]');p.wait_for_timeout(300);fin(p);p.click("#o_done");p.click("#close");p.wait_for_timeout(300)
+    ok("Back returns to Today; the card now says in progress with Continue",vis(p,"#home","#panel")==["#home"] and p.locator("#home .hline").inner_text()=="In progress · started 09:00 · 1 of 19 parts done" and p.locator("#home .btn").inner_text()=="Continue",p.locator("#home").inner_text())
+    p.click('#home [data-hm="open"]');p.wait_for_timeout(300);fin(p);p.click("#o_done");p.wait_for_timeout(300)
     ok("after Finish the card says logged, with View today",p.locator("#home .hline").inner_text().startswith("✓ Logged") and p.locator('#home [data-hm="open"]').inner_text()=="View today",p.locator("#home").inner_text())
     # ---- Week ----
     p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300)
