@@ -29,6 +29,6 @@ with sync_playwright() as pw:
     ok("Finish on a barely started session asks; No saves nothing",msgs==["Finish with only 1 of 19 parts done?"] and p.locator("#ov.show").count()==0 and not ls(p,"wo_log"),msgs)
     ans[0]=True;p.clock.run_for(2000);p.click("#fin_c");p.wait_for_selector("#ov.show",timeout=3000);ok("Yes saves it",len(ls(p,"wo_log"))==1)
     c.close();c,p=tabs_app(b,THU);p.click('#home [data-hm="start"]');p.wait_for_timeout(300);p.locator("#sess [data-t]").first.click();p.clock.run_for(3000);p.wait_for_timeout(200)
-    ok("on the full screen clock the session time shows without its stop",p.locator("#sclk .sc_t").is_visible() and p.locator("#sclk .sc_x").is_hidden());p.click("#stop")
+    ok("on the full screen clock the session time shows as plain text, without a pill or a second stop",p.locator("#sct").is_visible() and p.locator("#sclk").is_hidden());p.click("#stop");p.click("#stqy")
     ok("no page errors",not errs,errs);c.close();b.close()
 exit(done())

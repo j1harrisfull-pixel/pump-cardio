@@ -61,7 +61,7 @@ with sync_playwright() as pw:
     c.close();c,p=app(b,"2026-11-15",{"wo_log":L},hour=18);ok("the Sunday week review shows on Today",p.locator("#wrev").is_visible())
     # the clock overlay hides the tab bar
     c.close();c,p=app(b,THU);p.click('#home [data-hm="start"]');p.wait_for_timeout(300);p.locator("#sess [data-t]").first.click();p.clock.run_for(3000);p.wait_for_timeout(200)
-    ok("the full screen clock covers the tab bar",p.locator("#tabbar").is_hidden() and p.locator("#bar.show").count()==1);p.click("#stop")
+    ok("the full screen clock covers the tab bar",p.locator("#tabbar").is_hidden() and p.locator("#bar.show").count()==1);p.click("#stop");p.click("#stqy")
     c.close();c,p=app(b,THU,scheme="dark");ok("dark: tab bar and home card are dark surfaces",p.evaluate("()=>{var f=function(s){var m=getComputedStyle(document.querySelector(s)).backgroundColor.match(/\\d+/g);return +m[0]+ +m[1]+ +m[2]};return f('#tabbar')<200&&f('.hweek')<200}"))
     c.close()
     # ---- flat layout still there, same DOM ----

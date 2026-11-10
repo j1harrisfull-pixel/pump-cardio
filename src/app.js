@@ -647,13 +647,17 @@ function moveList(b){if(b.list)return b.list;if(b.groups)return b.groups.map(fun
 function findT(S,id){var r=null;S.blocks.forEach(function(b){b=VB(b);if(b.k=="timer"&&b.id==id){r={label:b.name||b.h,kind:kindOf(b),segs:b.segs,list:moveList(b),amrap:b.amrap?1:0,score:kindOf(b)=="every"?1:0};if(r.kind=="emom"){var pl=emomPlan(b);if(pl){r.plan=pl;r.list=emomLines(pl);}}}if(b.timer&&b.timer.id==id)r={label:b.h,kind:b.mode=="every"?"every":"emom",segs:b.timer.segs,list:b.items.map(emomLab)};if(b.k=="ex"&&"rest:"+b.rk==id)r={label:b.unit+" "+Math.min(P(sel)[b.rk]||1,b.n)+" of "+b.n,segs:[["REST",b.rest]],max:b.n,nopre:1};});return r;}
 function startT(id){var m=mode(sel);if(m=="future"||m=="pre")return;var S=S_(sel),def=S&&findT(S,id);if(!def)return;unlock();var d=sel,s=P(d);
 if(!s.start&&!LS.get("wo_runstart_"+d,null)){s.start=Date.now();LS.set("wo_"+d,s);}
-keepAudio(true);T={id:id,label:def.label,kind:def.kind||"one",segs:def.nopre?def.segs:[["READY",10,"Get ready"]].concat(def.segs),pre:def.nopre?0:1,list:def.list||null,amrap:def.amrap||0,score:def.score||0,plan:def.plan||null,rounds:0,max:def.max,t0:Date.now(),date:d};$("bar").classList.remove("locked");$("peek").hidden=true;LS.set("wo_timer",T);lastI=-1;lastL=-1;lastTick=Date.now();if(RT)stopRest();wake();loop();}
+keepAudio(true);T={id:id,label:def.label,kind:def.kind||"one",segs:def.nopre?def.segs:[["READY",10,"Get ready"]].concat(def.segs),pre:def.nopre?0:1,list:def.list||null,amrap:def.amrap||0,score:def.score||0,plan:def.plan||null,rounds:0,max:def.max,t0:Date.now(),date:d};$("bar").classList.remove("locked");lockLab(false);$("peek").hidden=true;LS.set("wo_timer",T);lastI=-1;lastL=-1;lastTick=Date.now();if(RT)stopRest();wake();loop();}
 function segStart(i){var a=0;for(var j=0;j<i;j++)a+=T.segs[j][1];return a;}
 function tJump(i){if(!T)return;i=Math.max(0,Math.min(i,T.segs.length-1));T.t0=tnow()-segStart(i)*1000;LS.set("wo_timer",T);lastI=-1;lastL=-1;loop();}
 function tPause(){if(!T)return;if(T.pa){T.t0+=Date.now()-T.pa;delete T.pa;unlock();}else T.pa=Date.now();LS.set("wo_timer",T);lastL=-1;loop();}
 function tBack(){if(!T)return;var st=tstate(),el=(tnow()-T.t0)/1000-segStart(st.i);tJump(el>3?st.i:st.i-1);}
 function tNext(){if(!T)return;var st=tstate();if(st.i>=T.segs.length-1){T.t0=tnow()-dur(T.segs)*1000;LS.set("wo_timer",T);loop();}else tJump(st.i+1);}
-function stopT(){T=null;LS.del("wo_timer");relWake();$("bar").classList.remove("show","ask","locked");}
+var LOCKC='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> ',LOCKO=LOCKC.replace('<path d="M8 11V8a4 4 0 0 1 8 0v3"/>','<path d="M8 11V8a4 4 0 0 1 7.5-2"/>');
+function lockLab(on){var b=$("tlock");if(!b)return;if(TABS)b.innerHTML=(on?LOCKC:LOCKO)+(on?"Locked · tap to unlock":"Lock");else b.textContent=on?"🔒 Locked":"🔓 Lock";}
+function sd(s){return String(s).replace(/each hand/g,"each side");}  // pc-v64: sides always read "each side" on the clock
+function sct(){var el=$("sct");if(!el)return;if(!T||!TABS){el.hidden=true;return;}var d=T.date,s=P(d),st=+LS.get("wo_runstart_"+d,0)||s.start||0;el.hidden=!st;if(!st)return;var en=s.end&&s.end>=st?s.end:0;el.textContent=(en?"⏸ ":"")+hms((en||Date.now())-st)+(LAP&&LAP.d==d&&!en?" · lap "+hms(Date.now()-LAP.t):"");}
+function stopT(){T=null;LS.del("wo_timer");relWake();$("stq").hidden=true;$("bar").classList.remove("show","ask","locked");lockLab(false);}
 function doneT(noTick){var t=T;T=null;LS.del("wo_timer");relWake();$("bar").classList.remove("ask");var p=P(t.date);if(noTick){$("bar").classList.remove("show");if(isOpen)renderPanel();return;}
 if(t.id.indexOf("rest:")==0){var rk=t.id.slice(5),c=+p[rk]||1;if(c<(t.max||3))p[rk]=c+1;else p[rk]=c;}else if(t.amrap||t.score){scSheet(t);}else p.s[t.id]=1;LS.set("wo_"+t.date,p);
 $("ph").textContent="DONE";$("ph").className="rest";$("now").textContent="Done";$("time").textContent="0:00";$("sub").textContent=t.label;$("bar").className="show p-rest";beep(988,.3);setTimeout(function(){beep(988,.6);},380);flash("bar");cue("end");hideAt=Date.now()+4000;if(isOpen)renderPanel();prog();}
@@ -699,15 +703,15 @@ function sclk(){var el=$("sclk");if(!el)return;var q=sclkState(),r=isOpen?R(sel)
  else if(q.en){LAP=null;h=q.lg?'<span class="sc_t"><span class="si">✓</span> '+hms(q.en-q.st)+'</span>':'<button type="button" class="sc_t" data-sc="resume" aria-label="Resume the session clock"><span class="si">⏸</span> '+hms(q.en-q.st)+' <small>resume</small></button>';cls="sclk "+(q.lg?"done":"paused");}
  else{h='<button type="button" class="sc_t" data-sc="lap" aria-label="Lap"><span class="si">⏱</span> <b>'+hms(Date.now()-q.st)+'</b>'+(LAP&&LAP.d==sel?'<span class="lap">lap '+hms(Date.now()-LAP.t)+'</span>':'')+'</button><button type="button" class="sc_x" data-sc="stop" aria-label="Stop the session clock">■</button>';cls="sclk run";}
  el.hidden=!h;if(el.className!=cls)el.className=cls;if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
-function loop(){var now=Date.now(),gap=now-lastTick;lastTick=now;restTick(gap);sndUI();sclk();
-if(!T){if(hideAt&&now>hideAt){hideAt=0;$("bar").classList.remove("show");}return;}
+function loop(){var now=Date.now(),gap=now-lastTick;lastTick=now;restTick(gap);sndUI();sclk();sct();
+if(!T){if(!$("stq").hidden)$("stq").hidden=true;if(hideAt&&now>hideAt){hideAt=0;$("bar").classList.remove("show");}return;}
 $("bar").classList.add("show");hideAt=0;$("tpause").textContent=T.pa?"Resume":"Pause";$("bar").classList.toggle("paused",!!T.pa);var s=tstate();$("cname").textContent=T.label;$("tround").hidden=!T.amrap;$("trn").textContent=T.rounds||0;
 if(s.i>=T.segs.length){if(gap>2500||T.ask||document.hidden){T.ask=1;LS.set("wo_timer",T);$("bar").classList.add("ask");$("ph").textContent="FINISHED WHILE LOCKED";$("ph").className="";$("now").textContent="Mark done?";$("time").textContent="0:00";$("sub").textContent=T.label;return;}doneT();return;}
-$("cctr").textContent=ctr(s.i);
+$("cctr").textContent=ctr(s.i);var cpi=$("cpi");if(cpi)cpi.style.width=Math.min(100,Math.max(0,(tnow()-T.t0)/10/dur(T.segs)))+"%";
 var g=T.segs[s.i];if(s.i!=lastI){if(lastI!=-2){beep(988,.6);flash("bar");if(lastI>=0)cue("change");}lastI=s.i;var rd=g[0]=="READY",rs=g[0]=="REST";$("ph").textContent=rd?"GET READY":rs?"REST":"WORK";$("ph").className=rd?"ready":rs?"rest":"work";
  ["p-work","p-rest","p-ready"].forEach(function(c){$("bar").classList.remove(c);});$("bar").classList.add(rd?"p-ready":rs?"p-rest":"p-work");
  var eg=rd||rs?null:emomGroup(s.i);$("nowd").textContent=eg&&eg.side?eg.text:"";$("nowd").hidden=!(eg&&eg.side);
- $("now").textContent=rd?"Get ready":eg?(eg.side?eg.side.charAt(0).toUpperCase()+eg.side.slice(1):eg.text):T.amrap&&!rs&&T.list?T.list.slice(0,4).join("\n"):segLab(g);var nx=nextLab(s.i);$("sub").textContent=nx?"Next: "+nx:(T.plan?"Last minute":"Last one");}
+ $("now").textContent=rd?"Get ready":eg?(eg.side?eg.side.charAt(0).toUpperCase()+eg.side.slice(1):eg.text):T.amrap&&!rs&&T.list?T.list.slice(0,4).join("\n"):segLab(g);var nx=nextLab(s.i);if(TABS){var cl=s.i>0?nextLab(s.i-1):"";if(nx&&cl&&sd(nx)===sd(cl))nx="same again";$("now").textContent=sd($("now").textContent);nx=sd(nx);}$("sub").textContent=nx?"Next: "+nx:(T.plan?"Last minute":"Last one");}
 if(s.left!=lastL){$("time").textContent=fmt(s.left);if(!T.pa&&s.left<=3&&lastL>s.left){beep(440,.1);cue("tick");}lastL=s.left;}}
 // rest timer (strength blocks)
 var RT=LS.get("wo_rest",null);
@@ -1011,9 +1015,9 @@ $("prev").onclick=function(){if(!this.disabled){weekOff--;week();}};$("next").on
 $("ed").onclick=function(){editing=!editing;this.textContent=editing?"Done":"Edit plan";week();};
 $("swd").onclick=function(){swapping=!swapping;swA=null;week();};
 $("swreset").onclick=function(){resetWeek();swapping=false;swA=null;all();$("swh").textContent="Week order reset.";};
-$("close").onclick=closeP;$("stop").onclick=stopT;$("tpause").onclick=tPause;$("tback").onclick=tBack;$("tnext").onclick=tNext;
+$("close").onclick=closeP;$("stop").onclick=function(){if(TABS)$("stq").hidden=false;else stopT();};$("stqy").onclick=stopT;$("stqn").onclick=function(){$("stq").hidden=true;};$("sct").onclick=function(){if(!T)return;var d=T.date,s=P(d);if(s.end)return;LAP=LAP&&LAP.d==d?null:{d:d,t:Date.now()};sct();};$("tpause").onclick=tPause;$("tback").onclick=tBack;$("tnext").onclick=tNext;
 $("tqy").onclick=function(){doneT();};
-$("tlock").onclick=function(){var on=$("bar").classList.toggle("locked");this.textContent=on?"🔒 Locked":"🔓 Lock";};
+$("tlock").onclick=function(){var on=$("bar").classList.toggle("locked");lockLab(on);};
 $("ctop").onclick=function(){if(!T)return;var pk=$("peek");if(pk.hidden){var a=T.list||T.segs.filter(isWork).map(segLab).filter(function(x,i,arr){return arr.indexOf(x)==i;});pk.innerHTML=a.slice(0,8).map(esc).join("<br>");}pk.hidden=!pk.hidden;};
 $("tround").onclick=function(){if(!T)return;T.rounds=(T.rounds||0)+1;LS.set("wo_timer",T);$("trn").textContent=T.rounds;};$("tqn").onclick=function(){doneT(true);};
 $("rskip").onclick=stopRest;$("rm15").onclick=function(){restAdj(-15);};$("rp15").onclick=function(){restAdj(15);};
@@ -1160,7 +1164,7 @@ migrate();if(T&&(!T.segs||!T.t0))stopT();if(T){lastI=-2;wake();}
 (function(){var f=LS.get("wo_flash",null);if(f&&f.week){LS.del("wo_flash");if(TABS)TAB="week";weekOff=Math.round((pd(f.week)-pd(monOf(today)))/604800000);toast(f.msg||"Saved");}})();
 all();loop();
 // installed on the Home Screen: open straight on today's session (a browser tab keeps the week view)
-if(TABS){document.addEventListener("click",function(e){var tb=e.target.closest("#tabbar [data-tab]");if(tb){setTab(tb.dataset.tab);return;}
+if(TABS){lockLab(false);document.addEventListener("click",function(e){var tb=e.target.closest("#tabbar [data-tab]");if(tb){setTab(tb.dataset.tab);return;}
   var hm=e.target.closest("#home [data-hm]");if(hm){var w=hm.dataset.hm;if(w=="week"){setTab("week");return;}
    if(w=="start"){var s=P(today);if(!s.start&&!LS.get("wo_runstart_"+today,0)){s.start=Date.now();delete s.end;LS.set("wo_"+today,s);unlock();}}
    if(w=="else"){var s2=P(today),r2=R(today);r2.sub=1;s2.oc="modified";LS.set("wo_"+today,s2);LS.set("wo_run_"+today,r2);delete SCY[today];}
