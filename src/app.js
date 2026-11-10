@@ -730,7 +730,7 @@ function score(k){var S=S_(k);if(!S||S.rest)return null;var s=P(k),d=0,t=0;S.blo
 function bn(b,s){return b.n+((s&&s.xs&&+s.xs[b.tid||b.id])||0);}
 function skp(s,gi){return !!(s&&s.sk&&s.sk[gi]);}
 function setsTotal(S,s){var n=0;s=s||P(sel);S.blocks.forEach(function(b){if(b.k=="ex")b.items.forEach(function(it){if(!skp(s,it.gi))n+=bn(b,s);});});return n;}
-function prog(){var k=isOpen?sel:today,sc=score(k),f=sc?Math.min(1,sc.d/sc.t):0;var S=S_(k),lgp=S&&!S.rest?logFor(k,S.name):null;if(lgp&&(lgp.km||lgp.time||lgp.oc=="planned"||lgp.oc=="modified"))f=1;$("rg").style.strokeDashoffset=194.8*(1-f);$("pct").textContent=sc?Math.round(f*100)+"%":"–";var pb=$("sbp");if(pb)pb.textContent=!sc?"":lgp&&!lgp.sub?"✓ Logged":lgp?"✓ "+(lgp.min||0)+" min":sc.d+" of "+sc.t;}
+function prog(){if(TABS&&!isOpen){var wk=weekRows(1)[0],pl=wk.plw,fw=pl?Math.min(1,wk.dn/pl):0;$("rg").style.strokeDashoffset=194.8*(1-fw);$("pct").textContent=pl?wk.dn+"/"+pl:"–";var pb0=$("sbp");if(pb0)pb0.textContent="";return;}var k=isOpen?sel:today,sc=score(k),f=sc?Math.min(1,sc.d/sc.t):0;var S=S_(k),lgp=S&&!S.rest?logFor(k,S.name):null;if(lgp&&(lgp.km||lgp.time||lgp.oc=="planned"||lgp.oc=="modified"))f=1;$("rg").style.strokeDashoffset=194.8*(1-f);$("pct").textContent=sc?Math.round(f*100)+"%":"–";var pb=$("sbp");if(pb)pb.textContent=!sc?"":lgp&&!lgp.sub?"✓ Logged":lgp?"✓ "+(lgp.min||0)+" min":sc.d+" of "+sc.t;}
 var EDK=null,MO={},SM={};
 function unitOf(it){return it.ru=="s"?"s":it.ru=="m"?"m":"";}
 function rxOf(b,it){return b.n+" × "+it.rp+(it.ru=="s"?" s":it.ru=="m"?" m":"")+(it.side?" each side":"");}
@@ -892,7 +892,7 @@ renderSess();hist();}
 var DCO={};
 function subLog(k){var S=S_(k),lg=S&&!S.rest?logFor(k,S.name):null;return lg&&lg.sub?lg:null;}
 function stripLab(k){var lg=subLog(k);return lg&&lg.act&&ACTS[lg.act]?ACTS[lg.act]:plan(k);}
-function title(){var k=isOpen?sel:today,S=S_(k),sl=subLog(k);$("ttl").textContent=sl?sl.sub:S?S.name:"Pump + Cardio";var sb=$("sbt");if(sb)sb.textContent=$("ttl").textContent;$("date").textContent=pd(k).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(sl?" · instead of "+(sl.plan||S.name):"");}
+function title(){var k=isOpen?sel:today,S=S_(k),sl=subLog(k);$("ttl").textContent=sl?sl.sub:S?S.name:"Pump + Cardio";var sb=$("sbt");if(sb)sb.textContent=$("ttl").textContent;$("date").textContent=pd(k).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(sl?" · instead of "+(sl.plan||S.name):"")+(TABS&&!isOpen&&TAB=="today"?" · "+dayStatus(k):"");}
 function monday(){var d=pd(today),off=(d.getDay()+6)%7;return addDays(today,-off+weekOff*7);}
 function editable(k){return k>=today&&k>=SD&&(k<=LEGACY_END||!!baseSid(k));}
 function week(){var m=monday(),h="",done={};logs().forEach(function(e){if(e&&e.date&&!(e.oc=="skipped"&&!e.sub&&!e.km&&!e.time))done[e.date]=1;});
@@ -965,17 +965,26 @@ function layout(){var c=document.body.classList;c.toggle("tabs",TABS);if(!TABS)r
  [].forEach.call(document.querySelectorAll("#tabbar [data-tab]"),function(b){var on=b.dataset.tab==TAB;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false");});
  $("close").textContent="‹ Back";}
 function setTab(t){if(isOpen)closeP();TAB=t;if(t!="week"&&weekOff){weekOff=0;}if(t=="prog"){var d=$("prg");if(d)d.open=true;}all();window.scrollTo(0,0);}
-function hprev(S,s){var rows=[];S.blocks.forEach(function(b){b=VB(b);if(b.k!="timer"&&b.k!="ex")return;var dn=blockDone(b,s),nmb,meta;
+function tagOf(b){var h=String(b.h||""),n=String(b.name||"");if(b.k=="ex")return h.replace(/^[A-Z] · /,"").replace(/\s*·.*$/,"")||"Strength";if(/warm/i.test(h))return "Warm-up";if(/cool/i.test(h))return "Cool-down";if(/every|carry/i.test(h+" "+n))return /carry/i.test(n)?"Carry":"Every";if(/emom/i.test(h))return "EMOM";if(/flow|mobility|stretch|reset/i.test(h+" "+n))return "Flow";if(/interval/i.test(h))return "Intervals";if(/steady|zone|easy|run|walk/i.test(h))return "Run";return h.split(" ")[0]||"Block";}
+function hprev(S,s){var rows=[],up=false;S.blocks.forEach(function(b){b=VB(b);if(b.k!="timer"&&b.k!="ex")return;var dn=blockDone(b,s),nmb,meta;
   if(b.k=="timer"){nmb=b.name||b.h;var tt=0;(b.segs||[]).forEach(function(g){tt+=g[1];});meta=tt?fmt(tt):"";}else{nmb=b.items.map(function(it){return nm(it.x);}).join(" + ");meta=bn(b,s)+" rounds";}
-  rows.push('<div'+(dn?' class="dn"':'')+'><span>'+(dn?"✓ ":"")+esc(nmb)+'</span><small>'+esc(meta)+'</small></div>');});
+  var first=!dn&&!up;if(first)up=true;
+  rows.push('<div class="pr'+(dn?' dn':'')+(first?' up':'')+'"><span class="pl"><span class="tg">'+esc(tagOf(b))+'</span>'+(first&&s.start?'<em class="un">Up next</em>':'')+'<span class="pn">'+esc(nmb)+'</span></span><small>'+(dn?'✓':esc(meta))+'</small></div>');});
  return rows.length?'<button type="button" class="hprev" data-hm="peek" aria-label="Look at the session">'+rows.join("")+'</button>':"";}
+function nextPlanned(){for(var i=1;i<=14;i++){var k=addDays(today,i),S=mode(k)=="pre"?null:S_(k);if(S&&!S.rest&&!S.tbc)return {k:k,S:S,i:i};}return null;}
+function nextLine(){var n=nextPlanned();if(!n)return "";return (n.i==1?"Tomorrow":pd(n.k).toLocaleDateString("en-GB",{weekday:"long"}))+" · "+n.S.name+(n.S.tot>0?" · "+(n.S.est?"≈ ":"")+Math.round(n.S.tot/60)+" min":"");}
+function tomorrowLine(){var k=addDays(today,1),S=mode(k)=="pre"?null:S_(k);if(!S||S.tbc)return "Tomorrow: nothing planned yet";if(S.rest)return "Tomorrow: rest";return "Tomorrow: "+S.name+(S.tot>0?" · "+(S.est?"≈ ":"")+Math.round(S.tot/60)+" min":"");}
+function hsum(lg){var d=[];if(lg.sets!=null&&!(lg.sub&&!lg.sets))d.push(lg.sets+" of "+(lg.of||lg.sets)+" sets");if(lg.km)d.push(esc(lg.km)+" km");if(lg.time)d.push(esc(lg.time));if(lg.effort)d.push(esc(lg.effort));if(+lg.feel>0)d.push("felt "+esc(lg.feel)+"/10");
+ return '<div class="hsum"><div class="hs1">'+esc(lg.sub||lg.name||"Session")+'</div>'+(lg.sub&&lg.plan?'<div class="hs0">instead of '+esc(lg.plan)+'</div>':'')+(d.length?'<div class="hs2">'+d.join(" · ")+'</div>':'')+'<div class="hs3">'+esc(tomorrowLine())+'</div></div>';}
+function dayStatus(k){var S=S_(k);if(!S)return "";if(S.tbc)return "No plan yet";if(S.rest)return "Rest day";var s=P(k),r=R(k),lg=logFor(k,S.name),st=+LS.get("wo_runstart_"+k,0)||s.start||0,en=s.end&&s.end>=st?s.end:0;
+ if(lg)return lg.oc=="skipped"&&!lg.sub?"Skipped":"Logged";if(r.sub||s.oc=="skipped")return "Not saved yet";if(st)return en?"Paused":"In progress";return "Not started";}
 function home(){var el=$("home");if(!el||!TABS)return;var S=mode(today)=="pre"?null:S_(today),h="";
  if(S){var s=P(today),r=R(today),lg=!S.rest?logFor(today,S.name):null,st=+LS.get("wo_runstart_"+today,0)||s.start||0,en=s.end&&s.end>=st?s.end:0,xi=extraFor(today),sc=S.rest?null:score(today);
-  var lk=function(k,txt){return '<button type="button" class="link hlink" data-hm="'+k+'">'+txt+'</button>';},lks=[];
-  if(S.tbc)h+='<div class="hline">Nothing planned for this week yet.</div><button type="button" class="btn ghost" data-hm="open">Log an activity</button>';
-  else if(S.rest)h+='<div class="hline">Rest day'+(S.blocks.some(function(b){return b.k=="timer";})?" · optional mobility inside":"")+(xi>=0?" · activity logged ✓":"")+'</div><button type="button" class="btn ghost" data-hm="open">Open today</button>';
-  else if(lg&&lg.oc=="skipped"&&!lg.sub)h+='<div class="hline">Skipped today</div><button type="button" class="btn ghost" data-hm="open">View today</button>';
-  else if(lg)h+='<div class="hline good">✓ Logged'+(lg.min?" · "+lg.min+" min":"")+(lg.sub?" · "+esc(lg.sub):"")+'</div><button type="button" class="btn ghost" data-hm="open">View today</button>';
+  var lk=function(k,txt){return '<button type="button" class="link hlink" data-hm="'+k+'">'+txt+'</button>';},lks=[],nl=nextLine();
+  if(S.tbc)h+='<div class="hline">Nothing planned for this week yet.</div><div class="hnote">Ask Health &amp; Fitness for the week file, then Settings, Import week. You can still log anything you do.</div><button type="button" class="btn ghost" data-hm="open">Log an activity</button>';
+  else if(S.rest)h+='<div class="hline">Rest day'+(S.blocks.some(function(b){return b.k=="timer";})?" · optional mobility inside":"")+(xi>=0?" · activity logged ✓":"")+'</div><div class="hnote">Nothing to log today. Rest is part of the plan.</div>'+(nl?'<div class="hnext"><span>Next</span>'+esc(nl)+'</div>':'')+'<button type="button" class="btn ghost" data-hm="open">Open today</button>';
+  else if(lg&&lg.oc=="skipped"&&!lg.sub)h+='<div class="hline">Skipped today</div><div class="hnext"><span>Next</span>'+esc(tomorrowLine().replace(/^Tomorrow: /,"Tomorrow · "))+'</div><button type="button" class="btn ghost" data-hm="open">View today</button>';
+  else if(lg)h+='<div class="hline good">✓ Logged'+(lg.min?" · "+lg.min+" min":"")+'</div>'+hsum(lg)+'<button type="button" class="btn ghost" data-hm="open">View today</button>';
   else if(r.sub||s.oc=="skipped"){h+='<div class="hline">Marked as '+(r.sub?"something else":"skipped")+' · not saved yet</div><button type="button" class="btn" data-hm="open">Finish logging</button>';lks.push(lk("plan","Back to the plan"));}
   else if(st){h+='<div class="hline">'+(en?"Paused at "+hms(en-st):"In progress · started "+esc(new Date(st).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})))+' · '+sc.d+' of '+sc.t+' parts done</div>'+hprev(S,s)+'<button type="button" class="btn" data-hm="'+(en?"resume":"open")+'">Continue</button>';lks.push(lk("else","I did something else"));}
   else{h+='<div class="hline">'+(S.tot>0?(S.est?"≈ ":"")+Math.round(S.tot/60)+" min · ":"")+S.blocks.filter(function(b){return b.k=="timer"||b.k=="ex";}).length+' blocks'+(xi>=0?" · "+esc(logs()[xi].name||"activity")+" logged ✓":"")+'</div>'+hprev(S,s)+'<button type="button" class="btn" data-hm="start">Start session</button>';
@@ -991,7 +1000,7 @@ function place(k,to){var y=SCY[k],el=null;if(to=="actual")[].forEach.call(docume
  var u=k==today?document.querySelector("#sess .upnext"):null;if(u){u.scrollIntoView({block:"start"});window.scrollBy(0,-64);}else window.scrollTo(0,0);}
 function closeP(){if(TABS&&isOpen){SCY[sel]=window.scrollY;delete TQO[sel];var r0=R(sel),s0=P(sel);
   if(r0.sub&&!subLog(sel)&&!(r0.d||r0.t||r0.n||r0.sl||r0.e||r0.f)){r0.sub=0;if(s0.oc=="modified")s0.oc="";LS.set("wo_run_"+sel,r0);LS.set("wo_"+sel,s0);}}
- isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();if(TABS&&TAB=="week")window.scrollTo(0,WSY);}
+ isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();if(TABS)window.scrollTo(0,TAB=="week"?WSY:0);}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
 var swapping=false,swA=null;
 function curWeekDays(){var d=pd(today),m=addDays(today,-((d.getDay()+6)%7)),a=[];for(var i=0;i<7;i++)a.push(addDays(m,i));return a;}

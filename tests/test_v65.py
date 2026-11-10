@@ -1,0 +1,47 @@
+# pc-v65: Today. A week ring and a status word in the header, a settings cog in the corner, the session as a card with
+# a type tag, time and ticks, a summary and "Tomorrow" after logging, real empty states, prompts in a fixed order with
+# at most one orange button.
+from playwright.sync_api import sync_playwright
+from lib import *
+MON="2026-11-09";TUE="2026-11-10";WED="2026-11-11";THU="2026-11-12";SUN="2026-11-15"
+L=[{"date":MON,"name":"Upper · Slow Is Strong","type":"main","min":30,"sub":"Easy 5km","plan":"Upper · Slow Is Strong","act":"run","km":"5","time":"30:27","effort":"easy","oc":"modified","sid":"upb0911"}]
+rect=lambda p,s:p.evaluate("s=>{var r=document.querySelector(s).getBoundingClientRect();return [r.left,r.top,r.right,r.bottom]}",s)
+hl=lambda p:p.locator("#home .hline").inner_text()
+with sync_playwright() as pw:
+    b=launch(pw)
+    c,p=tabs_app(b,THU,{"wo_log":L})
+    ok("header: brand, title, date with the status word",p.locator("header .kicker").is_visible() and p.locator("#ttl").inner_text()=="Lower · Carry Medley" and p.locator("#date").inner_text()=="Thursday 12 November · Not started",p.locator("#date").inner_text())
+    ok("the ring is the week: done of planned inside it",p.locator("#pct").inner_text()=="1/5" and abs(float(p.evaluate("()=>document.getElementById('rg').style.strokeDashoffset"))-194.8*0.8)<0.5,p.locator("#pct").inner_text())
+    ck=rect(p,"#cog");rg=rect(p,"header .ring")
+    ok("settings cog: 44 px, top right, an icon, clear of the ring",ck[2]-ck[0]>=44 and ck[3]-ck[1]>=44 and ck[1]<50 and ck[2]>350 and p.locator("#cog svg").count()==1 and p.locator("#cog").inner_text().strip()=="" and ck[3]<=rg[1]+1,(ck,rg))
+    ok("no text link for settings under the card",p.evaluate("()=>[].every.call(document.querySelectorAll('#home button'),function(b){return b.textContent.indexOf('Settings')<0})"))
+    rows=p.evaluate("()=>[].map.call(document.querySelectorAll('#home .hprev .pr'),function(r){return [r.querySelector('.tg').textContent,r.querySelector('small').textContent]})")
+    ok("session card: a type tag and time or rounds on every block",len(rows)==6 and [r[0] for r in rows]==["Warm-up","Superset","Superset","Superset","Carry","Cool-down"] and rows[0][1]=="3:20" and rows[1][1]=="3 rounds",rows)
+    ok("it is one tap target",p.locator("#home .hprev").count()==1 and p.locator("#home .hprev").evaluate("e=>e.tagName")=="BUTTON")
+    ok("Start session is on the first screen",rect(p,'#home [data-hm="start"]')[3]<=rect(p,"#tabbar")[1])
+    p.click('#home [data-hm="start"]');p.wait_for_timeout(300);tid=p.locator("#sess [data-t]").first.get_attribute("data-t")
+    run_block(p,tid);p.wait_for_timeout(200);p.click("#close");p.wait_for_timeout(300)
+    ok("back on Today the page is at the top",p.evaluate("scrollY")==0)
+    ok("a finished block shows a tick; Up next marks the first unfinished one",p.evaluate("()=>{var r=document.querySelectorAll('#home .hprev .pr');return r[0].classList.contains('dn')&&r[0].querySelector('small').textContent=='✓'&&r[1].classList.contains('up')&&!!r[1].querySelector('.un')&&r[1].querySelector('.un').textContent=='Up next'}"))
+    ok("status: In progress",p.locator("#date").inner_text().endswith("In progress") and hl(p).startswith("In progress"))
+    p.click('#home [data-hm="open"]');p.wait_for_timeout(300);p.click('#sclk [data-sc="stop"]');p.wait_for_timeout(100);p.click("#close");p.wait_for_timeout(300)
+    ok("status: Paused",p.locator("#date").inner_text().endswith("Paused") and hl(p).startswith("Paused at"),p.locator("#date").inner_text())
+    p.click('#home [data-hm="resume"]');p.wait_for_timeout(300);fin(p);p.wait_for_timeout(300);p.click("#o_done");p.wait_for_timeout(300)
+    s=p.locator("#home .hsum").inner_text()
+    ok("after logging: a summary of what was done and what is next",p.locator("#home .hsum").is_visible() and "Lower · Carry Medley" in s and " sets" in s and "Tomorrow: rest" in s,s)
+    ok("status: Logged, ring 2/5, the old percentage is gone",p.locator("#date").inner_text().endswith("Logged") and p.locator("#pct").inner_text()=="2/5" and hl(p).startswith("✓ Logged") and p.locator('#home [data-hm="open"]').inner_text()=="View today")
+    c.close()
+    c,p=tabs_app(b,THU,{"wo_log":[{"date":THU,"name":"Lower · Carry Medley","type":"main","min":0,"oc":"skipped","sid":"x"}]})
+    ok("status: Skipped",p.locator("#date").inner_text().endswith("Skipped") and hl(p)=="Skipped today" and "Tomorrow" in p.locator("#home .hnext").inner_text());c.close()
+    c,p=tabs_app(b,TUE)
+    ok("rest day: friendly line, what is next, one action",p.locator("#date").inner_text().endswith("Rest day") and hl(p).startswith("Rest day") and "Rest is part of the plan" in p.locator("#home .hnote").inner_text() and p.locator("#home .hnext").inner_text().replace("\n"," ")=="NEXT Tomorrow · Hill Hunter Run · 39 min" and p.locator('#home [data-hm="open"]').inner_text()=="Open today",p.locator("#home").inner_text())
+    c.close();c,p=tabs_app(b,"2026-11-16")
+    ok("unplanned week: what to do, and the one useful action",p.locator("#date").inner_text().endswith("No plan yet") and "Settings, Import week" in p.locator("#home .hnote").inner_text() and p.locator('#home [data-hm="open"]').inner_text()=="Log an activity")
+    ok("an empty week ring reads a dash",p.locator("#pct").inner_text()=="–");c.close()
+    c,p=tabs_app(b,SUN,{"wo_log":L},hour=18)
+    ok("prompts stack: today's action, yesterday's prompt, then the week review",rect(p,"#home")[3]<=rect(p,"#ynag")[1]+1 and rect(p,"#ynag")[3]<=rect(p,"#wrev")[1]+1 and p.locator("#ynag").is_visible() and p.locator("#wrev").is_visible())
+    n=p.evaluate("()=>[].filter.call(document.querySelectorAll('button'),function(b){var r=b.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(b).backgroundColor=='rgb(255, 138, 61)'&&b.closest('#tabbar')==null}).map(function(b){return b.textContent.trim()})")
+    ok("at most one orange button on the screen",len(n)<=1,n)
+    ok("secondary prompts can be dismissed",p.locator("#ynag [data-ng=x]").is_visible() and p.locator("#rev_x").is_visible())
+    ok("no page errors",not errs,errs);c.close();b.close()
+exit(done())

@@ -22,7 +22,7 @@ with sync_playwright() as pw:
     ok("tab bar with three tabs, Today selected",p.locator("#tabbar button").all_inner_texts()==["Today","Week","Progress"] and p.locator("#tabbar button.on").inner_text().endswith("Today"),p.locator("#tabbar button").all_inner_texts())
     ok("Today shows the title, the home card and the cog; no week strip, no session, no history",vis(p,"#ttl","#home","#cog","#week","#panel","#more","#hist")==["#ttl","#home","#cog"],vis(p,"#ttl","#home","#cog","#week","#panel","#more"))
     ok("home card: length, one big Start, something else, this week",(lambda t:t[0]=="≈ 43 min · 6 blocks" and t[-3:]==["Start session","I did something else","This week · 2 of 5 sessions · 11.4 km ›"])(p.locator("#home").inner_text().split("\n")),p.locator("#home").inner_text())
-    ok("the whole Today screen fits one screen (no scrolling)",p.evaluate("()=>document.getElementById('home').getBoundingClientRect().bottom")<760)
+    ok("Start session is on the first screen (above the tab bar, no scrolling)",p.evaluate("()=>document.querySelector('#home [data-hm=start]').getBoundingClientRect().bottom<=document.getElementById('tabbar').getBoundingClientRect().top"))
     p.click('#home [data-hm="start"]');p.wait_for_timeout(500)
     ok("Start opens the session as its own screen: no strip, ‹ Back, clock running",p.locator("#panel.open").count()==1 and vis(p,"#home","#week","#more")==[] and p.locator("#close").inner_text()=="‹ Back" and p.locator("#sclk").inner_text().replace("\n"," ").startswith("⏱ 0:0") and p.evaluate("()=>window.scrollY")==0)
     ok("the session screen has the blocks and Finish; settings tick boxes are not in it",p.locator("#sess h2").count()>=6 and p.locator("#fin").count()==1 and p.locator("#panel .setr").count()==0)

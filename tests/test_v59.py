@@ -10,7 +10,7 @@ rect=lambda p,s:p.evaluate("s=>{var r=document.querySelector(s).getBoundingClien
 with sync_playwright() as pw:
     b=launch(pw)
     c,p=tabs_app(b,THU)
-    ok("Today previews the session: one row per block",p.locator("#home .hprev div").count()==6 and p.locator("#home .hprev").inner_text().startswith("Hip prep – lower"),p.locator("#home .hprev").inner_text())
+    ok("Today previews the session: one row per block",p.locator("#home .hprev div").count()==6 and p.locator("#home .hprev").inner_text().startswith("WARM-UP"),p.locator("#home .hprev").inner_text())
     ok("the week line counts the whole week",home(p)[-1]=="This week · 0 of 5 sessions ›",home(p)[-1])
     ok("tab icons are drawn, not glyphs",p.locator("#tabbar button svg.ti").count()==3 and p.locator("#tabbar button").all_inner_texts()==["Today","Week","Progress"])
     p.click('#home .hprev');p.wait_for_timeout(300)
