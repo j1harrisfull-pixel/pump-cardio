@@ -60,6 +60,7 @@ Nothing leaves the phone unless he shares it.
 | `sub`, `plan` | pc-v37: what he ran instead, and the prescribed piece it replaced |
 | `oc` | pc-v37: planned / modified / cut short / skipped (a `sub` entry is always modified) |
 | `bk` | pc-v42: `{d: [names of blocks finished], n: blocks in the session}` |
+| `act` | pc-v46: run / walk / row / gym / mob / other when James did something other than the plan (`sub` says what, `plan` what it replaced) or logged an activity on a rest day (`type:"extra"`) |
 | `extra` | 1 on an added run (`type:"extra"`) |
 | `ri` | 1 when the Run instead version was used |
 

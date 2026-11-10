@@ -49,8 +49,8 @@ with sync_playwright() as pw:
     c.close()
     # ---------------- 2. outcome on a strength day ----------------
     c,p=view(b,STR)
-    ok("strength day: How did it go? card with 4 chips (no different run), none selected, and a notes box",p.locator("#oc .rc").count()==4 and p.locator("#oc .rc.on").count()==0 and p.locator("#s_nt").count()==1 and p.locator("#r_sub").count()==0)
-    ok("chip wording",p.locator("#oc .rc").all_inner_texts()==["as planned","modified","cut short","skipped"],p.locator("#oc .rc").all_inner_texts())
+    ok("strength day: How did it go? card with 5 chips (something else, no different run), none selected, and a notes box",p.locator("#oc .rc").count()==5 and p.locator("#oc .rc.on").count()==0 and p.locator("#s_nt").count()==1 and p.locator("#r_sub").count()==0)
+    ok("chip wording",p.locator("#oc .rc").all_inner_texts()==["as planned","something else","modified","cut short","skipped"],p.locator("#oc .rc").all_inner_texts())
     p.click('#oc [data-oc="cut short"]');p.fill("#s_nt","knee niggle");p.dispatch_event("#s_nt","input");s=ls(p,"wo_"+STR)
     ok("outcome and notes saved on the day as you go",s.get("oc")=="cut short" and s.get("nt")=="knee niggle",s)
     p.click('#oc [data-oc="cut short"]');ok("tapping the same chip again clears it",ls(p,"wo_"+STR).get("oc")=="" and p.locator("#oc .rc.on").count()==0)

@@ -1131,14 +1131,14 @@
      "name": "Fartlek 6 × 1:00 / 2:00",
      "note": "Each round: 1:00 work · 2:00 rest. Steady pace, RPE 5–6.",
      "small": [
-      "Surge a little on the work, jog gently on the rest. Stay in control.",
+      "Surge a little on the work, ease off on the rest. Stay in control.",
       "About 5 km in all, with the runs before and after."
      ],
      "n": 6,
      "work": 60,
      "rest": 120,
      "wl": "steady",
-     "rl": "jog"
+     "rl": "shuffle"
     },
     {
      "k": "tm",
@@ -1175,7 +1175,7 @@
   "walkb1511": {
    "name": "Hill Push Walk + Stretch",
    "short": "Walk",
-   "safe": "Walk with 4 brisk uphill pushes, still able to talk. Steady pace, RPE 5–6.",
+   "safe": "Walk with 4 steady uphill pushes, still able to talk. Steady pace, RPE 5–6.",
    "blocks": [
     {
      "k": "tm",
@@ -1193,7 +1193,7 @@
      "name": "Hill pushes 4 × 3:00 / 2:00",
      "note": "Each round: 3:00 work · 2:00 rest. Steady pace, RPE 5–6.",
      "small": [
-      "Brisk uphill walk on the work, gentle walk on the rest.",
+      "Steady uphill walk on the work, gentle walk on the rest.",
       "Hills outside, or incline on the Assault Runner."
      ],
      "n": 4,

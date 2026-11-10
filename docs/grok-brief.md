@@ -32,7 +32,7 @@ Every timer block needs a unique id, h (header type) and name; note is the instr
 - week is the Monday. Every day of the week has a main (use "rest0" for a rest day).
 - Session ids and block ids are new every week (for example up1110, bk1110, s1110a). Never reuse an id from an earlier week.
 - Every exercise id and every move name must resolve to a How to entry, either one already in the app or one in your ht.
-- Banned: barbell, back squat, conventional deadlift, snatch, handstand or any inversion, Valsalva, breath holding. No RPE 8 or above and no "hard". Effort words only easy (RPE 3 to 4), steady (RPE 5 to 6), moderate (RPE 7). No paces, splits or speeds. Kettlebell and dumbbell spelled out, "each side" spelled out.
+- Banned: barbell, back squat, conventional deadlift, snatch, handstand or any inversion, Valsalva, breath holding. No RPE 8 or above and no "hard". Effort words only easy (RPE 3 to 4), steady (RPE 5 to 6), moderate (RPE 7); never "brisk" or "jog" (week 5 had both and the validator now rejects them). No paces, splits or speeds. Kettlebell and dumbbell spelled out, "each side" spelled out.
 - A run instead block must total exactly the same seconds as the block it replaces.
 - Safety line under 160 characters; strength sessions say breathe out on the effort.
 - Strength at RPE 6 to 7, two reps in reserve. Keep sessions around 30 to 40 minutes.
