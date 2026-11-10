@@ -976,13 +976,14 @@ function home(){var el=$("home");if(!el||!TABS)return;var S=mode(today)=="pre"?n
  var w=weekRows(1)[0];h+='<button type="button" class="hweek" data-hm="week">This week · '+(w.plw||w.dn?w.dn+' of '+w.plw+' sessions':'nothing planned')+(w.runs?' · '+w.km+' km':'')+' ›</button>';
  if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
 function all(){layout();title();week();if(isOpen)renderPanel();sclk();prog();hist();if(!RT)rbtnVis();nag();review();home();}
-function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();if(TABS)place(k);}
+var WSY=0;
+function openDay(k){EDK=null;if(mode(k)=="pre")return;if(isOpen&&k==sel){closeP();return;}if(TABS&&TAB=="week"&&!isOpen)WSY=window.scrollY;sel=k;isOpen=true;renderPanel();$("panel").classList.add("open");$("hint").classList.add("hid");all();if(TABS)place(k);}
 var SCY={};
 function place(k,to){var y=SCY[k],el=null;if(to=="actual")[].forEach.call(document.querySelectorAll("#sess h2"),function(x){if(!el&&x.textContent=="Actual")el=x;});else if(to)el=document.querySelector(to);if(el){el.scrollIntoView({block:"start"});window.scrollBy(0,-70);return;}if(y>0){window.scrollTo(0,y);return;}
- var u=k==today?document.querySelector("#sess .upnext"):null;if(u){u.scrollIntoView({block:"start"});window.scrollBy(0,-64);}else if(TAB!="week")window.scrollTo(0,0);}
+ var u=k==today?document.querySelector("#sess .upnext"):null;if(u){u.scrollIntoView({block:"start"});window.scrollBy(0,-64);}else window.scrollTo(0,0);}
 function closeP(){if(TABS&&isOpen){SCY[sel]=window.scrollY;var r0=R(sel),s0=P(sel);
   if(r0.sub&&!subLog(sel)&&!(r0.d||r0.t||r0.n||r0.sl||r0.e||r0.f)){r0.sub=0;if(s0.oc=="modified")s0.oc="";LS.set("wo_run_"+sel,r0);LS.set("wo_"+sel,s0);}}
- isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();}
+ isOpen=false;setTimeout(relWake,0);$("panel").classList.remove("open");$("hint").classList.remove("hid");all();if(TABS&&TAB=="week")window.scrollTo(0,WSY);}
 // ---- swap two day slots in the current week (Edit plan → Swap days → tap day A, then day B)
 var swapping=false,swA=null;
 function curWeekDays(){var d=pd(today),m=addDays(today,-((d.getDay()+6)%7)),a=[];for(var i=0;i<7;i++)a.push(addDays(m,i));return a;}

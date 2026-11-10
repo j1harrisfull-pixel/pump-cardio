@@ -69,7 +69,7 @@ with sync_playwright() as pw:
     p.click(f'#wlist [data-d="{MON}"]');p.wait_for_timeout(300)
     bg=lambda s:p.evaluate("s=>getComputedStyle(document.querySelector(s)).backgroundColor",s)
     ok("a row opens the day; today is outlined, the open day is filled",p.evaluate("()=>__app.sel")==MON and p.locator("#wlist").is_hidden() and bg(".day.today")!=bg(".day.sel"),(bg(".day.today"),bg(".day.sel")))
-    p.click(f'button.day[data-d="2026-11-14"]');p.wait_for_timeout(300);ok("a future day has no Finish to tap",p.locator("#fin").is_hidden())
+    p.click("#close");p.wait_for_timeout(200);p.click('#wlist [data-d="2026-11-14"]');p.wait_for_timeout(300);ok("a future day has no Finish to tap",p.locator("#fin").is_hidden())
     # ---- settings, import, unplanned ----
     p.click('#tabbar [data-tab="today"]');p.wait_for_timeout(200);p.click("#cog");p.wait_for_timeout(200)
     ok("Settings: big ticks in rows of 48 px",p.evaluate("()=>[].every.call(document.querySelectorAll('#sets .setr'),function(l){return l.getBoundingClientRect().height>=48&&l.querySelector('input').getBoundingClientRect().width>=24})"))
