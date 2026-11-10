@@ -74,7 +74,7 @@ with sync_playwright() as pw:
     p.click('#tabbar [data-tab="today"]');p.wait_for_timeout(200);p.click("#cog");p.wait_for_timeout(200)
     ok("Settings: big ticks in rows of 48 px",p.evaluate("()=>[].every.call(document.querySelectorAll('#sets .setr'),function(l){return l.getBoundingClientRect().height>=48&&l.querySelector('input').getBoundingClientRect().width>=24})"))
     c.close();c,p=tabs_app(b,THU,{"wo_flash":{"week":MON,"msg":"Week saved"}})
-    ok("after an import the app lands on Week with the toast",p.evaluate("()=>document.body.classList.contains('t-week')") and p.locator("#week").is_visible() and "Week saved" in p.locator("#toast").inner_text())
+    ok("after an import the app lands on Week with the toast",p.evaluate("()=>document.body.classList.contains('t-week')") and p.locator("#wlist").is_visible() and "Week saved" in p.locator("#toast").inner_text())
     c.close();c,p=tabs_app(b,"2026-11-16");ok("an unplanned week says nothing planned",home(p)[-1]=="This week · nothing planned ›",home(p))
     p.click('#home [data-hm="open"]');p.wait_for_timeout(300);t=p.locator("#sess").inner_text()
     ok("and points to Settings for Import week","Settings on the Today screen → Import week" in t and "History →" not in t and "backup from another day" not in t,t[:300])
