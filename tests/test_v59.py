@@ -32,7 +32,7 @@ with sync_playwright() as pw:
     fin(p);p.click("#o_done");p.wait_for_timeout(300)
     ok("Done after Finish closes the session, clears the rest and lands on Today",p.locator("#panel.open").count()==0 and p.locator("#home .hline").inner_text().startswith("✓ Logged") and p.locator("#rbar").is_hidden() and ls(p,"wo_rest") is None and p.evaluate("scrollY")==0)
     p.click('#tabbar [data-tab="prog"]');p.wait_for_timeout(200)
-    ok("Progress: sessions out of the whole week, minutes labelled running",p.locator(".wkbig div").first.inner_text().replace("\n","")=="1/5sessions" and p.locator(".wkbig div").nth(3).inner_text().split("\n")[-1]=="running",p.locator(".wkbig").inner_text())
+    ok("Progress: sessions out of the whole week, minutes labelled running",p.locator(".wkbig div").first.inner_text().replace("\n","").startswith("SESSIONS1 / 5") and p.locator(".wkbig div").nth(3).inner_text().split("\n")[0]=="RUNNING",p.locator(".wkbig").inner_text())
     c.close()
     # ---- something else: abandon, empty save, real save ----
     c,p=tabs_app(b,THU);p.click('#home [data-hm="else"]');p.wait_for_timeout(300)

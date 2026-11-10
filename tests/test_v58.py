@@ -41,9 +41,9 @@ with sync_playwright() as pw:
     # ---- Progress ----
     p.click('#tabbar [data-tab="prog"]');p.wait_for_timeout(300)
     ok("Progress closes the day and shows its own title, the numbers open, History and export",p.locator("#panel.open").count()==0 and vis(p,".ptitle","#prog_b",".wkbig","#home","#week","#ttl")==[".ptitle","#prog_b",".wkbig"] and p.locator("#more details summary").nth(1).is_visible())
-    p.locator("#more details").nth(1).locator("summary").click();p.wait_for_timeout(100)
-    ok("History opens in place with entries, Edit and Delete",p.locator("#hist li").count()==3 and p.locator("#hist .hdel").first.is_visible() and p.locator("#exp").is_visible())
-    p.click("#exp");p.wait_for_timeout(150);ok("export works from the Progress tab",p.locator("#exs.show").count()==1);p.click(".exx")
+
+    ok("History is open by default with a card per entry and one actions button each",p.locator("#hist li").count()==3 and p.locator("#hist .hmore").first.is_visible() and p.locator("#bknow").is_visible())
+    p.click("#bknow");p.wait_for_timeout(150);ok("export works from the Progress tab",p.locator("#exs.show").count()==1);p.click(".exx")
     # ---- settings ----
     p.click('#tabbar [data-tab="today"]');p.wait_for_timeout(200);p.click("#cog");p.wait_for_timeout(200)
     ok("the cog opens Settings with the three tick boxes and the Weeks list",p.locator("#sets.show").count()==1 and [p.locator("#sets "+i).is_visible() for i in ("#autorest","#cueon","#loud","#imp")]==[True]*4 and "w/c Mon 9 Nov" in p.locator("#sets #wks").inner_text())
