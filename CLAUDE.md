@@ -29,6 +29,8 @@ https://j1harrisfull-pixel.github.io/pump-cardio/ (GitHub Pages, `main` branch, 
 - **pc-v60 (tabs layout):** **Week is one list.** With no day open the strip is hidden (CSS; it shows once a day is open, for hopping, and while Edit plan is on) and the header reads "This week" + "2 of 5 sessions · 2 runs · 11.4 km" (other weeks: "Next week" + the dates; set in `wlist`), no ring. Rows show the logged minutes once done and "⇄ moved from Sat" for a swapped day. **Finish asks first** ("Finish with only 2 of 19 parts done?") when under a third is done on today's on plan session with no outcome chosen and no run typed. The session clock's ■ hides while the full screen clock is up. `tests/test_v60.py`.
 - **Offline:** works offline via `sw.js`. Since pc-v36 the worker is **cache first** (the app opens at once on a weak signal; the network copy refreshes the cache in the background), so a new version only arrives through the update prompt / `reg.update()`.
 
+**Current approved job:** `BRIEF-session-polish.md` (whole app polish, pc-v61 to pc-v69, approved 10 Nov 2026; do the parts in order).
+
 **Read first:** `app-style-standard.md` (the approved layout standard). **Next approved jobs:** `BRIEF-beauty-pass.md` (white + orange visual beauty pass), then **`BRIEF-day-swap.md`** (swap two day slots in the current week). Older briefs: `BRIEF-workout-mode.md`, `BRIEF.md`.
 Background notes are in `docs/`: the week-1 programme, terminology audit with sources, and premium-app research.
 
