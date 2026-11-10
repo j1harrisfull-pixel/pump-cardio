@@ -688,13 +688,17 @@ function sndUI(){var e=$("snd");if(e)e.hidden=!((T||RT)&&(!ac||ac.state!="runnin
 // at Finish (s.end). Tap it while running for a lap you can use on timed exercises; tap again to clear the lap.
 var LAP=null;
 function hms(ms){var t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");}
-function sclk(){var el=$("sclk");if(!el)return;var S=isOpen?S_(sel):null,r=isOpen?R(sel):null,s=isOpen?P(sel):null;
- var show=!!(S&&!S.rest&&!S.tbc&&mode(sel)=="today"&&!(r.sub||s.oc=="skipped"));if(!show){if(!el.hidden){el.hidden=true;LAP=null;}return;}
- var st=+LS.get("wo_runstart_"+sel,0)||s.start||0,en=s.end&&s.end>=st?s.end:0,lg=logFor(sel,S.name),h;
- if(!st){h=lg?"":'<span class="si">▶</span> Start session';el.className="sclk idle";}
- else if(en&&lg){h='<span class="si">✓</span> '+hms(en-st);el.className="sclk done";LAP=null;}
- else{h='<span class="si">⏱</span> <b>'+hms(Date.now()-st)+'</b>'+(LAP&&LAP.d==sel?'<span class="lap">lap '+hms(Date.now()-LAP.t)+'</span>':'');el.className="sclk run";}
- el.hidden=!h;if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
+var SCMAX=3*3600000;  // pc-v57: a session clock left running stops itself after 3 hours
+function sclkState(){var S=isOpen?S_(sel):null;if(!S)return null;var s=P(sel),st=+LS.get("wo_runstart_"+sel,0)||s.start||0,en=s.end&&s.end>=st?s.end:0;
+ if(st&&!en&&Date.now()-st>SCMAX){en=st+SCMAX;s.end=en;LS.set("wo_"+sel,s);}
+ var anyLog=logs().some(function(e){return e&&e.date==sel&&e.type!="extra";});if(st&&!en&&anyLog){en=Date.now();s.end=en;LS.set("wo_"+sel,s);}return {S:S,s:s,st:st,en:en,lg:anyLog};}
+function sclk(){var el=$("sclk");if(!el)return;var q=sclkState(),r=isOpen?R(sel):null;
+ var show=!!(q&&!q.S.rest&&!q.S.tbc&&mode(sel)=="today"&&!(r.sub||q.s.oc=="skipped"));if(!show){if(!el.hidden){el.hidden=true;LAP=null;}return;}
+ var h,cls;
+ if(!q.st){h=q.lg?"":'<button type="button" class="sc_go" data-sc="go"><span class="si">▶</span> Start session</button>';cls="sclk idle";}
+ else if(q.en){LAP=null;h=q.lg?'<span class="sc_t"><span class="si">✓</span> '+hms(q.en-q.st)+'</span>':'<button type="button" class="sc_t" data-sc="resume" aria-label="Resume the session clock"><span class="si">⏸</span> '+hms(q.en-q.st)+' <small>resume</small></button>';cls="sclk "+(q.lg?"done":"paused");}
+ else{h='<button type="button" class="sc_t" data-sc="lap" aria-label="Lap"><span class="si">⏱</span> <b>'+hms(Date.now()-q.st)+'</b>'+(LAP&&LAP.d==sel?'<span class="lap">lap '+hms(Date.now()-LAP.t)+'</span>':'')+'</button><button type="button" class="sc_x" data-sc="stop" aria-label="Stop the session clock">■</button>';cls="sclk run";}
+ el.hidden=!h;if(el.className!=cls)el.className=cls;if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
 function loop(){var now=Date.now(),gap=now-lastTick;lastTick=now;restTick(gap);sndUI();sclk();
 if(!T){if(hideAt&&now>hideAt){hideAt=0;$("bar").classList.remove("show");}return;}
 $("bar").classList.add("show");hideAt=0;$("tpause").textContent=T.pa?"Resume":"Pause";$("bar").classList.toggle("paused",!!T.pa);var s=tstate();$("cname").textContent=T.label;$("tround").hidden=!T.amrap;$("trn").textContent=T.rounds||0;
@@ -1054,7 +1058,13 @@ $("topq").addEventListener("click",function(e){var c=e.target.closest("[data-toc
  if(e.target.closest("#xconv")&&S){var l=logs(),i=extraFor(sel);if(i<0)return;var x=l[i],r2=R(sel),s2=P(sel);UNDOPRE={log:JSON.stringify(l),d:sel,s:JSON.stringify(s2),r:JSON.stringify(r2)};r2.sub=1;r2.at=x.act||"run";r2.d=x.km||"";r2.t=x.time||"";r2.e=x.effort||"";r2.f=x.feel||"";r2.sl="";r2.n=x.notes||r2.n||"";s2.oc="modified";
   l.splice(i,1);LS.set("wo_log",l);LS.set("wo_"+sel,s2);LS.set("wo_run_"+sel,r2);RUNOPEN[sel]=false;finBusy=false;$("fin").click();}});
 $("wrev").addEventListener("click",function(e){if(e.target.closest("#rev_go")){doExport();return;}if(e.target.closest("#rev_x")){LS.set("wo_rev",monOf(today));review();}});
-$("sclk").onclick=function(){var s=P(sel);if(!(+LS.get("wo_runstart_"+sel,0)||s.start)){s.start=Date.now();delete s.end;LS.set("wo_"+sel,s);unlock();wake();}else if(this.classList.contains("run")){LAP=LAP&&LAP.d==sel?null:{d:sel,t:Date.now()};}sclk();};
+$("sclk").addEventListener("click",function(e){var b=e.target.closest("[data-sc]");if(!b)return;var w=b.dataset.sc,s=P(sel),now=Date.now();
+ if(w=="go"){s.start=now;delete s.end;LS.set("wo_"+sel,s);LS.del("wo_runstart_"+sel);unlock();wake();}
+ else if(w=="lap"){LAP=LAP&&LAP.d==sel?null:{d:sel,t:now};}
+ else if(w=="stop"){s.end=now;LS.set("wo_"+sel,s);LAP=null;}
+ else if(w=="resume"){var st=+LS.get("wo_runstart_"+sel,0)||s.start||now,gap=now-(s.end||now);if(LS.get("wo_runstart_"+sel,0))LS.set("wo_runstart_"+sel,st+gap);else s.start=st+gap;delete s.end;LS.set("wo_"+sel,s);}
+ el_sclk_refresh();});
+function el_sclk_refresh(){var el=$("sclk");if(el)el.__h=null;sclk();}
 $("chg").onclick=function(){DCO[sel]=!DCO[sel];renderPanel();};
 // yesterday's session not logged: one line under the week strip (pc-v50)
 function nag(){var el=$("ynag");if(!el)return;var y=addDays(today,-1),S=mode(y)=="pre"?null:S_(y),show=!!(S&&!S.rest&&!S.tbc&&!logFor(y,S.name)&&LS.get("wo_nag","")!=y&&!(isOpen&&sel==y)&&weekOff==0);el.hidden=!show;if(!show){el.innerHTML="";return;}
@@ -1089,8 +1099,8 @@ var bkd=[],bkn=0;S.blocks.forEach(function(b){b=VB(b);if(b.k!="timer"&&b.k!="ex"
 if(S.blocks.some(function(b){return VB(b).counter;})){e.breaks=r.b;if(r.b)x.push(r.b+" walk break"+(r.b==1?"":"s"));}if(s.sc&&Object.keys(s.sc).length)e.sc=s.sc;e.type=curType(d);e.sid=sid(d);if(S.isRun){e.ri=1;x.push("run instead");}else delete e.ri;if(old&&old.custom&&old.type==e.type){e.name=old.name;e.custom=1;}else if(old&&old.name&&old.name!=name&&isName(old.name,name))e.name=old.name;
 if(e.sub&&e.bk&&!e.bk.d.length)x=x.filter(function(l){return !/sets ticked$|blocks done$/.test(l);});  // the session was replaced: no "0 of 20 sets" noise
 if(!x.length)x.push(score(d).d+" of "+score(d).t+" parts done");
-if(st0&&d==today){s.end=Date.now();LS.set("wo_"+d,s);}
-var mins=st0?Math.round((Date.now()-st0)/60000):0;if(d!=today||mins>180||!st0)mins=old?old.min:(d==today?Math.min(mins,180):30);if(e.time&&tmin(e.time))mins=tmin(e.time);if(e.oc=="skipped"&&!e.time&&!e.sub)mins=0;e.min=mins;  // a run logged by its actual elapsed time
+var stopped=s.end&&s.end>=st0?s.end:0;if(st0&&d==today&&!stopped){s.end=Date.now();LS.set("wo_"+d,s);}
+var mins=st0?Math.round(((stopped||Date.now())-st0)/60000):0;if(d!=today||mins>180||!st0)mins=old?old.min:(d==today?Math.min(mins,180):30);if(e.time&&tmin(e.time))mins=tmin(e.time);if(e.oc=="skipped"&&!e.time&&!e.sub)mins=0;e.min=mins;  // a run logged by its actual elapsed time
 UNDO=UNDOPRE||{log:JSON.stringify(logs()),d:d,s:JSON.stringify((function(){var q=JSON.parse(JSON.stringify(s));delete q.end;return q;})())};UNDOPRE=null;$("o_undo").hidden=false;
 if(e.sub){var l2=[],ni=-1;l.forEach(function(q,qi){if(q&&q.date==d&&q.type=="extra"&&(q.act||"run")==(e.act||"run"))return;if(qi==idx)ni=l2.length;l2.push(q);});l=l2;idx=ni;RUNOPEN[d]=false;}
 if(idx>=0)l[idx]=e;else l.push(e);LS.set("wo_log",l);
