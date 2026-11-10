@@ -29,7 +29,7 @@ with sync_playwright() as pw:
     c.close()
     # a short set → same weight; kettlebell step 4 kg; timed/distance items never get a suggestion
     c,p=view(b,D,seed=seed([6,6,5,"–"]))
-    ok("a short set → stay at the weight, no button (pc-v43)",p.locator(".sug").first.inner_text()=="Stay at 20 kg · a set came up short last time" and p.locator(".sug .sfill").count()==0,p.locator(".sug").first.inner_text())
+    ok("a short set → stay at the weight, no button (pc-v43)",p.locator(".sug").first.inner_text()=="Stay at 20 kg · last time 6/6/5/– at 20 kg, target 6" and p.locator(".sug .sfill").count()==0,p.locator(".sug").first.inner_text())
     ok("kettlebell step is 4 kg",p.evaluate("()=>__app.suggest('kb-swing',{rp:15})") is None and p.evaluate("()=>{var l=JSON.parse(localStorage.wo_log);l.push({date:'2026-10-28',rp:{'kb-swing':{v:[15,15],u:''}},wt:{'kb-swing':'16'}});localStorage.wo_log=JSON.stringify(l);return __app.suggest('kb-swing',{rp:15}).kg}")==20)
     ok("distance / timed items get no suggestion",p.evaluate("()=>__app.suggest('farmers-carry',{rp:50,ru:'m'})") is None)
     # per-set kg uses the heaviest set

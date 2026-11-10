@@ -55,7 +55,7 @@ Nothing leaves the phone unless he shares it.
 | `sets`, `of` | sets ticked / sets prescribed (strength) |
 | `wt` | `{exerciseId: "kg"}` weight used per exercise |
 | `rp` | `{exerciseId: {v: [reps per set], u: "" or "s"/"m", k?: [kg per set]}}` |
-| `sc` | AMRAP scores `{blockId: {r: rounds, kg, e}}` |
+| `sc` | AMRAP and carry / Every block scores `{blockId: {r: rounds, kg, e}}` (pc-v48: every "Every 2:00 × N" block asks for rounds and kg at the end, so "Beat this" has a number to beat) |
 | `km`, `time`, `effort`, `feel`, `notes`, `breaks` | actual run values, feel 1 to 10, walk breaks |
 | `sub`, `plan` | pc-v37: what he ran instead, and the prescribed piece it replaced |
 | `oc` | pc-v37: planned / modified / cut short / skipped (a `sub` entry is always modified) |

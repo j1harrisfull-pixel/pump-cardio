@@ -62,6 +62,7 @@ with sync_playwright() as pw:
         for i in range(sum(x[1] for x in segs)+3):
             p.clock.run_for(1000)
             if i%5==0 and p.locator("#bar.show").count() and re.search(r"· right$|each side$",p.locator("#now").inner_text()): sw=True
+        if p.locator("#scs.show").count(): p.click("#sc_ok");p.wait_for_timeout(60)  # pc-v48: Every blocks end with a score sheet
         ok(f"{bid} sides shown in the NOW line",sw)
         ok(f"{bid} beeps each segment",p.evaluate("window.__bp.length")>=len(segs))
         ok(f"{bid} logged done",ls(p,"wo_2026-10-17")["s"].get(bid)==1)

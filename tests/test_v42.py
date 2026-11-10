@@ -9,7 +9,7 @@ with sync_playwright() as pw:
     b=launch(pw)
     c,p=view(b,"2026-11-07")
     T=lambda v:p.evaluate("v=>{var i=document.getElementById('r_t');i.value=v;i.dispatchEvent(new Event('change',{bubbles:true}));return i.value}",v)
-    ok("time field: decimal keypad, format hint",p.get_attribute("#r_t","inputmode")=="decimal" and "3005" in p.get_attribute("#r_t","placeholder"))
+    ok("time field: decimal keypad, format hint",p.get_attribute("#r_t","inputmode")=="decimal" and "2940" in p.get_attribute("#r_t","placeholder"))
     ok("30 → 30:00, 30.5 → 30:30, 3005 → 30:05, 30:05 kept, 105 → 1:45:00? no: 105 minutes → 105:00",[T("30"),T("30.5"),T("3005"),T("30:05"),T("105")]==["30:00","30:30","30:05","30:05","105:00"],[T("30"),T("30.5"),T("3005"),T("30:05"),T("105")])
     ok("normalised value is what gets stored",ls(p,"wo_run_2026-11-07")["t"]=="105:00")
     ok("Log ↓ shortcut shown today, Swap still there",p.locator("#tolog").is_visible() and p.locator("#swap").is_visible())

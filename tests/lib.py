@@ -53,7 +53,7 @@ def fin(p):
 def tick(p,x,i):
     """Tick set i of exercise x in list mode (closes the reps stepper if it opens)."""
     p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(i).click();p.wait_for_timeout(30)
-def run_block(p,tid,d=None):
+def run_block(p,tid,d=None,score=True):
     """Start guided block `tid` and drive it to the end quickly. Returns a dict with what was seen:
     segs, total, beeps (count), osc, done (flag written), ask (locked prompt shown), first (first time shown),
     drops (countdown advanced during the first seconds). Every segment boundary is crossed with real ticks."""
@@ -69,10 +69,12 @@ def run_block(p,tid,d=None):
         if target>el+0.5: p.clock.fast_forward(int((target-el)*1000));el=target
         p.clock.run_for(1500);el+=1.5;p.wait_for_timeout(15)
     p.clock.run_for(1200);p.wait_for_timeout(60)
+    if score and p.locator("#scs.show").count(): p.click("#sc_ok");p.wait_for_timeout(60)  # pc-v48: AMRAP / Every blocks end with a score sheet
     for _ in range(8):  # under heavy parallel load a tick can lag: give the engine a few more seconds of clock to finish
         st=ls(p,"wo_"+d) or {}
-        if (st.get("s") or {}).get(tid)==1 or p.locator("#bar.ask").count(): break
+        if (st.get("s") or {}).get(tid)==1 or p.locator("#bar.ask").count() or (not score and p.locator("#scs.show").count()): break
         p.clock.run_for(1000);p.wait_for_timeout(40)
+        if score and p.locator("#scs.show").count(): p.click("#sc_ok");p.wait_for_timeout(60)
     st=ls(p,"wo_"+d) or {}
     return {"segs":segs,"total":tot,"beeps":p.evaluate("window.__bp.length"),"osc":p.evaluate("window.__osc"),
             "done":(st.get("s") or {}).get(tid)==1,"ask":p.locator("#bar.ask").count()==1,"first":first,"drops":t1<t0 or t0<=3}
