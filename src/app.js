@@ -1155,6 +1155,7 @@ function nag(){var el=$("ynag");if(!el)return;var y=addDays(today,-1),S=mode(y)=
  el.innerHTML='<span>Yesterday\'s <b>'+esc(S.name)+'</b> is not logged.</span><div class="nagb"><button type="button" class="btn" data-ng="log">Log it</button><button type="button" class="swb" data-ng="skip">Skipped</button><button type="button" class="swb" data-ng="x" aria-label="Dismiss">Not now</button></div>';}
 $("ynag").addEventListener("click",function(e){var b=e.target.closest("[data-ng]");if(!b)return;var y=addDays(today,-1),w=b.dataset.ng;if(w=="x"){LS.set("wo_nag",y);nag();return;}
  if(w=="skip"){var s=P(y),r=R(y);UNDOPRE={log:JSON.stringify(logs()),d:y,s:JSON.stringify(s),r:JSON.stringify(r)};s.oc="skipped";r.sub=0;LS.set("wo_"+y,s);LS.set("wo_run_"+y,r);}
+ if(w=="skip"&&TABS){QUIET=true;if(!(isOpen&&sel==y))openDay(y);finBusy=false;$("fin").click();QUIET=false;if(isOpen)closeP();toast("Yesterday's "+(S_(y)?S_(y).name:"session")+" logged as skipped.",{label:"Undo",fn:undoLast});return;}
  if(!(isOpen&&sel==y))openDay(y);if(w=="skip"){finBusy=false;$("fin").click();}else{var t=$("topq");if(t&&t.scrollIntoView)t.scrollIntoView({block:"center"});}});
 $("imp").onclick=function(){IMW=null;$("im_t").value="";$("im_r").innerHTML="";$("im_ok").hidden=true;$("ims").classList.add("show");setTimeout(function(){$("im_t").focus();},50);};
 function histDel(ev){var b=ev.target.closest("[data-del]");if(!b)return;var l=logs(),i=+b.dataset.del,e=l[i];if(!e)return;if(!confirm("Delete this entry?\n"+e.date+" · "+(e.name||"Pump + Cardio")))return;
@@ -1167,10 +1168,10 @@ $("im_chk").onclick=function(){var w;IMW=null;$("im_ok").hidden=true;try{w=JSON.
  h+=v.warnings.map(function(m){return '<div class="warn">! '+esc(m)+'</div>';}).join("");$("im_r").innerHTML=h;};
 function weekDays(w){var B=null;try{B=buildWeek(w);}catch(e){}return Object.keys(w.days||{}).sort().map(function(d){var dd=w.days[d]||{},S=(B&&B.sess[dd.main])||SESS[dd.main];return sdl(d).split(" ")[0]+" "+(S?S.short||S.name:dd.main||"?")+(dd.backup?" (+ backup)":"");}).join(" · ");}
 $("im_ok").onclick=function(){if(!IMW)return;var m=LS.get("wo_weeks",{});if(!m||typeof m!="object")m={};m[IMW.week]=IMW;LS.set("wo_weeks",m);LS.set("wo_flash",{week:IMW.week,msg:"Week of "+sdl(IMW.week)+" saved · "+weekDays(IMW)});location.reload();};
-function toast(msg){var t=$("toast");if(!t)return;t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("show");},6000);}
+function toast(msg,act){var t=$("toast");if(!t)return;t.textContent=msg;t.classList.toggle("act",!!act);if(act){var b=document.createElement("button");b.type="button";b.className="tact";b.textContent=act.label;b.onclick=function(){t.classList.remove("show");act.fn();};t.appendChild(b);}t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("show");},6000);}
 $("wks").addEventListener("click",function(e){var b=e.target.closest("[data-rmw]");if(!b)return;if(!confirm("Remove the imported week of "+sdl(b.dataset.rmw)+"? Logged workouts are kept."))return;var m=LS.get("wo_weeks",{})||{};delete m[b.dataset.rmw];LS.set("wo_weeks",m);location.reload();});
 window.__wk={BK:BK,OVR:OVR,PROG:PROG,QK:QK,swapHref:swapHref};
-var finBusy=false,ovAt=0,UNDO=null,UNDOPRE=null;
+var finBusy=false,ovAt=0,UNDO=null,UNDOPRE=null,QUIET=false;
 $("fin").onclick=function(){var d=sel,S=S_(d),m=mode(d);if(finBusy||m=="future"||m=="pre"||!S||S.rest)return;finBusy=true;setTimeout(function(){finBusy=false;},1500);
 var name=S.name,l=logs(),old=null,idx=-1;for(var i=0;i<l.length;i++)if(sameE(l[i],d,name)){old=l[i];idx=i;}
 var s=P(d),r=R(d),st0=+LS.get("wo_runstart_"+d,0)||s.start||0,e={name:name,date:d},x=[],tot=setsTotal(S);
@@ -1191,8 +1192,9 @@ var mins=st0?Math.round(((stopped||Date.now())-st0)/60000):0;if(d!=today||mins>1
 UNDO=UNDOPRE||{log:JSON.stringify(logs()),d:d,s:JSON.stringify((function(){var q=JSON.parse(JSON.stringify(s));delete q.end;return q;})())};UNDOPRE=null;$("o_undo").hidden=false;
 if(e.sub){var l2=[],ni=-1;l.forEach(function(q,qi){if(q&&q.date==d&&q.type=="extra"&&(q.act||"run")==(e.act||"run"))return;if(qi==idx)ni=l2.length;l2.push(q);});l=l2;idx=ni;RUNOPEN[d]=false;}
 if(idx>=0)l[idx]=e;else l.push(e);LS.set("wo_log",l);
-$("o_n").textContent=name+(d!=today?" · "+(TABS?sdl(d):d):"");document.querySelector("#ov .kicker").textContent=TABS&&e.oc=="skipped"&&!e.sub?"Logged as skipped":"Workout saved";$("o_t").textContent=e.min+" min";$("o_d").innerHTML=x.map(esc).join("<br>");$("o_e").textContent=(old?"Log updated. ":"")+(e.oc=="skipped"?"Logged. Rest up, back at it next time.":e.oc=="cut short"?"Stopping early was the right call. Recover well.":(+e.feel>0&&+e.feel<=4)?ENC[1]:[ENC[0],ENC[2],ENC[3]][Math.floor(Math.random()*3)]);$("ov").classList.add("show");ovAt=Date.now();all();};
-$("o_undo").onclick=function(){if(!UNDO||Date.now()-ovAt<700)return;try{LS.set("wo_log",JSON.parse(UNDO.log));}catch(e){}if(UNDO.s)LS.set("wo_"+UNDO.d,JSON.parse(UNDO.s));if(UNDO.r)LS.set("wo_run_"+UNDO.d,JSON.parse(UNDO.r));UNDO=null;$("ov").classList.remove("show");all();toast("Undone. Nothing was saved.");};
+$("o_n").textContent=name+(d!=today?" · "+(TABS?sdl(d):d):"");document.querySelector("#ov .kicker").textContent=TABS&&e.oc=="skipped"&&!e.sub?"Logged as skipped":"Workout saved";$("o_t").textContent=e.min+" min";$("o_d").innerHTML=x.map(esc).join("<br>");$("o_e").textContent=(old?"Log updated. ":"")+(e.oc=="skipped"?"Logged. Rest up, back at it next time.":e.oc=="cut short"?"Stopping early was the right call. Recover well.":(+e.feel>0&&+e.feel<=4)?ENC[1]:[ENC[0],ENC[2],ENC[3]][Math.floor(Math.random()*3)]);if(!QUIET)$("ov").classList.add("show");ovAt=Date.now();all();};
+function undoLast(){if(!UNDO)return;try{LS.set("wo_log",JSON.parse(UNDO.log));}catch(e){}if(UNDO.s)LS.set("wo_"+UNDO.d,JSON.parse(UNDO.s));if(UNDO.r)LS.set("wo_run_"+UNDO.d,JSON.parse(UNDO.r));UNDO=null;$("ov").classList.remove("show");all();toast("Undone. Nothing was saved.");}
+$("o_undo").onclick=function(){if(!UNDO||Date.now()-ovAt<700)return;undoLast();};
 function ovClose(){$("ov").classList.remove("show");if(TABS&&isOpen){if(RT)stopRest();closeP();delete SCY[sel];window.scrollTo(0,0);}}
 $("o_done").onclick=function(){if(Date.now()-ovAt<700)return;ovClose();};$("ov").onclick=function(e){if(e.target===this&&Date.now()-ovAt>700)ovClose();};
 $("rst").onclick=function(){var d=sel,S=S_(d);if(mode(d)=="future"||!S)return;if(!confirm("Reset "+(d==today?"today":d)+"'s ticks, timers and weights?"))return;LS.del("wo_"+d);LS.del("wo_run_"+d);LS.del("wo_runstart_"+d);items(S).forEach(function(it){setW(it.x,d,"");});if(T&&T.date==d)stopT();all();};
@@ -1216,7 +1218,11 @@ if(TABS){lockLab(false);document.addEventListener("click",function(e){var tb=e.t
   var wr=e.target.closest("#wlist [data-d]");if(wr){if(WSW){WSW=false;return;}openDay(wr.dataset.d);return;}});
  $("sets").addEventListener("click",function(e){if(e.target===this||e.target.closest(".swx"))this.classList.remove("show");});
  // settings and the weeks list live in the settings sheet
- (function(){var b=$("sets_b");[].forEach.call(document.querySelectorAll("label.setr"),function(l){b.appendChild(l);});var wk=document.querySelector(".wkl");if(wk)b.appendChild(wk);})();
+ (function(){var b=$("sets_b");b.innerHTML='<div class="sgt">Timers</div><div id="sg_t"></div><div class="sgt">Cues</div><div id="sg_c"></div><div class="sgt">Plan</div><div id="sg_p"></div><div class="sgt">About</div><div class="abt" id="sg_a"></div>';
+ var two=function(id,to){var i=$(id);if(!i)return;var lab=i.closest("label"),txt=lab.textContent.replace(/\s+/g," ").trim(),m=txt.match(/^(.*?)\s*\((.*)\)$/),s=document.createElement("span");s.className="st";var t1=m?m[1]:txt,t2=m?m[2].charAt(0).toUpperCase()+m[2].slice(1)+".":"";s.innerHTML='<span class="t1">'+esc(t1)+'</span>'+(t2?'<span class="t2">'+esc(t2)+'</span>':'');lab.textContent="";lab.appendChild(i);lab.appendChild(s);$(to).appendChild(lab);};
+ two("autorest","sg_t");two("cueon","sg_c");two("loud","sg_c");
+ var wk=document.querySelector(".wkl");if(wk)$("sg_p").appendChild(wk);
+ var mv=document.querySelector('meta[name="app-version"]');$("sg_a").innerHTML='<div class="t1">Pump + Cardio <span id="sg_v">'+esc(mv?mv.content:"")+'</span></div><div class="t2">Your logs and settings stay on this phone. Nothing leaves it unless you export.</div>';})();
  $("imp").addEventListener("click",function(){$("sets").classList.remove("show");});all();}
 (function(){if(TABS)return;var sa=false;try{sa=navigator.standalone===true||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);}catch(e){}if(sa&&weekOff==0&&!isOpen&&mode(today)!="pre"&&S_(today))openDay(today);})();
 if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){var reload=false;navigator.serviceWorker.addEventListener("controllerchange",function(){if(reload)return;reload=true;location.reload();});
