@@ -9,7 +9,7 @@ with sync_playwright() as pw:
     p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300)
     p.click(f'#wlist [data-d="{WED}"]');p.wait_for_timeout(300)
     ok("open day from Week: no week row, strip, swap row or hint",vis(p,".wk","#week","#swr","#hint","#wlist")==[],vis(p,".wk","#week","#swr","#hint","#wlist"))
-    ok("it is the workout: title, Back and blocks",p.locator("#ttl").inner_text()=="Hill Hunter Run" and p.locator("#close").inner_text()=="‹ Back" and p.locator("#sess h2").count()>=4)
+    ok("it is the workout: title, Back and blocks",p.locator("#ttl").inner_text()=="Hill Hunter Run" and p.locator("#close").inner_text()=="Back" and p.locator("#sess h2").count()>=4)
     ok("the Week tab stays selected",p.locator("#tabbar button.on").inner_text()=="Week" and p.evaluate("()=>document.body.classList.contains('t-week')"))
     ok("the session starts at the top",p.evaluate("scrollY")==0)
     p.click("#close");p.wait_for_timeout(300)

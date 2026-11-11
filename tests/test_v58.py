@@ -24,7 +24,7 @@ with sync_playwright() as pw:
     ok("home card: length, one big Start, something else, this week",(lambda t:t[0]=="≈ 43 min · 6 blocks" and t[-3:]==["Start session","I did something else","This week · 2 of 5 sessions · 11.4 km ›"])(p.locator("#home").inner_text().split("\n")),p.locator("#home").inner_text())
     ok("Start session is on the first screen (above the tab bar, no scrolling)",p.evaluate("()=>document.querySelector('#home [data-hm=start]').getBoundingClientRect().bottom<=document.getElementById('tabbar').getBoundingClientRect().top"))
     p.click('#home [data-hm="start"]');p.wait_for_timeout(500)
-    ok("Start opens the session as its own screen: no strip, ‹ Back, clock running",p.locator("#panel.open").count()==1 and vis(p,"#home","#week","#more")==[] and p.locator("#close").inner_text()=="‹ Back" and p.locator("#sclk").inner_text().replace("\n"," ").startswith("⏱ 0:0") and p.evaluate("()=>window.scrollY")==0)
+    ok("Start opens the session as its own screen: no strip, ‹ Back, clock running",p.locator("#panel.open").count()==1 and vis(p,"#home","#week","#more")==[] and p.locator("#close").inner_text()=="Back" and p.locator("#sclk").inner_text().replace("\n"," ").strip().startswith("0:0") and p.evaluate("()=>window.scrollY")==0)
     ok("the session screen has the blocks and Finish; settings tick boxes are not in it",p.locator("#sess h2").count()>=6 and p.locator("#fin").count()==1 and p.locator("#panel .setr").count()==0)
     ok("pills sit above the tab bar",p.evaluate("()=>document.getElementById('sclk').getBoundingClientRect().bottom<=document.getElementById('tabbar').getBoundingClientRect().top"))
     x=p.evaluate("()=>document.querySelector('.srow').dataset.x");tick(p,x,0);p.wait_for_timeout(120)

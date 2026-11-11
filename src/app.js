@@ -656,7 +656,7 @@ function tNext(){if(!T)return;var st=tstate();if(st.i>=T.segs.length-1){T.t0=tno
 var LOCKC='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg> ',LOCKO=LOCKC.replace('<path d="M8 11V8a4 4 0 0 1 8 0v3"/>','<path d="M8 11V8a4 4 0 0 1 7.5-2"/>');
 function lockLab(on){var b=$("tlock");if(!b)return;if(TABS)b.innerHTML=(on?LOCKC:LOCKO)+(on?"Locked · tap to unlock":"Lock");else b.textContent=on?"🔒 Locked":"🔓 Lock";}
 function sd(s){return String(s).replace(/each hand/g,"each side");}  // pc-v64: sides always read "each side" on the clock
-function sct(){var el=$("sct");if(!el)return;if(!T||!TABS){el.hidden=true;return;}var d=T.date,s=P(d),st=+LS.get("wo_runstart_"+d,0)||s.start||0;el.hidden=!st;if(!st)return;var en=s.end&&s.end>=st?s.end:0;el.textContent=(en?"⏸ ":"")+hms((en||Date.now())-st)+(LAP&&LAP.d==d&&!en?" · lap "+hms(Date.now()-LAP.t):"");}
+function sct(){var el=$("sct");if(!el)return;if(!T||!TABS){el.hidden=true;return;}var d=T.date,s=P(d),st=+LS.get("wo_runstart_"+d,0)||s.start||0;el.hidden=!st;if(!st)return;var en=s.end&&s.end>=st?s.end:0;el.textContent=(en?"Paused · ":"")+hms((en||Date.now())-st)+(LAP&&LAP.d==d&&!en?" · lap "+hms(Date.now()-LAP.t):"");}
 function stopT(){T=null;LS.del("wo_timer");relWake();$("stq").hidden=true;$("bar").classList.remove("show","ask","locked");lockLab(false);}
 function doneT(noTick){var t=T;T=null;LS.del("wo_timer");relWake();$("bar").classList.remove("ask");var p=P(t.date);if(noTick){$("bar").classList.remove("show");if(isOpen)renderPanel();return;}
 if(t.id.indexOf("rest:")==0){var rk=t.id.slice(5),c=+p[rk]||1;if(c<(t.max||3))p[rk]=c+1;else p[rk]=c;}else if(t.amrap||t.score){scSheet(t);}else p.s[t.id]=1;LS.set("wo_"+t.date,p);
@@ -692,6 +692,9 @@ function sndUI(){var e=$("snd");if(e)e.hidden=!((T||RT)&&(!ac||ac.state!="runnin
 // at Finish (s.end). Tap it while running for a lap you can use on timed exercises; tap again to clear the lap.
 var LAP=null;
 function hms(ms){var t=Math.max(0,Math.floor(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),x=t%60;return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0");}
+function ic(p,s){return '<svg class="ic" viewBox="0 0 24 24" width="'+(s||18)+'" height="'+(s||18)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>';}
+var IP={back:'<path d="M15 5l-7 7 7 7"/>',fwd:'<path d="M9 5l7 7-7 7"/>',tick:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 3h5"/>',play:'<path d="M8 5.5v13l11-6.5z" fill="currentColor"/>',pause:'<path d="M9 5v14M15 5v14"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>',snd:'<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l4 6M21 9l-4 6"/>'};
+function SI(k){return TABS?ic(IP[k],k=="tick"?18:16):{play:"▶",timer:"⏱",pause:"⏸",tick:"✓",stop:"■"}[k];}
 var SCMAX=3*3600000;  // pc-v57: a session clock left running stops itself after 3 hours
 function sclkState(){var S=isOpen?S_(sel):null;if(!S)return null;var s=P(sel),st=+LS.get("wo_runstart_"+sel,0)||s.start||0,en=s.end&&s.end>=st?s.end:0;
  if(st&&!en&&Date.now()-st>SCMAX){en=st+SCMAX;s.end=en;LS.set("wo_"+sel,s);}
@@ -699,9 +702,9 @@ function sclkState(){var S=isOpen?S_(sel):null;if(!S)return null;var s=P(sel),st
 function sclk(){var el=$("sclk");if(!el)return;var q=sclkState(),r=isOpen?R(sel):null;
  var show=!!(q&&!q.S.rest&&!q.S.tbc&&mode(sel)=="today"&&!(r.sub||q.s.oc=="skipped"));if(!show){if(!el.hidden){el.hidden=true;LAP=null;}return;}
  var h,cls;
- if(!q.st){h=q.lg?"":'<button type="button" class="sc_go" data-sc="go"><span class="si">▶</span> Start session</button>';cls="sclk idle";}
- else if(q.en){LAP=null;h=q.lg?'<span class="sc_t"><span class="si">✓</span> '+hms(q.en-q.st)+'</span>':'<button type="button" class="sc_t" data-sc="resume" aria-label="Resume the session clock"><span class="si">⏸</span> '+hms(q.en-q.st)+' <small>resume</small></button>';cls="sclk "+(q.lg?"done":"paused");}
- else{h='<button type="button" class="sc_t" data-sc="lap" aria-label="Lap"><span class="si">⏱</span> <b>'+hms(Date.now()-q.st)+'</b>'+(LAP&&LAP.d==sel?'<span class="lap">lap '+hms(Date.now()-LAP.t)+'</span>':'')+'</button><button type="button" class="sc_x" data-sc="stop" aria-label="Stop the session clock">■</button>';cls="sclk run";}
+ if(!q.st){h=q.lg?"":'<button type="button" class="sc_go" data-sc="go"><span class="si">'+SI("play")+'</span> Start session</button>';cls="sclk idle";}
+ else if(q.en){LAP=null;h=q.lg?'<span class="sc_t"><span class="si">'+SI("tick")+'</span> '+hms(q.en-q.st)+'</span>':'<button type="button" class="sc_t" data-sc="resume" aria-label="Resume the session clock"><span class="si">'+SI("pause")+'</span> '+hms(q.en-q.st)+' <small>resume</small></button>';cls="sclk "+(q.lg?"done":"paused");}
+ else{h='<button type="button" class="sc_t" data-sc="lap" aria-label="Lap"><span class="si">'+SI("timer")+'</span> <b>'+hms(Date.now()-q.st)+'</b>'+(LAP&&LAP.d==sel?'<span class="lap">lap '+hms(Date.now()-LAP.t)+'</span>':'')+'</button><button type="button" class="sc_x" data-sc="stop" aria-label="Stop the session clock">'+SI("stop")+'</button>';cls="sclk run";}
  el.hidden=!h;if(el.className!=cls)el.className=cls;if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
 function loop(){var now=Date.now(),gap=now-lastTick;lastTick=now;restTick(gap);sndUI();sclk();sct();
 if(!T){if(!$("stq").hidden)$("stq").hidden=true;if(hideAt&&now>hideAt){hideAt=0;$("bar").classList.remove("show");}return;}
@@ -873,7 +876,7 @@ function listBlock(b,s){var multi=b.items.length>1,h='<div class="card ex blk" d
   h+='<div class="srow'+(on?" on":"")+(actb&&!on&&!nxd?(nxd=true," nx"):"")+'" data-x="'+it.x+'" data-row="'+k+'"><span class="sn">'+(TABS?'':(q+1))+(multi?(TABS?'':' · ')+it.lab:'')+(lv!=null?'<small class="lchip" data-xh="'+it.x+'">last '+(lk?esc(lk)+' kg × ':'')+esc(lv)+(ls.u?" "+ls.u:"")+'</small>':'')+'</span>';
   h+=kg?'<input class="w lock'+(kg.pf?' pf':'')+'" type="number" inputmode="decimal" placeholder="'+(TABS&&lk&&!isNaN(+lk)&&+lk>0?esc(lk):"kg")+'" aria-label="kg set '+(q+1)+'" data-kw="'+k+'" value="'+esc(kg.v)+'">':'<span class="bw">BW</span>';
   h+='<button class="rpb lock'+(EDK==k?" ed":"")+'" data-rp="'+k+'" aria-label="reps set '+(q+1)+'">'+repV(s,k,it)+(it.ru?" "+it.ru:"")+'</button>';
-  h+='<button class="tk lock'+(on?" on":"")+'" data-tk="'+k+'" aria-label="'+b.unit+' '+(q+1)+(multi?' '+it.lab:'')+' done">'+(on?"✓":"")+'</button></div>';
+  h+='<button class="tk lock'+(on?" on":"")+'" data-tk="'+k+'" aria-label="'+b.unit+' '+(q+1)+(multi?' '+it.lab:'')+' done">'+(on?(TABS?ic(IP.tick,20):"✓"):"")+'</button></div>';
   if(EDK==k)h+='<div class="step lock"><span>Set '+(q+1)+'</span><button data-st="-1" aria-label="fewer">−</button><b id="stv">'+repV(s,k,it)+(it.ru?" "+it.ru:" reps")+'</b><button data-st="1" aria-label="more">+</button><button data-st="u" class="su">Undo</button><button data-st="x" class="su">OK</button></div>';});if(TABS)h+='</div></div>';}
  var xs=(s.xs&&+s.xs[b.tid||b.id])||0;h+='<div class="setctl"><button type="button" class="link lock" data-xs="1" data-b="'+esc(b.tid||b.id)+'">+ '+(multi?"round":"set")+'</button>'+(xs>0?'<button type="button" class="link lock" data-xs="-1" data-b="'+esc(b.tid||b.id)+'">− '+(multi?"round":"set")+'</button>':'')+'</div>';
  return h+'</div>';}
@@ -989,7 +992,7 @@ function review(){var el=$("wrev");if(!el)return;var now=new Date(),mon=monOf(to
 var TABS=!LS.get("wo_flat",0),TAB="today";
 function layout(){var c=document.body.classList;c.toggle("tabs",TABS);if(!TABS)return;["today","week","prog"].forEach(function(t){c.toggle("t-"+t,TAB==t);});c.toggle("open",isOpen);c.toggle("ed",!!editing);
  [].forEach.call(document.querySelectorAll("#tabbar [data-tab]"),function(b){var on=b.dataset.tab==TAB;b.classList.toggle("on",on);b.setAttribute("aria-current",on?"page":"false");});
- $("close").textContent="‹ Back";}
+ var cb=$("close");if(cb.textContent!="Back")cb.innerHTML=ic(IP.back,18)+"Back";}
 function setTab(t){if(isOpen)closeP();TAB=t;if(t!="week"&&weekOff){weekOff=0;}if(t=="prog"){var d=$("prg");if(d)d.open=true;var d2=$("hsd");if(d2)d2.open=true;}all();window.scrollTo(0,0);}
 function tagOf(b){var h=String(b.h||""),n=String(b.name||"");if(b.k=="ex")return h.replace(/^[A-Z] · /,"").replace(/\s*·.*$/,"")||"Strength";if(/warm/i.test(h))return "Warm-up";if(/cool/i.test(h))return "Cool-down";if(/every|carry/i.test(h+" "+n))return /carry/i.test(n)?"Carry":"Every";if(/emom/i.test(h))return "EMOM";if(/flow|mobility|stretch|reset/i.test(h+" "+n))return "Flow";if(/interval/i.test(h))return "Intervals";if(/steady|zone|easy|run|walk/i.test(h))return "Run";return h.split(" ")[0]||"Block";}
 function hprev(S,s){var rows=[],up=false;S.blocks.forEach(function(b){b=VB(b);if(b.k!="timer"&&b.k!="ex")return;var dn=blockDone(b,s),nmb,meta;
@@ -1114,7 +1117,7 @@ $("hs_b").innerHTML='<ol class="hs_s">'+h.s.map(function(x,i){return '<li><span 
 $("hs_b").scrollTop=0;$("hs_l").href=demoURL(h.q||nm0);$("hs").classList.add("show");}
 var hy=null;document.addEventListener("pointerdown",function(e){if(e.target.closest(".hs_g,.hs_top"))hy=e.clientY;});document.addEventListener("pointerup",function(e){if(hy!=null&&e.clientY-hy>60)hclose();hy=null;});
 function hclose(){$("hs").classList.remove("show");}
-$("hs").addEventListener("click",function(e){if(e.target===this||e.target.id=="hs_x")hclose();});
+$("hs").addEventListener("click",function(e){if(e.target===this||e.target.closest("#hs_x"))hclose();});
 document.addEventListener("keydown",function(e){if(e.key=="Escape")hclose();});
 window.__how={HT:HT,hkey:hkey,X:X,SESS:SESS,demoURL:demoURL,dur:dur,posOf:posOf,BK:BK};
 $("hist").addEventListener("change",function(ev){var x=ev.target.closest("select[data-hd]");if(!x)return;setType(x.dataset.hd,x.value,x.dataset.hn);});
@@ -1205,7 +1208,7 @@ migrate();if(T&&(!T.segs||!T.t0))stopT();if(T){lastI=-2;wake();}
 (function(){var f=LS.get("wo_flash",null);if(f&&f.week){LS.del("wo_flash");if(TABS)TAB="week";weekOff=Math.round((pd(f.week)-pd(monOf(today)))/604800000);toast(f.msg||"Saved");}})();
 all();loop();
 // installed on the Home Screen: open straight on today's session (a browser tab keeps the week view)
-if(TABS){lockLab(false);document.addEventListener("click",function(e){var tb=e.target.closest("#tabbar [data-tab]");if(tb){setTab(tb.dataset.tab);return;}
+if(TABS){lockLab(false);$("prev").innerHTML=ic(IP.back,22);$("next").innerHTML=ic(IP.fwd,22);$("tback").innerHTML=ic(IP.back,18)+" Back";$("tnext").innerHTML="Next "+ic(IP.fwd,18);$("snd").innerHTML=ic(IP.snd,18)+" Sound off: tap to turn on";document.addEventListener("click",function(e){var tb=e.target.closest("#tabbar [data-tab]");if(tb){setTab(tb.dataset.tab);return;}
   var hm=e.target.closest("#home [data-hm]");if(hm){var w=hm.dataset.hm;if(w=="week"){setTab("week");return;}
    if(w=="start"){var s=P(today);if(!s.start&&!LS.get("wo_runstart_"+today,0)){s.start=Date.now();delete s.end;LS.set("wo_"+today,s);unlock();}}
    if(w=="else"){var s2=P(today),r2=R(today);r2.sub=1;s2.oc="modified";LS.set("wo_"+today,s2);LS.set("wo_run_"+today,r2);delete SCY[today];}
@@ -1229,6 +1232,15 @@ if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){var reload=
 navigator.serviceWorker.register("sw.js").then(function(reg){function show(){var u=$("upd");u.style.display="block";u.onclick=function(){if(reg.waiting)reg.waiting.postMessage("skip");else location.reload();};}
 if(reg.waiting&&navigator.serviceWorker.controller)show();reg.addEventListener("updatefound",function(){var w=reg.installing;if(w)w.addEventListener("statechange",function(){if(w.state=="installed"&&navigator.serviceWorker.controller)show();});});
 setInterval(function(){reg.update().catch(function(){});},3600000);document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible")reg.update().catch(function(){});});}).catch(function(){});}
+// pc-v69: sheets and the saved card take focus when they open, keep Tab inside, close on Escape and give focus back
+(function(){var FOC='button:not([disabled]):not([hidden]),input:not([disabled]),select,textarea,a[href]',cur=null,last=null;
+ var vis=function(e){return e.offsetWidth>0||e.offsetHeight>0;},open=function(){var l=document.querySelectorAll("#hs.show,.swp.show,#ov.show");return l.length?l[l.length-1]:null;};
+ function sync(){var o=open();if(o&&o!==cur){cur=o;last=document.activeElement;var f=[].filter.call(o.querySelectorAll(FOC),vis)[0];setTimeout(function(){if(f&&cur===o)f.focus({preventScroll:true});},30);}
+  else if(!o&&cur){cur=null;var l2=last;last=null;if(l2&&document.contains(l2)&&l2.focus){try{l2.focus({preventScroll:true});}catch(e){}}}}
+ new MutationObserver(sync).observe(document.body,{attributes:true,subtree:true,attributeFilter:["class"]});
+ document.addEventListener("keydown",function(e){if(!cur)return;if(e.key=="Escape"){var x=cur.querySelector(".hs_top .swx,#hs_x");if(x)x.click();return;}if(e.key!="Tab")return;
+  var f=[].filter.call(cur.querySelectorAll(FOC),vis);if(!f.length)return;var a0=f[0],z=f[f.length-1],ae=document.activeElement;
+  if(e.shiftKey&&(ae===a0||!cur.contains(ae))){e.preventDefault();z.focus();}else if(!e.shiftKey&&(ae===z||!cur.contains(ae))){e.preventDefault();a0.focus();}});})();
 window.__app={get today(){return today;},get sel(){return sel;},checkDay:checkDay,sid:sid,view:function(){return S_(sel);},posOf:posOf,emomPlan:emomPlan,exportText:exportText,suggest:suggest,weekRows:weekRows,validateWeek:validateWeek,buildWeek:buildWeek,get WEEKS(){return WEEKS;}};
 })();
 </script></body></html>

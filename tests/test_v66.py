@@ -15,8 +15,8 @@ with sync_playwright() as pw:
     chips=p.evaluate("()=>[].map.call(document.querySelectorAll('#wlist .wrow'),function(r){var c=r.querySelector('.ws');return c?c.textContent+'|'+c.className.replace('ws ',''):'-'})")
     ok("chips: Done (green), none for rest, Skipped (grey), Today (orange), none for future",chips==["✓ Done|ok","-","Skipped|sk","Today|td","-","-","-"],chips)
     col=p.evaluate("()=>{var g=function(s){var e=document.querySelector(s);return getComputedStyle(e).color+'/'+getComputedStyle(e).backgroundColor};return [g('.wrow .ws.ok'),g('.wrow .ws.td')]}")
-    ok("Done is green text, Today is an orange chip",col[0].startswith("rgb(27, 127, 59)") and col[1].endswith("rgb(255, 138, 61)") and col[1].startswith("rgb(17, 17, 17)"),col)
-    ok("rest rows are quieter",p.evaluate("()=>+getComputedStyle(document.querySelector('.wrow.rest')).opacity")<0.9)
+    ok("Done is green text, Today is an orange chip",col[0].startswith("rgb(22, 106, 49)") and col[1].endswith("rgb(255, 138, 61)") and col[1].startswith("rgb(17, 17, 17)"),col)
+    ok("rest rows are quieter: dashed, no fill",p.evaluate("()=>{var s=getComputedStyle(document.querySelector('.wrow.rest'));return s.borderTopStyle=='dashed'&&s.backgroundColor=='rgba(0, 0, 0, 0)'}"))
     ok("a replaced day says what was done with instead of",p.locator(f'#wlist [data-d="{MON}"] small').inner_text()=="30 min · instead of Upper · Slow Is Strong")
     ok("Edit plan is a labelled button under the list, the small Edit plan is gone",p.locator("#ed2").inner_text()=="Edit this week's plan" and rect(p,"#ed2")[1]>rect(p,'#wlist [data-d="%s"]'%SUN)[3] and p.locator("#ed").is_hidden())
     # swipe
