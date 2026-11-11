@@ -17,7 +17,7 @@ with sync_playwright() as pw:
     ok("controls sit in the bottom of the screen, above the home indicator",pa[1]>844*0.6 and lo[3]<=844,(pa,lo))
     ok("Back and Next flank Pause at the same height",abs(ba[1]-pa[1])<10 and abs(ne[1]-pa[1])<10 and ba[2]<pa[0] and ne[0]>pa[2])
     ok("Stop is apart from the controls: top right, 44 px",st[1]<70 and st[2]>350 and st[3]-st[1]>=44 and st[3]<pa[1],st)
-    ok("session time is plain text top left, no pill",p.locator("#sct").is_visible() and rect(p,"#sct")[0]<30 and rect(p,"#sct")[1]<60 and p.locator("#sclk").is_hidden() and p.locator("#sct").inner_text().startswith("0:1"),p.locator("#sct").inner_text())
+    ok("session time is plain text top left, no pill",p.locator("#sct").is_visible() and rect(p,"#sct")[0]<30 and rect(p,"#sct")[1]<60 and p.locator("#sclk").is_hidden() and p.locator("#sct").inner_text().startswith("Session 0:1"),p.locator("#sct").inner_text())
     p.click("#sct");p.clock.run_for(2000);p.wait_for_timeout(250);ok("tapping the session time starts a lap","lap" in p.locator("#sct").inner_text(),p.locator("#sct").inner_text());p.click("#sct");p.wait_for_timeout(150)
     w1=p.evaluate("()=>parseFloat(document.getElementById('cpi').style.width)||0");p.clock.run_for(10000);p.wait_for_timeout(250);w2=p.evaluate("()=>parseFloat(document.getElementById('cpi').style.width)||0")
     ok("a progress bar shows the block and grows",w1>0 and w2>w1 and w2<100,(w1,w2))

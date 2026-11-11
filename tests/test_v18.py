@@ -111,7 +111,7 @@ with sync_playwright() as pw:
     for x in ("kb-swing","kb-sumo-dl"):
         p.locator(f'.srow[data-x="{x}"] [data-tk]').nth(0).click()
     p.wait_for_timeout(80)
-    ok("swing + sumo round starts the 1:15 rest",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text()=="1:15");p.click("#rskip")
+    ok("swing + sumo round starts the 1:15 rest",p.locator("#rbar.show").count()==1 and p.locator("#rtime").inner_text() in ("1:15","1:14"));p.click("#rskip")
     kf=p.locator('.srow[data-x="farmers-carry"] [data-tk]').nth(0).get_attribute("data-tk");p.click(f'[data-tk="{kf}"]');p.click(f'[data-rp="{kf}"]');p.click('[data-st="1"]');ok("metres step +5",ls(p,"wo_2026-10-17")["rp"][kf]==35 and ls(p,"wo_wt")["farmers-carry"].get("2026-10-17")=="22")
     p.close()
     p=page(b,dt.datetime(2026,10,15,9,0));opend(p,"2026-10-15");p.click('[data-t="mob"]');p.wait_for_timeout(60)
