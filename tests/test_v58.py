@@ -57,7 +57,7 @@ with sync_playwright() as pw:
     p.click("#close");p.wait_for_timeout(300);ok("back on Today",p.locator("#home").is_visible())
     c.close();c,p=app(b,THU);p.click('#home [data-hm="else"]');p.wait_for_timeout(400)
     ok("I did something else: one tap to the short form",p.locator("#panel.open").count()==1 and p.locator("#toc .rc.on").inner_text()=="Something else" and p.locator("#r_at").count()==1 and p.locator("#fin2").is_visible())
-    c.close();c,p=app(b,"2026-11-16");ok("unplanned week home",p.locator("#home .hline").inner_text()=="Nothing planned for this week yet.")
+    c.close();c,p=app(b,"2026-11-23");ok("unplanned week home",p.locator("#home .hline").inner_text()=="Nothing planned for this week yet.")
     c.close();c,p=app(b,"2026-11-15",{"wo_log":L},hour=18);ok("the Sunday week review shows on Today",p.locator("#wrev").is_visible())
     # the clock overlay hides the tab bar
     c.close();c,p=app(b,THU);p.click('#home [data-hm="start"]');p.wait_for_timeout(300);p.locator("#sess [data-t]").first.click();p.clock.run_for(3000);p.wait_for_timeout(200)

@@ -35,7 +35,7 @@ with sync_playwright() as pw:
     ok("status: Skipped",p.locator("#date").inner_text().endswith("Skipped") and hl(p)=="Skipped today" and "Tomorrow" in p.locator("#home .hnext").inner_text());c.close()
     c,p=tabs_app(b,TUE)
     ok("rest day: friendly line, what is next, one action",p.locator("#date").inner_text().endswith("Rest day") and hl(p).startswith("Rest day") and "Rest is part of the plan" in p.locator("#home .hnote").inner_text() and p.locator("#home .hnext").inner_text().replace("\n"," ")=="NEXT Tomorrow · Hill Hunter Run · 39 min" and p.locator('#home [data-hm="open"]').inner_text()=="Open today",p.locator("#home").inner_text())
-    c.close();c,p=tabs_app(b,"2026-11-16")
+    c.close();c,p=tabs_app(b,"2026-11-23")
     ok("unplanned week: what to do, and the one useful action",p.locator("#date").inner_text().endswith("No plan yet") and "Settings, Import week" in p.locator("#home .hnote").inner_text() and p.locator('#home [data-hm="open"]').inner_text()=="Log an activity")
     ok("an empty week ring reads a dash",p.locator("#pct").inner_text()=="–");c.close()
     c,p=tabs_app(b,SUN,{"wo_log":L},hour=18)

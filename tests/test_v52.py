@@ -17,7 +17,7 @@ with sync_playwright() as pw:
     c,p=view(b,SUN,seed={"wo_log":L},hour=18,open_day=False)
     t=p.locator("#wrev").inner_text().replace("\n"," ")
     ok("Sunday evening: Your week card with the four numbers",p.locator("#wrev").is_visible() and t.startswith("YOUR WEEK 2/5 sessions 2 runs 11.4 km distance 68 min running"),t)
-    ok("what is not logged, what was skipped, next week",("Not logged: Sat Swing EMOM + Fartlek 5 km · Sun Hill Push Walk + Stretch" in t) and "Skipped: Thu" in t and "Next week: not planned yet" in t,t)
+    ok("what is not logged, what was skipped, next week",("Not logged: Sat Swing EMOM + Fartlek 5 km · Sun Hill Push Walk + Stretch" in t) and "Skipped: Thu" in t and "Next week: planned" in t,t)  # pc-v71: week 6 is built in, so w/c 16 Nov is planned
     p.click("#rev_go");p.wait_for_timeout(150);ok("Send this week to Grok opens the export",p.locator("#exs.show").count()==1 and "SUMMARY" in p.locator("#ex_t").input_value() and ls(p,"wo_lastexport")==SUN);p.click(".exx")
     p.click("#rev_x");p.wait_for_timeout(80);ok("Done hides it for this week",p.locator("#wrev").is_hidden() and ls(p,"wo_rev")==MON)
     c.close();c,p=view(b,SUN,seed={"wo_log":L},hour=9,open_day=False);ok("not shown on Sunday morning",p.locator("#wrev").is_hidden())
