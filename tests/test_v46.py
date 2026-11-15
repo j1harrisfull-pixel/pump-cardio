@@ -42,7 +42,7 @@ with sync_playwright() as pw:
     p.click("#runsave");p.wait_for_timeout(100);ok("re-saving updates the same entry and renames it",len(ls(p,"wo_log"))==1 and ls(p,"wo_log")[0]["name"]=="Mobility")
     c.close()
     # ---- unplanned future week also takes an activity ----
-    c,p=view(b,"2026-11-16")
+    c,p=view(b,"2026-11-23")
     ok("unplanned day: Add an activity available",p.locator("#addrun").count()==1 and "No plan yet" in p.locator("#sess").inner_text())
     c.close()
     # ---- skipped: 0 min, no tick ----
