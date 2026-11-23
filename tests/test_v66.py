@@ -33,9 +33,9 @@ with sync_playwright() as pw:
     # month boundary label
     c,p=tabs_app(b,"2026-11-30");p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(250);ok("the date range crosses a month",p.locator("#wlab").inner_text() in ("30 Nov to 6 Dec",),p.locator("#wlab").inner_text());c.close()
     # unplanned
-    c,p=tabs_app(b,"2026-11-23");p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300)
+    c,p=tabs_app(b,"2026-11-30");p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300)
     ok("unplanned week: one card with what to do and that any activity can be logged",p.locator(".wnp").is_visible() and "Settings on the Today screen, Import week" in p.locator(".wnp").inner_text() and "log any activity" in p.locator(".wnp").inner_text() and p.locator("#wlist .wrow").count()==7)
-    p.click('#wlist [data-d="2026-11-24"]');p.wait_for_timeout(250);ok("a day of an unplanned week can still be opened to log an activity",p.locator("#panel.open").count()==1);c.close()
+    p.click('#wlist [data-d="2026-12-01"]');p.wait_for_timeout(250);ok("a day of an unplanned week can still be opened to log an activity",p.locator("#panel.open").count()==1);c.close()
     # dark
     c,p=tabs_app(b,THU,{"wo_log":L},scheme="dark");p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300)
     col=p.evaluate("()=>[getComputedStyle(document.querySelector('.wrow .ws.ok')).color,getComputedStyle(document.querySelector('.wdots')).backgroundColor]")
