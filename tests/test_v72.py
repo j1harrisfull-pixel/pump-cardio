@@ -29,8 +29,8 @@ with sync_playwright() as pw:
     ok("upper accessories new vs weeks 5 and 6",not (acc(WK,"upe2311")-anch)&old_up,acc(WK,"upe2311"))
     ok("lower accessories new vs weeks 5 and 6",not (acc(WK,"lov2611")-anch)&old_lo,acc(WK,"lov2611"))
     J56=json.dumps([W5["sess"],W6["sess"]],ensure_ascii=False)
-    ok("formats new: density block, pickups, carry ladder, bell circuit, gentle hills, walk pickups",
-       all(x in J for x in ['"Pickups 4 × 1:30 / 2:30"','"Gentle hills 5 × 0:45 / 1:45"','"Walk pickups 5 × 2:00 / 2:00"','"Density block 8:00"','"Carry ladder"','"Press + squat bell circuit"']) and all(x not in J56 for x in ["Pickups 4 ×","Gentle hills","Walk pickups","Density block","Carry ladder","amrap"]))
+    ok("formats new: density block, tempo triples, carry ladder, bell circuit, gentle hills, walk pickups",
+       all(x in J for x in ['"Tempo 3 × 6:00 / 2:00"','"Gentle hills 5 × 0:45 / 1:45"','"Walk pickups 5 × 2:00 / 2:00"','"Density block 8:00"','"Carry ladder"','"Press + squat bell circuit"']) and all(x not in J56 for x in ["Tempo 3 ×","Gentle hills","Walk pickups","Density block","Carry ladder","amrap"]))
     ok("no EMOM this week (weeks 5 and 6 each had two)",not any(bl["k"]=="emom" and bl["h"].startswith("EMOM") for s in WK["sess"].values() for bl in s["blocks"]))
     em=lambda w,k:{x.split(" – ")[0] for bl in w["sess"][k]["blocks"] if bl["k"] in("emom","core") for x in bl["list"]}
     ok("Saturday kettlebell moves are new (press, deadlift, front-rack squat)",not (em(WK,"kbh2811")-{"Kettlebell swing"})&(em(W5,"kbb1411")|em(W6,"kbr2111"))-{"Kettlebell swing"},em(WK,"kbh2811"))
@@ -40,7 +40,7 @@ with sync_playwright() as pw:
     ok("every training day has a 'Beat this' challenge",all("Beat this" in json.dumps(WK["sess"][k],ensure_ascii=False) for k in TRAIN))
     ok("no hard effort, no paces",not re.search(r"\bhard\b|RPE [89]|min/km|km/h|\bbrisk\b|\bjog\b",json.dumps(WK,ensure_ascii=False).replace('"JOG"','')))
     ok("Wed and Fri are optional recovery days",S["mob2511"]["rest"] and S["mob2711"]["rest"])
-    ok("training sessions 35–46 min",all(35*60<=S[k]["tot"]<=46*60 for k in TRAIN),{k:S[k]["tot"] for k in TRAIN})
+    ok("training sessions 35–46 min, Tuesday tempo 47–52 min",all((47*60<=S[k]["tot"]<=52*60 if k=="fls2411" else 35*60<=S[k]["tot"]<=46*60) for k in TRAIN),{k:S[k]["tot"] for k in TRAIN})
     t=p.locator("#panel").inner_text()
     ok("Monday: stop-signs line and Beat this visible","sudden or severe headache" in t and "Beat this: more rounds" in t)
     ok("Monday density block shown with its round",all(s in t for s in ["Density block 8:00","hammer curl ×8 each side, incline push-up ×6, wall slide ×8"]),t[:1500])
@@ -52,8 +52,11 @@ with sync_playwright() as pw:
     c,p=view(b,"2026-11-28");t=p.locator("#panel").inner_text()
     ok("Saturday: bell circuit then gentle hills","Press + squat bell circuit" in t and "Gentle hills 5 × 0:45 / 1:45" in t,t[:1500])
     c.close()
-    c,p=view(b,"2026-11-24");t=p.locator("#panel").inner_text()
-    ok("Tuesday run has the Actual card and pickups","Pickups 4 × 1:30 / 2:30" in t and ("Actual" in t or "ACTUAL" in t))
+    c,p=view(b,"2026-11-24");t=p.locator("#panel").inner_text();body=p.locator("body").inner_text()
+    ok("Tuesday is Tempo Triple with Actual card and stop-signs","Tempo Triple" in body and "Tempo 3 × 6:00 / 2:00" in t and ("Actual" in t or "ACTUAL" in t) and "sudden or severe headache" in t,body[:400]+"\n---\n"+t[:2000])
+    ok("Tuesday is effort-led, with track or Assault Runner paces and a hills fallback",
+       "conversational" in t.lower() and "Assault Runner" in t and "no incline" in t and "Watch the speed display" in t and "9.8 km per hour" in t and "11.8 km per hour" in t and "6:05/km" in t and "5:05/km" in t and "curved deck feels harder" in t.lower() and "outside on hills" in t.lower(),t[:2500])
+    ok("Tuesday Beat this is same effort and distance on the last block","Beat this: hold the same effort on the last 6-min block" in t and "same or more distance" in t,t[:2500])
     ok("no page errors",errs==[],errs)
     c.close();b.close()
 raise SystemExit(done())

@@ -2,7 +2,7 @@
  "v": 1,
  "week": "2026-11-23",
  "title": "Week 7 · Density, ladders and hills",
- "notes": "Functional Bodybuilding week 7: no new export since 8 Nov, so anchors move one conservative step from the last logged sets (bench 8, split squat 8 each side; chin-up, row and RDL held at last week's targets, which still sit above the logged numbers). Accessories set C. New formats: Mon density block (AMRAP 8:00), Thu carry ladder, Sat kettlebell circuit, so no EMOM this week. Fartlek-lite pickups on Tue, gentle hills on Sat, walking pickups on Sun. No appointments 23–29 Nov.",
+ "notes": "Functional Bodybuilding week 7: no new export since 8 Nov, so anchors move one conservative step from the last logged sets (bench 8, split squat 8 each side; chin-up, row and RDL held at last week's targets, which still sit above the logged numbers). Accessories set C. New formats: Mon density block (AMRAP 8:00), Thu carry ladder, Sat kettlebell circuit, so no EMOM this week. Effort-led Tempo Triple on Tue (best on a track or the Assault Runner; hills by effort), gentle hills on Sat, walking pickups on Sun. No appointments 23–29 Nov.",
  "x": {
   "adductor-rock": [
    "Adductor rock-back (hands on bench)",
@@ -376,9 +376,9 @@
    ]
   },
   "fls2411": {
-   "name": "Lamp-Post Pickups 5K · Fartlek-Lite",
+   "name": "Tempo Triple",
    "short": "Run",
-   "safe": "Easy running with 4 gentle pickups – steady, never fast. Walk whenever needed. Easy RPE 3–4, pickups steady RPE 5–6.",
+   "safe": "Effort-led run. Easy RPE 3–4, conversational, about 4/10. Tempo moderate RPE 7, a few words only, never all-out. On hills keep the effort, let the pace drop.",
    "blocks": [
     {
      "k": "flow",
@@ -411,29 +411,39 @@
      "h": "Steady",
      "name": "Easy run",
      "note": "Easy run, RPE 3–4.",
-     "sec": 660,
+     "sec": 900,
      "phase": "JOG",
      "counter": 1,
      "small": [
-      "Chatting effort. Walk whenever needed.",
-      "Outside or on the Assault Runner."
+      "Best on a track or the Assault Runner so the paces can be hit.",
+      "Assault Runner: no incline. Watch the speed display.",
+      "Easy about 9.8 km per hour (6:05/km is a rough guide).",
+      "Conversational, about 4/10. Walk whenever needed.",
+      "Outside on hills: keep the effort, let the pace drop."
      ]
     },
     {
      "k": "iv",
-     "id": "r24pk",
+     "id": "r24tp",
      "h": "Intervals",
-     "name": "Pickups 4 × 1:30 / 2:30",
-     "note": "Each round: 1:30 work · 2:30 rest. Steady pace, RPE 5–6.",
+     "name": "Tempo 3 × 6:00 / 2:00",
+     "note": "Each round: 6:00 work · 2:00 rest. Moderate pace, RPE 7.",
      "small": [
-      "Hook: pick a lamp-post, lift gently to it, then ease off.",
-      "Beat this: pickup 4 feels as smooth as pickup 1."
+      "A few words only, breathe steadily, never all-out.",
+      "Assault Runner: no incline. Watch the speed display.",
+      "Tempo about 11.8 km per hour (5:05/km is a rough guide).",
+      "A curved deck feels harder: if the speed is too much, go by effort.",
+      "Go by effort if needed: tempo about 7/10.",
+      "Outside on hills: keep the effort, let the pace drop.",
+      "Recoveries are an easy run, RPE 3–4.",
+      "Beat this: hold the same effort on the last 6-min block.",
+      "Cover the same or more distance than the first, or finish in control."
      ],
-     "n": 4,
-     "work": 90,
-     "rest": 150,
-     "wl": "steady",
-     "rl": "ease off"
+     "n": 3,
+     "work": 360,
+     "rest": 120,
+     "wl": "moderate",
+     "rl": "easy run"
     },
     {
      "k": "tm",
@@ -441,21 +451,11 @@
      "h": "Steady",
      "name": "Easy run home",
      "note": "Easy run, RPE 3–4.",
-     "sec": 600,
+     "sec": 540,
      "phase": "JOG",
      "small": [
-      "About 5 km in all. Log the total on the Actual card."
-     ]
-    },
-    {
-     "k": "tm",
-     "id": "r24cd",
-     "h": "Cool-down",
-     "name": "Cool-down walk",
-     "note": "Easy walk, RPE 3–4.",
-     "sec": 120,
-     "phase": "COOL-DOWN",
-     "small": [
+      "About 8–10 min easy to finish. About 6 km in all.",
+      "More or less on hills. Log the total on the Actual card.",
       "Then stretch calves, hamstrings and hips."
      ]
     },
