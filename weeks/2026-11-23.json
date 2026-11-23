@@ -1,0 +1,1268 @@
+{
+ "v": 1,
+ "week": "2026-11-23",
+ "title": "Week 7 · Density, ladders and hills",
+ "notes": "Functional Bodybuilding week 7: no new export since 8 Nov, so anchors move one conservative step from the last logged sets (bench 8, split squat 8 each side; chin-up, row and RDL held at last week's targets, which still sit above the logged numbers). Accessories set C. New formats: Mon density block (AMRAP 8:00), Thu carry ladder, Sat kettlebell circuit, so no EMOM this week. Fartlek-lite pickups on Tue, gentle hills on Sat, walking pickups on Sun. No appointments 23–29 Nov.",
+ "x": {
+  "adductor-rock": [
+   "Adductor rock-back (hands on bench)",
+   "Bodyweight",
+   "",
+   0
+  ],
+  "step-up": [
+   "Step-up (low bench)",
+   "Bodyweight, add 8–10 kg each later",
+   "8–10",
+   1
+  ],
+  "hip-airplane": [
+   "Supported hip airplane",
+   "Bodyweight",
+   "",
+   0
+  ],
+  "side-lying-abd": [
+   "Side-lying hip abduction",
+   "Bodyweight",
+   "",
+   0
+  ]
+ },
+ "ht": {
+  "adductor-rock": {
+   "q": "adductor rock back mobility",
+   "u": "On hands and knees, one leg out to the side, rock the hips back.",
+   "s": [
+    "Hands on the bench, one leg out to the side.",
+    "Keep your back flat and head up.",
+    "Rock your hips back slowly until the inner thigh stretches.",
+    "Pause, then rock forward, breathing out."
+   ],
+   "c": [
+    "Back flat, hips level",
+    "Small range is fine"
+   ],
+   "m": "Rounding the back to go deeper.",
+   "z": "Never force the stretch; keep breathing and stay head-up."
+  },
+  "step-up": {
+   "q": "dumbbell step up low bench",
+   "u": "Step onto a low bench, drive through the heel of the lead leg.",
+   "s": [
+    "Stand facing a low, steady bench or step.",
+    "Place one whole foot on it.",
+    "Drive through that heel and stand tall.",
+    "Lower for 3 seconds, breathing out as you stand."
+   ],
+   "c": [
+    "Keep the knee in line with the toes",
+    "Lower slowly"
+   ],
+   "m": "Pushing off the back foot.",
+   "z": "Use a low, stable step; hold the rack if wobbly; never hold your breath."
+  },
+  "hip-airplane": {
+   "q": "supported hip airplane exercise",
+   "u": "Balance on one leg and turn the hips open and closed.",
+   "s": [
+    "Stand on one leg, one hand on the rack.",
+    "Hinge forward until your body is nearly level.",
+    "Slowly turn your hips open, then back to square.",
+    "Breathe out as you turn; stand up between sides."
+   ],
+   "c": [
+    "Small range first",
+    "Keep the standing knee soft"
+   ],
+   "m": "Rushing the turn or bending the back.",
+   "z": "Hold the rack the whole time; keep your head level with your hips, never below."
+  },
+  "side-lying-abd": {
+   "q": "side lying hip abduction glute medius",
+   "u": "Lift the top leg slowly to work the side of the hip.",
+   "s": [
+    "Lie on your side, head resting on your arm.",
+    "Top leg straight, slightly behind your body.",
+    "Lift the leg slowly, toes pointing forward.",
+    "Breathe out as you lift, lower for 1 s."
+   ],
+   "c": [
+    "Small range is fine",
+    "Hips stacked, don't roll back"
+   ],
+   "m": "Rolling the hips back to lift higher.",
+   "z": "Stop if the hip pinches; breathe throughout."
+  }
+ },
+ "hal": {
+  "Farmer's carry": "farmers-carry",
+  "Suitcase carry": "suitcase-carry",
+  "Hammer curl": "hammer-curl",
+  "Wall slide": "wall-slide",
+  "Kettlebell horn curl": "kb-curl",
+  "Kettlebell sumo deadlift": "kb-sumo-dl",
+  "Incline prone Y-raise": "prone-y-raise",
+  "Single-arm deadlift": "Single-arm kettlebell deadlift"
+ },
+ "sess": {
+  "upe2311": {
+   "name": "Upper · Density Dash",
+   "short": "Upper",
+   "safe": "Beat this: more rounds in the 8 min density block, all in control. RPE 6–7, 2 reps in reserve: breathe out on every rep, no grinding.",
+   "blocks": [
+    {
+     "k": "flow",
+     "id": "u23wu",
+     "h": "Warm-up",
+     "name": "Shoulder prep – upper",
+     "note": "No forcing.",
+     "moves": [
+      [
+       "Wrist CARs – each side",
+       40
+      ],
+      [
+       "Shoulder CARs – each side",
+       60
+      ],
+      [
+       "Wall slides",
+       40
+      ],
+      [
+       "Thoracic open book – each side",
+       60
+      ]
+     ],
+     "phase": "WARM-UP"
+    },
+    {
+     "k": "ex",
+     "h": "A · Superset",
+     "mode": "sup",
+     "n": 4,
+     "rr": [
+      75,
+      105
+     ],
+     "unit": "Round",
+     "tid": "u23a",
+     "items": [
+      {
+       "x": "db-bench",
+       "lab": "A1",
+       "rp": 8,
+       "tp": "3110",
+       "cue": "Anchor. 20 kg each hand, 8 reps (last log 6/6/6/6, 6 Nov; week 6 asked 7). Last week's 7s all clean? Go for 8. Messy? Stay on 7."
+      },
+      {
+       "x": "dip-hold",
+       "lab": "A2",
+       "rp": 20,
+       "ru": "s",
+       "sw": 15,
+       "cue": "Filler: arms straight on the bars, shoulders away from ears, breathe normally."
+      }
+     ]
+    },
+    {
+     "k": "ex",
+     "h": "B · Superset",
+     "mode": "sup",
+     "n": 3,
+     "rr": [
+      60,
+      90
+     ],
+     "unit": "Round",
+     "tid": "u23b",
+     "items": [
+      {
+       "x": "assisted-chinup",
+       "lab": "B1",
+       "rp": 8,
+       "tp": "3011",
+       "cue": "Anchor. 8 reps (last log 7), same help from the block as last week. All three sets clean? Use a little less help."
+      },
+      {
+       "x": "incline-db-press",
+       "lab": "B2",
+       "rp": 10,
+       "tp": "2011",
+       "sw": 15,
+       "cue": "New this week: bench at about 30°, about 14 kg each hand. Elbows 45° from your sides."
+      }
+     ]
+    },
+    {
+     "k": "ex",
+     "h": "C · Superset",
+     "mode": "sup",
+     "n": 3,
+     "rr": [
+      45,
+      75
+     ],
+     "unit": "Round",
+     "tid": "u23c",
+     "items": [
+      {
+       "x": "cs-row",
+       "lab": "C1",
+       "rp": 8,
+       "tp": "2111",
+       "cue": "Anchor. 20 kg each hand, 8 reps (last log 10 at 17.5 kg). If 20 kg is too much: 17.5 kg × 12."
+      },
+      {
+       "x": "lateral-raise",
+       "lab": "C2",
+       "rp": 12,
+       "tp": "2011",
+       "sw": 15,
+       "cue": "New this week: 4–6 kg each hand, lead with the elbows, stop at shoulder height."
+      }
+     ]
+    },
+    {
+     "k": "timer",
+     "id": "u23dn",
+     "h": "Steady",
+     "name": "Density block 8:00",
+     "amrap": 1,
+     "note": "Steady pace, RPE 5–6.",
+     "small": [
+      "Round: hammer curl ×8 each side, incline push-up ×6, wall slide ×8.",
+      "8 min, as many smooth rounds as you can. Tap +1 round each time.",
+      "Beat this: your score is the rounds. Next time, one more."
+     ],
+     "segs": [
+      [
+       "WORK",
+       480,
+       "Density block"
+      ]
+     ],
+     "list": [
+      "Hammer curl – ×8 each side",
+      "Incline push-up – ×6",
+      "Wall slide – ×8"
+     ]
+    },
+    {
+     "k": "flow",
+     "id": "u23cd",
+     "h": "Cool-down",
+     "name": "Active stretch – upper",
+     "note": "Breathe out into each stretch.",
+     "moves": [
+      [
+       "Doorway/rack chest stretch – each side",
+       60
+      ],
+      [
+       "Seated lat reach at bench – each side",
+       60
+      ]
+     ]
+    }
+   ]
+  },
+  "bk2311": {
+   "name": "Backup · Upper (16 kg KB + Bench) 4",
+   "short": "Upper",
+   "g0": 100,
+   "safe": "Less kit: the 16 kg kettlebell, bench and bars. RPE 6–7, breathe out on every press and pull, stop 2 reps short (2 RIR).",
+   "blocks": [
+    {
+     "k": "flow",
+     "id": "y23wu",
+     "h": "Warm-up",
+     "name": "Shoulder prep – upper",
+     "note": "No forcing.",
+     "moves": [
+      [
+       "Shoulder CARs – each side",
+       60
+      ],
+      [
+       "Wall slides",
+       40
+      ],
+      [
+       "Cat-cow, slow",
+       40
+      ]
+     ],
+     "phase": "WARM-UP"
+    },
+    {
+     "k": "ex",
+     "h": "A · Superset",
+     "mode": "sup",
+     "n": 3,
+     "rr": [
+      60,
+      90
+     ],
+     "unit": "Round",
+     "tid": "y23a",
+     "items": [
+      {
+       "x": "kb-floor-press",
+       "lab": "A1",
+       "rp": 8,
+       "side": 1,
+       "tp": "3010",
+       "cue": "16 kg bell. All left, then all right."
+      },
+      {
+       "x": "kb-sa-row",
+       "lab": "A2",
+       "rp": 8,
+       "side": 1,
+       "tp": "2011",
+       "sw": 15,
+       "cue": "16 kg bell, hand on the bench. All left, then all right."
+      }
+     ]
+    },
+    {
+     "k": "ex",
+     "h": "B · Superset",
+     "mode": "sup",
+     "n": 2,
+     "rr": [
+      45,
+      75
+     ],
+     "unit": "Round",
+     "tid": "y23b",
+     "items": [
+      {
+       "x": "incline-pushup",
+       "lab": "B1",
+       "rp": 10,
+       "tp": "2010",
+       "cue": "Hands on the bench, body straight."
+      },
+      {
+       "x": "assisted-chinup",
+       "lab": "B2",
+       "rp": 6,
+       "tp": "3010",
+       "sw": 15,
+       "cue": "Easier than Monday: 6 reps, feet on the block."
+      }
+     ]
+    },
+    {
+     "k": "flow",
+     "id": "y23cd",
+     "h": "Cool-down",
+     "name": "Active stretch – upper",
+     "note": "Breathe out into each stretch.",
+     "moves": [
+      [
+       "Doorway/rack chest stretch – each side",
+       60
+      ],
+      [
+       "Thoracic open book – each side",
+       60
+      ]
+     ]
+    }
+   ]
+  },
+  "fls2411": {
+   "name": "Lamp-Post Pickups 5K · Fartlek-Lite",
+   "short": "Run",
+   "safe": "Easy running with 4 gentle pickups – steady, never fast. Walk whenever needed. Easy RPE 3–4, pickups steady RPE 5–6.",
+   "blocks": [
+    {
+     "k": "flow",
+     "id": "r24wu",
+     "h": "Warm-up",
+     "name": "Dynamic stretch – run",
+     "moves": [
+      [
+       "Leg swings – front to back",
+       40
+      ],
+      [
+       "Leg swings – side to side",
+       40
+      ],
+      [
+       "Ankle rocks – each side",
+       60
+      ],
+      [
+       "Hip CARs (standing, hold rack) – each side",
+       60
+      ]
+     ],
+     "phase": "WARM-UP"
+    },
+    {
+     "k": "tm",
+     "id": "r24e",
+     "h": "Steady",
+     "name": "Easy run",
+     "note": "Easy run, RPE 3–4.",
+     "sec": 660,
+     "phase": "JOG",
+     "counter": 1,
+     "small": [
+      "Chatting effort. Walk whenever needed.",
+      "Outside or on the Assault Runner."
+     ]
+    },
+    {
+     "k": "iv",
+     "id": "r24pk",
+     "h": "Intervals",
+     "name": "Pickups 4 × 1:30 / 2:30",
+     "note": "Each round: 1:30 work · 2:30 rest. Steady pace, RPE 5–6.",
+     "small": [
+      "Hook: pick a lamp-post, lift gently to it, then ease off.",
+      "Beat this: pickup 4 feels as smooth as pickup 1."
+     ],
+     "n": 4,
+     "work": 90,
+     "rest": 150,
+     "wl": "steady",
+     "rl": "ease off"
+    },
+    {
+     "k": "tm",
+     "id": "r24h",
+     "h": "Steady",
+     "name": "Easy run home",
+     "note": "Easy run, RPE 3–4.",
+     "sec": 600,
+     "phase": "JOG",
+     "small": [
+      "About 5 km in all. Log the total on the Actual card."
+     ]
+    },
+    {
+     "k": "tm",
+     "id": "r24cd",
+     "h": "Cool-down",
+     "name": "Cool-down walk",
+     "note": "Easy walk, RPE 3–4.",
+     "sec": 120,
+     "phase": "COOL-DOWN",
+     "small": [
+      "Then stretch calves, hamstrings and hips."
+     ]
+    },
+    {
+     "k": "fields"
+    }
+   ]
+  },
+  "bk2411": {
+   "name": "Backup · Zone 2 Row 20 (Tue)",
+   "short": "Row",
+   "g0": 100,
+   "safe": "No running. Zone 2 row with nasal breathing, then gentle stretches. Steady pace, RPE 5–6.",
+   "blocks": [
+    {
+     "k": "tm",
+     "id": "y24row",
+     "h": "Steady",
+     "name": "Zone 2 row",
+     "note": "Steady pace, Zone 2, RPE 5–6.",
+     "sec": 1200,
+     "phase": "STEADY",
+     "small": "20:00 at 18–20 s/m · damper 4–5."
+    },
+    {
+     "k": "flow",
+     "id": "y24st",
+     "h": "Cool-down",
+     "name": "Stretch",
+     "note": "Gentle, no forcing.",
+     "moves": [
+      [
+       "Couch stretch – each side",
+       60
+      ],
+      [
+       "Thoracic open book – each side",
+       60
+      ],
+      [
+       "Slow breathing lying on back",
+       90
+      ]
+     ],
+     "phase": "MOBILITY"
+    },
+    {
+     "k": "fields",
+     "dist": "Distance (m, from PM5)"
+    }
+   ]
+  },
+  "mob2511": {
+   "name": "Recovery · Shoulders + Spine Unwind",
+   "short": "Mobility",
+   "rest": 1,
+   "safe": "Recovery day. Slow controlled moves and gentle holds – no head-down positions, no forcing, breathe slowly.",
+   "blocks": [
+    {
+     "k": "rest",
+     "name": "Recovery day",
+     "note": "Rest, or do the optional 12-min flow. Hook: put a podcast on and do it on the living room floor."
+    },
+    {
+     "k": "flow",
+     "id": "m25",
+     "h": "Flow",
+     "name": "Shoulders + spine unwind",
+     "note": "New flow. 10 s set-up only on position changes.",
+     "moves": [
+      [
+       "Shoulder CARs – each side",
+       60
+      ],
+      [
+       "Wall slides",
+       50
+      ],
+      [
+       "Cat-cow, slow",
+       60
+      ],
+      [
+       "Thoracic open book – each side",
+       80
+      ],
+      [
+       "Side-lying windmill – each side",
+       80
+      ],
+      [
+       "Doorway/rack chest stretch – each side",
+       60
+      ],
+      [
+       "Slow breathing lying on back",
+       150
+      ]
+     ],
+     "phase": "MOBILITY"
+    }
+   ]
+  },
+  "bk2511": {
+   "name": "Backup · Easy Walk 15 (Wed)",
+   "short": "Walk",
+   "g0": 100,
+   "safe": "Only if you feel like moving. Zone 1 walk, nasal breathing. Easy pace, RPE 3–4.",
+   "blocks": [
+    {
+     "k": "tm",
+     "id": "y25walk",
+     "h": "Steady",
+     "name": "Recovery walk (Zone 1)",
+     "note": "Easy walk, RPE 3–4.",
+     "sec": 900,
+     "phase": "EASY",
+     "small": "Outside if you can."
+    }
+   ]
+  },
+  "lov2611": {
+   "name": "Lower · Step-Up Staircase",
+   "short": "Lower",
+   "safe": "Beat this: finish rung 4 of the carry ladder with 30 s spare. No heavy spinal loading. RPE 6–7, breathe out on the effort, 2 reps in reserve.",
+   "blocks": [
+    {
+     "k": "flow",
+     "id": "l26wu",
+     "h": "Warm-up",
+     "name": "Hip prep – lower",
+     "note": "No forcing.",
+     "moves": [
+      [
+       "Ankle rocks – each side",
+       60
+      ],
+      [
+       "Bodyweight squat, slow",
+       40
+      ],
+      [
+       "Glute bridge, slow",
+       40
+      ],
+      [
+       "90/90 hold – each side",
+       50
+      ]
+     ],
+     "phase": "WARM-UP"
+    },
+    {
+     "k": "ex",
+     "h": "A · Superset",
+     "mode": "sup",
+     "n": 3,
+     "rr": [
+      60,
+      90
+     ],
+     "unit": "Round",
+     "tid": "l26a",
+     "items": [
+      {
+       "x": "rfess",
+       "lab": "A1",
+       "rp": 8,
+       "side": 1,
+       "tp": "3110",
+       "cue": "Anchor. 10 kg as last logged, 8 each side (last log 6, 23 Oct; week 6 asked 7). Last week's 7s clean? Do 8. Messy? Stay on 7. All left, then all right."
+      },
+      {
+       "x": "adductor-rock",
+       "lab": "A2",
+       "rp": 8,
+       "side": 1,
+       "tp": "2020",
+       "sw": 15,
+       "cue": "New this week: opens the inner thigh. Rock back slowly, back flat, no forcing."
+      }
+     ]
+    },
+    {
+     "k": "ex",
+     "h": "B · Superset",
+     "mode": "sup",
+     "n": 3,
+     "rr": [
+      60,
+      90
+     ],
+     "unit": "Round",
+     "tid": "l26b",
+     "items": [
+      {
+       "x": "db-rdl",
+       "lab": "B1",
+       "rp": 10,
+       "tp": "3111",
+       "cue": "Anchor. 17.5 kg as last logged, 10 reps (last log 8, 23 Oct). Head above hips, breathe out as you stand."
+      },
+      {
+       "x": "step-up",
+       "lab": "B2",
+       "rp": 8,
+       "side": 1,
+       "tp": "2010",
+       "sw": 15,
+       "cue": "New this week: low bench, no weight to start. Drive through the heel, lower for 3 s. All left, then all right."
+      }
+     ]
+    },
+    {
+     "k": "ex",
+     "h": "C · Superset",
+     "mode": "sup",
+     "n": 2,
+     "rr": [
+      45,
+      75
+     ],
+     "unit": "Round",
+     "tid": "l26c",
+     "items": [
+      {
+       "x": "hip-airplane",
+       "lab": "C1",
+       "rp": 5,
+       "side": 1,
+       "tp": "2020",
+       "cue": "New this week: hold the rack, hinge on one leg and turn the hips slowly open and closed. All left, then all right."
+      },
+      {
+       "x": "side-lying-abd",
+       "lab": "C2",
+       "rp": 12,
+       "side": 1,
+       "tp": "2011",
+       "sw": 15,
+       "cue": "New this week: lie on your side, top leg straight and slightly back, lift slowly. All left, then all right."
+      }
+     ]
+    },
+    {
+     "k": "emom",
+     "id": "l26lad",
+     "h": "Every 2:00 × 4",
+     "name": "Carry ladder",
+     "note": "Each round: one rung, a bit longer each time.",
+     "rounds": 1,
+     "win": 120,
+     "cycle": [
+      "Farmer's carry 20 m + kettlebell sumo deadlift ×4",
+      "Farmer's carry 30 m + kettlebell sumo deadlift ×6",
+      "Farmer's carry 40 m + kettlebell sumo deadlift ×8",
+      "Farmer's carry 50 m + kettlebell sumo deadlift ×10"
+     ],
+     "list": [
+      "Farmer's carry – 20 → 50 m",
+      "Kettlebell sumo deadlift – ×4 → ×10"
+     ],
+     "small": [
+      "Farmer's carry with dumbbells, sumo deadlift with the 16 kg bell.",
+      "Steady pace, RPE 5–6. Rest for what's left of each 2:00.",
+      "Beat this: 30 s spare at the end of rung 4."
+     ]
+    },
+    {
+     "k": "flow",
+     "id": "l26cd",
+     "h": "Cool-down",
+     "name": "Active stretch – lower",
+     "note": "Breathe out into each stretch.",
+     "moves": [
+      [
+       "Couch stretch – each side",
+       60
+      ],
+      [
+       "Lying figure-4 stretch – each side",
+       60
+      ]
+     ]
+    }
+   ]
+  },
+  "bk2611": {
+   "name": "Backup · Lower + Pull (Light) 4",
+   "short": "Lower",
+   "g0": 100,
+   "safe": "Lower energy, light loads, no spinal loading. RPE 6, breathe out on the effort, hold the rack for balance.",
+   "blocks": [
+    {
+     "k": "flow",
+     "id": "y26wu",
+     "h": "Warm-up",
+     "name": "Hip prep – lower",
+     "note": "No forcing.",
+     "moves": [
+      [
+       "Ankle rocks – each side",
+       60
+      ],
+      [
+       "Bodyweight squat, slow",
+       40
+      ],
+      [
+       "Glute bridge, slow",
+       40
+      ]
+     ],
+     "phase": "WARM-UP"
+    },
+    {
+     "k": "ex",
+     "h": "A · Superset",
+     "mode": "sup",
+     "n": 3,
+     "rr": [
+      60,
+      90
+     ],
+     "unit": "Round",
+     "tid": "y26a",
+     "items": [
+      {
+       "x": "goblet-squat",
+       "lab": "A1",
+       "rp": 8,
+       "tp": "3011",
+       "cue": "16 kg bell at your chest, 3 s down."
+      },
+      {
+       "x": "kb-sa-row",
+       "lab": "A2",
+       "rp": 8,
+       "side": 1,
+       "tp": "2011",
+       "sw": 15,
+       "cue": "16 kg bell, hand on bench. All left, then all right."
+      }
+     ]
+    },
+    {
+     "k": "ex",
+     "h": "B · Superset",
+     "mode": "sup",
+     "n": 2,
+     "rr": [
+      45,
+      75
+     ],
+     "unit": "Round",
+     "tid": "y26b",
+     "items": [
+      {
+       "x": "glute-bridge",
+       "lab": "B1",
+       "rp": 12,
+       "tp": "2011",
+       "cue": "On the floor, squeeze at the top."
+      },
+      {
+       "x": "suitcase-carry",
+       "lab": "B2",
+       "rp": 30,
+       "ru": "m",
+       "sw": 15,
+       "cue": "16 kg bell, switch hands at 30 m."
+      }
+     ]
+    },
+    {
+     "k": "flow",
+     "id": "y26cd",
+     "h": "Cool-down",
+     "name": "Active stretch – lower",
+     "note": "Breathe out into each stretch.",
+     "moves": [
+      [
+       "Couch stretch – each side",
+       60
+      ],
+      [
+       "Lying figure-4 stretch – each side",
+       60
+      ]
+     ]
+    }
+   ]
+  },
+  "mob2711": {
+   "name": "Recovery · Legs + Spine Reset",
+   "short": "Mobility",
+   "rest": 1,
+   "safe": "Recovery day. Slow controlled moves and gentle holds – no head-down positions, no forcing, breathe slowly.",
+   "blocks": [
+    {
+     "k": "rest",
+     "name": "Recovery day",
+     "note": "Rest, or do the optional 12-min flow. Fresh legs for Saturday's bell + hills."
+    },
+    {
+     "k": "flow",
+     "id": "m27",
+     "h": "Flow",
+     "name": "Legs + spine reset",
+     "note": "New flow. 10 s set-up only on position changes.",
+     "moves": [
+      [
+       "Ankle CARs – each side",
+       40
+      ],
+      [
+       "Hip CARs (standing, hold rack) – each side",
+       70
+      ],
+      [
+       "World's greatest stretch – each side",
+       70
+      ],
+      [
+       "Half-kneeling hip flexor with reach – each side",
+       70
+      ],
+      [
+       "Cat-cow, slow",
+       50
+      ],
+      [
+       "90/90 hold – each side",
+       70
+      ],
+      [
+       "Calf stretch on block – each side",
+       60
+      ],
+      [
+       "Slow breathing lying on back",
+       150
+      ]
+     ],
+     "phase": "MOBILITY"
+    }
+   ]
+  },
+  "bk2711": {
+   "name": "Backup · Easy Row 12 (Fri 27)",
+   "short": "Row",
+   "g0": 100,
+   "safe": "Recovery day. Very light rowing, nasal breathing. Easy pace, RPE 3–4.",
+   "blocks": [
+    {
+     "k": "tm",
+     "id": "y27row",
+     "h": "Steady",
+     "name": "Easy row",
+     "note": "Easy pace, RPE 3–4.",
+     "sec": 720,
+     "phase": "EASY",
+     "small": "12:00 at 18–20 s/m · damper 3–4."
+    },
+    {
+     "k": "flow",
+     "id": "y27br",
+     "h": "Cool-down",
+     "name": "Down-regulate",
+     "note": "Slow, calm breathing.",
+     "moves": [
+      [
+       "Calf stretch on block – each side",
+       60
+      ],
+      [
+       "Slow breathing lying on back",
+       90
+      ]
+     ],
+     "phase": "MOBILITY"
+    }
+   ]
+  },
+  "kbh2811": {
+   "name": "Bell Circuit + Gentle Hills 5K",
+   "short": "KB",
+   "safe": "One 16 kg kettlebell. Breathe out on every rep, 2 RIR, RPE 6–7. Beat this: more swings across the 2 rounds.",
+   "blocks": [
+    {
+     "k": "flow",
+     "id": "k28wu",
+     "h": "Warm-up",
+     "name": "Kettlebell warm-up",
+     "note": "Slow and smooth with the 16 kg bell.",
+     "moves": [
+      [
+       "Kettlebell halo, slow, alternate direction",
+       40
+      ],
+      [
+       "Kettlebell hip hinge drill",
+       40
+      ],
+      [
+       "Prying goblet squat",
+       50
+      ],
+      [
+       "World's greatest stretch – each side",
+       60
+      ]
+     ],
+     "phase": "WARM-UP"
+    },
+    {
+     "k": "core",
+     "id": "k28ci",
+     "h": "Circuit × 2",
+     "name": "Press + squat bell circuit",
+     "note": "Each round: 30 s per move · 45 s rest.",
+     "small": [
+      "Sides cued. Steady pace, RPE 5–6. All with the 16 kg bell.",
+      "Beat this: total swings over 2 rounds → Notes."
+     ],
+     "rounds": 2,
+     "moves": [
+      [
+       "Single-arm press",
+       30,
+       10,
+       1
+      ],
+      [
+       "Single-arm deadlift",
+       30,
+       10,
+       1
+      ],
+      [
+       "Front-rack squat",
+       30,
+       10,
+       1
+      ],
+      [
+       "Kettlebell swing",
+       30,
+       10,
+       0
+      ]
+     ],
+     "rest": 45,
+     "list": [
+      "Single-arm press – 30 s each side",
+      "Single-arm deadlift – 30 s each side",
+      "Front-rack squat – 30 s each side",
+      "Kettlebell swing – 30 s"
+     ]
+    },
+    {
+     "k": "tm",
+     "id": "k28a",
+     "h": "Steady",
+     "name": "Easy run out",
+     "note": "Easy run, RPE 3–4.",
+     "sec": 540,
+     "phase": "JOG",
+     "counter": 1,
+     "small": [
+      "Outside, towards your gentlest hill or slope. Walk whenever needed."
+     ]
+    },
+    {
+     "k": "iv",
+     "id": "k28hl",
+     "h": "Intervals",
+     "name": "Gentle hills 5 × 0:45 / 1:45",
+     "note": "Each round: 0:45 work · 1:45 rest. Steady pace, RPE 5–6.",
+     "small": [
+      "Short, smooth and in control – shorten your stride, never sprint.",
+      "Beat this: hill 5 feels as smooth as hill 1."
+     ],
+     "n": 5,
+     "work": 45,
+     "rest": 105,
+     "wl": "steady",
+     "rl": "walk down"
+    },
+    {
+     "k": "tm",
+     "id": "k28c",
+     "h": "Steady",
+     "name": "Easy run home",
+     "note": "Easy run, RPE 3–4.",
+     "sec": 540,
+     "phase": "JOG",
+     "small": [
+      "About 5 km in all. Log the total on the Actual card."
+     ]
+    },
+    {
+     "k": "flow",
+     "id": "k28cd",
+     "h": "Cool-down",
+     "name": "Active stretch",
+     "note": "Breathe out into each stretch.",
+     "moves": [
+      [
+       "Couch stretch – each side",
+       60
+      ],
+      [
+       "Calf stretch on block – each side",
+       60
+      ],
+      [
+       "Half-kneeling hip flexor with reach – each side",
+       60
+      ]
+     ]
+    }
+   ]
+  },
+  "bk2811": {
+   "name": "Backup · Easy 5 km Run Only (Sat)",
+   "short": "Run",
+   "g0": 100,
+   "safe": "No kettlebell today: just the easy 5 km. Walk whenever needed. Easy pace, RPE 3–4.",
+   "blocks": [
+    {
+     "k": "tm",
+     "id": "y28run",
+     "h": "Steady",
+     "name": "Easy run 5 km",
+     "note": "Easy run, RPE 3–4.",
+     "sec": 1800,
+     "phase": "JOG",
+     "counter": 1,
+     "small": "1:00 walk break whenever needed: tap +1 walk break."
+    },
+    {
+     "k": "flow",
+     "id": "y28cd",
+     "h": "Cool-down",
+     "name": "Active stretch",
+     "note": "Breathe out into each stretch.",
+     "moves": [
+      [
+       "Couch stretch – each side",
+       60
+      ],
+      [
+       "Calf stretch on block – each side",
+       60
+      ]
+     ]
+    },
+    {
+     "k": "fields"
+    }
+   ]
+  },
+  "wlk2911": {
+   "name": "Landmark Walk + Hip Reset",
+   "short": "Walk",
+   "safe": "Recovery walk to arrive fresh on Monday. Nasal breathing, gentle holds after – no forcing. Easy pace RPE 3–4, pickups steady RPE 5–6.",
+   "blocks": [
+    {
+     "k": "tm",
+     "id": "w29o",
+     "h": "Steady",
+     "name": "Easy walk out",
+     "note": "Easy walk, Zone 1–2, RPE 3–4.",
+     "sec": 600,
+     "phase": "EASY",
+     "small": [
+      "Hook: phone in your pocket, pick a landmark you've never walked to."
+     ]
+    },
+    {
+     "k": "iv",
+     "id": "w29pk",
+     "h": "Intervals",
+     "name": "Walk pickups 5 × 2:00 / 2:00",
+     "note": "Each round: 2:00 work · 2:00 rest. Steady pace, RPE 5–6.",
+     "small": [
+      "Long relaxed strides, arms swinging – still able to talk.",
+      "Beat this: all 5 pickups while still able to chat in full sentences."
+     ],
+     "n": 5,
+     "work": 120,
+     "rest": 120,
+     "wl": "steady",
+     "rl": "stroll"
+    },
+    {
+     "k": "tm",
+     "id": "w29h",
+     "h": "Steady",
+     "name": "Easy walk home",
+     "note": "Easy walk, Zone 1–2, RPE 3–4.",
+     "sec": 600,
+     "phase": "EASY",
+     "small": [
+      "Log the total distance on the Actual card."
+     ]
+    },
+    {
+     "k": "flow",
+     "id": "w29st",
+     "h": "Cool-down",
+     "name": "Hip reset",
+     "note": "Breathe out into each stretch.",
+     "moves": [
+      [
+       "Calf stretch on block – each side",
+       60
+      ],
+      [
+       "Half-kneeling hip flexor with reach – each side",
+       60
+      ],
+      [
+       "Couch stretch – each side",
+       60
+      ],
+      [
+       "Slow breathing lying on back",
+       90
+      ]
+     ],
+     "phase": "MOBILITY"
+    },
+    {
+     "k": "fields"
+    }
+   ]
+  },
+  "bk2911": {
+   "name": "Backup · Easy Walk + Stretch 4",
+   "short": "Walk",
+   "g0": 100,
+   "safe": "Lowest energy option. Easy walk, then gentle holds – no forcing, no head-down positions. Easy pace, RPE 3–4.",
+   "blocks": [
+    {
+     "k": "tm",
+     "id": "y29walk",
+     "h": "Steady",
+     "name": "Easy walk (Zone 1)",
+     "note": "Easy walk, RPE 3–4.",
+     "sec": 900,
+     "phase": "EASY"
+    },
+    {
+     "k": "flow",
+     "id": "y29fl",
+     "h": "Flow",
+     "name": "Gentle stretch",
+     "note": "Gentle holds, no forcing.",
+     "moves": [
+      [
+       "Doorway/rack chest stretch – each side",
+       80
+      ],
+      [
+       "Couch stretch – each side",
+       80
+      ],
+      [
+       "Slow breathing lying on back",
+       120
+      ]
+     ],
+     "phase": "MOBILITY"
+    }
+   ]
+  }
+ },
+ "days": {
+  "2026-11-23": {
+   "main": "upe2311",
+   "backup": "bk2311"
+  },
+  "2026-11-24": {
+   "main": "fls2411",
+   "backup": "bk2411"
+  },
+  "2026-11-25": {
+   "main": "mob2511",
+   "backup": "bk2511"
+  },
+  "2026-11-26": {
+   "main": "lov2611",
+   "backup": "bk2611"
+  },
+  "2026-11-27": {
+   "main": "mob2711",
+   "backup": "bk2711"
+  },
+  "2026-11-28": {
+   "main": "kbh2811",
+   "backup": "bk2811"
+  },
+  "2026-11-29": {
+   "main": "wlk2911",
+   "backup": "bk2911"
+  }
+ }
+}
