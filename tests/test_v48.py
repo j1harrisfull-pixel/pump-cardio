@@ -50,7 +50,7 @@ with sync_playwright() as pw:
     T=lambda v:p.evaluate("v=>{var i=document.getElementById('r_t');i.value=v;i.dispatchEvent(new Event('change',{bubbles:true}));return i.value}",v)
     ok("29.40 → 29:40, 29.5 → 29:30, 2940 → 29:40, 29:40 kept",[T("29.40"),T("29.5"),T("2940"),T("29:40")]==["29:40","29:30","29:40","29:40"],[T("29.40"),T("29.5"),T("2940"),T("29:40")])
     ok("placeholder shows the three ways",p.get_attribute("#r_t","placeholder")=="29:40 · 29.40 · 2940")
-    c.close();c,p=view(b,"2026-11-23",open_day=False)
+    c.close();c,p=view(b,"2026-11-30",open_day=False)
     ok("unplanned week: hint says so and offers logging",p.locator("#hint").inner_text().startswith("Nothing planned for this week yet"))
     c.close();c,p=view(b,"2026-11-10",open_day=False);ok("planned week: normal hint",p.locator("#hint").inner_text()=="Tap a day to see its workout")
     ok("no page errors",not errs,errs);c.close();b.close()
