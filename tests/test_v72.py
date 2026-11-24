@@ -55,7 +55,7 @@ with sync_playwright() as pw:
     c,p=view(b,"2026-11-24");t=p.locator("#panel").inner_text();body=p.locator("body").inner_text()
     ok("Tuesday is Tempo Triple with Actual card and stop-signs","Tempo Triple" in body and "Tempo 3 × 6:00 / 2:00" in t and ("Actual" in t or "ACTUAL" in t) and "sudden or severe headache" in t,body[:400]+"\n---\n"+t[:2000])
     ok("Tuesday is effort-led, with track or Assault Runner paces and a hills fallback",
-       "conversational" in t.lower() and "Assault Runner" in t and "no incline" in t and "Watch the speed display" in t and "9.8 km per hour" in t and "11.8 km per hour" in t and "6:05/km" in t and "5:05/km" in t and "curved deck feels harder" in t.lower() and "outside on hills" in t.lower(),t[:2500])
+       "conversational" in t.lower() and "Assault Runner" in t and "no incline" in t and "Watch the speed display" in t and "9.5–9.8 km per hour" in t and "6:10–6:20 per km" in t and "11.8 km per hour" in t and "5:05 per km" in t and "curved deck feels harder" in t.lower() and "outside on hills" in t.lower(),t[:2500])
     ok("Tuesday Beat this is same effort and distance on the last block","Beat this: hold the same effort on the last 6-min block" in t and "same or more distance" in t,t[:2500])
     ok("no page errors",errs==[],errs)
     c.close();b.close()
