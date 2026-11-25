@@ -917,16 +917,21 @@ h+='<button class="day '+md+(k==today?" today":"")+(isOpen&&k==sel?" sel":"")+(e
 $("week").innerHTML=h;wlist(m);$("week").classList.toggle("editing",editing);$("prev").disabled=m<=SD;swUI();$("wlab").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":pd(m).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 var none=weekOff>=0&&[0,1,2,3,4,5,6].every(function(i){var k=addDays(m,i);return sid(k)=="tbc";});$("hint").classList.toggle("np",!!none);if(TABS){$("wlab").textContent=wrange(m);var eh=$("ehint");if(eh)eh.hidden=!editing;}$("hint").textContent=none?"Nothing planned for this week yet. Health & Fitness adds the week file; you can still log any activity on a day.":"Tap a day to see its workout";}
 function wrange(m){var A0=pd(m),B0=pd(addDays(m,6)),mo=function(d){return d.toLocaleDateString("en-GB",{month:"short"});};return A0.getDate()+(mo(A0)!=mo(B0)?" "+mo(A0):"")+" to "+B0.getDate()+" "+mo(B0);}
+// pc-v76: the week row says what was done (TrainingPeaks / Garmin style): "Run · 5.1 km", "Mobility · 20 min", "+1" for more
+var ACTS={run:"Run",walk:"Walk",row:"Row",gym:"Gym",mob:"Mobility",other:"Other"};
+function kmS(v){var x=parseFloat(v);return x>0?(Math.round(x*10)/10)+" km":"";}
+function actFig(e){var a=e.act||"run",f=ACTD[a]?kmS(e.km):"";if(!f&&+e.min>0)f=e.min+" min";return (ACTS[a]||"Activity")+(f?" · "+f:"");}
+function dayActs(k){return logs().filter(function(e){return e&&e.date==k&&e.type=="extra";});}
 function wlist(m){var el=$("wlist");if(!el||!TABS)return;var h="",dots="",none=weekOff>=0&&[0,1,2,3,4,5,6].every(function(i){return sid(addDays(m,i))=="tbc";});
  for(var i=0;i<7;i++){var k=addDays(m,i),md=mode(k),d=pd(k),dl=d.toLocaleDateString("en-GB",{weekday:"short"});
   if(md=="pre"){dots+='<span class="wd1 rest"><i></i><b>'+dl.charAt(0)+'</b></span>';continue;}
   var S=S_(k),lg=S&&!S.rest?logFor(k,S.name):null,sl=lg&&lg.sub?lg:null,sk=lg&&lg.oc=="skipped"&&!lg.sub,xi=extraFor(k),planned=!!(S&&!S.rest&&!S.tbc);
-  var st=lg?(sk?"Skipped":"✓ Done"):xi>=0?"✓ Extra":k==today?"Today":md=="past"&&planned?"Not logged":"",cl=lg&&!sk||xi>=0?"ok":sk?"sk":st=="Today"?"td":st?"nl":"";
+  var xs=dayActs(k),nx=xs.length+(lg&&!sk?1:0),st=lg?(sk?"Skipped":"✓ Done"):xs.length?"✓ "+actFig(xs[xs.length-1]):k==today?"Today":md=="past"&&planned?"Not logged":"";if(st&&nx>1&&st.charAt(0)=="✓")st+=" +"+(nx-1);var cl=lg&&!sk||xi>=0?"ok":sk?"sk":st=="Today"?"td":st?"nl":"";
   var mv=srcOf(k)!=k?" · ⇄ moved from "+sdl(srcOf(k)).split(" ")[0]:"",sm="";
-  if(sl)sm='<small>'+(sl.min?sl.min+' min · ':'')+'instead of '+esc(sl.plan||S.name)+'</small>';else if(lg&&!sk)sm='<small>'+(lg.min?lg.min+' min':'logged')+mv+'</small>';else if(planned&&S.tot>0)sm='<small>'+(S.est?"≈ ":"")+Math.round(S.tot/60)+' min'+mv+'</small>';else if(mv)sm='<small>'+mv.slice(3)+'</small>';
+  var lkm=lg&&!sk?kmS(lg.km):"";if(sl)sm='<small>'+(sl.min?sl.min+' min · ':'')+'instead of '+esc(sl.plan||S.name)+'</small>';else if(lg&&!sk)sm='<small>'+(lkm?lkm+' · ':'')+(lg.min?lg.min+' min':'logged')+mv+'</small>';else if(planned&&S.tot>0)sm='<small>'+(S.est?"≈ ":"")+Math.round(S.tot/60)+' min'+mv+'</small>';else if(mv)sm='<small>'+mv.slice(3)+'</small>';
   var dc=lg&&!sk||xi>=0?"done":sk?"skip":!S||S.rest||S.tbc?"rest":k==today?"today":md=="past"?"miss":"fut";
   dots+='<span class="wd1 '+dc+'"><i></i><b>'+dl.charAt(0)+'</b></span>';
-  h+='<button type="button" class="wrow'+(k==today?" today":"")+(S&&S.rest?" rest":"")+'" data-d="'+k+'"><span class="wd">'+dl+'<b>'+d.getDate()+'</b></span><span class="wn">'+esc(sl?sl.sub:S?S.name:"–")+sm+'</span>'+(st?'<span class="ws '+cl+'">'+st+'</span>':'')+'</button>';}
+  h+='<button type="button" class="wrow'+(k==today?" today":"")+(S&&S.rest?" rest":"")+'" data-d="'+k+'"><span class="wd">'+dl+'<b>'+d.getDate()+'</b></span><span class="wn"><span class="wt">'+esc(sl?sl.sub:S?S.name:"–")+'</span>'+sm+'</span>'+(st?'<span class="ws '+cl+'">'+st+'</span>':'')+'</button>';}
  h='<div class="wdots" aria-hidden="true">'+dots+'</div>'+(none?'<div class="wnp"><b>Nothing planned for this week yet.</b> Ask Health &amp; Fitness for the week file, then Settings on the Today screen, Import week. You can still log any activity: tap a day.</div>':'')+h+'<button type="button" class="wedit" id="ed2">Edit this week\'s plan</button>';
  if(el.__h!==h){el.innerHTML=h;el.__h=h;}
  if(TAB=="week"&&!isOpen){var sun=addDays(m,6),w=weekOff==0?weekRows(1)[0]:null;$("ttl").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":"Week of "+sdl(m).replace(/^\w+ /,"");
