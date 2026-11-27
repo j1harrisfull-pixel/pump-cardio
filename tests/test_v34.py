@@ -41,7 +41,7 @@ with sync_playwright() as pw:
     # ---- Friday opens Thursday's Lower; backup travels with it; Finish logs Friday
     opend(p,FRI)
     ok("Fri opens Thu's main session",p.locator("#ttl").inner_text()==N[THU]["name"],p.locator("#ttl").inner_text())
-    ok("day note says where it moved from","moved from Thu" in p.locator("#dnote").inner_text(),p.locator("#dnote").inner_text())
+    ok("day note says where it moved from","Moved from Thu" in p.locator("#dnote").inner_text(),p.locator("#dnote").inner_text())
     ok("backup follows the moved session",N[THU]["bk"] is None or N[THU]["bk"].replace("Backup · ","") in p.locator("#alt").inner_text(),p.locator("#alt").inner_text())
     tk=p.locator("[data-tk]")
     if tk.count(): tk.first.click();p.wait_for_timeout(50);p.click("#rskip") if p.locator("#rbar.show").count() else None

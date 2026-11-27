@@ -32,6 +32,7 @@ James taps **History → Export history** and shares the text. It has three part
    - `Runs by week:` `w/c <Monday>: n runs · km · min` (prescribed runs, substitutes and extra runs all
      count; `min` is the elapsed time he typed).
    - `Swapped days:` which calendar day showed which day's session (he can swap two days in a week).
+   - `Different sessions:` days where he did another session of the week instead of the planned one (log field `plan` = the planned session's name, no `sub`). He can also move a session to another day or make a day a rest day from the Week list; moves appear under `Swapped days:`.
    - `Different runs:` `<date>: <what he ran> instead of <plan>`.
    - `Outcomes:` dates grouped under modified / cut short / skipped (as planned is not listed).
    - `Feel (last 4 weeks): average N/10 over M sessions`.

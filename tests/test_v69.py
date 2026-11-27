@@ -16,7 +16,7 @@ def run(b,scheme):
         r=p.evaluate(AUD);out[name]=r
     c,p=tabs_app(b,"2026-11-12",{"wo_log":L},scheme=scheme);A("today",p)
     p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(250);A("week",p)
-    p.click("#ed2");p.wait_for_timeout(250);A("week-edit",p);p.click("#ed")
+    p.locator("button.wmore").first.click();p.wait_for_timeout(250);A("day-menu",p);p.click("#dms .dmx")
     p.click('#tabbar [data-tab="prog"]');p.wait_for_timeout(250);A("progress",p)
     p.locator("#hist .hmore").first.click();p.wait_for_timeout(250);A("actions-sheet",p);p.click("#acs .acx");p.click("#bknow");p.wait_for_timeout(250);A("export-sheet",p);p.click(".exx")
     p.locator(".xcard").first.click();p.wait_for_timeout(250);A("xhist-sheet",p);p.click(".xhx")

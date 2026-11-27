@@ -21,7 +21,7 @@ with sync_playwright() as pw:
     # ---- Today ----
     ok("tab bar with three tabs, Today selected",p.locator("#tabbar button").all_inner_texts()==["Today","Week","Progress"] and p.locator("#tabbar button.on").inner_text().endswith("Today"),p.locator("#tabbar button").all_inner_texts())
     ok("Today shows the title, the home card and the cog; no week strip, no session, no history",vis(p,"#ttl","#home","#cog","#week","#panel","#more","#hist")==["#ttl","#home","#cog"],vis(p,"#ttl","#home","#cog","#week","#panel","#more"))
-    ok("home card: length, one big Start, something else, this week",(lambda t:t[0]=="≈ 43 min · 6 blocks" and t[-3:]==["Start session","I did something else","This week · 2 of 5 sessions · 11.4 km ›"])(p.locator("#home").inner_text().split("\n")),p.locator("#home").inner_text())
+    ok("home card: length, one big Start, something else, this week",(lambda t:t[0]=="≈ 43 min · 6 blocks" and t[-4:]==["Start session","I did something else","Do a different session","This week · 2 of 5 sessions · 11.4 km ›"])(p.locator("#home").inner_text().split("\n")),p.locator("#home").inner_text())
     ok("Start session is on the first screen (above the tab bar, no scrolling)",p.evaluate("()=>document.querySelector('#home [data-hm=start]').getBoundingClientRect().bottom<=document.getElementById('tabbar').getBoundingClientRect().top"))
     p.click('#home [data-hm="start"]');p.wait_for_timeout(500)
     ok("Start opens the session as its own screen: no strip, ‹ Back, clock running",p.locator("#panel.open").count()==1 and vis(p,"#home","#week","#more")==[] and p.locator("#close").inner_text()=="Back" and p.locator("#sclk").inner_text().replace("\n"," ").strip().startswith("0:0") and p.evaluate("()=>window.scrollY")==0)
@@ -34,7 +34,7 @@ with sync_playwright() as pw:
     ok("after Finish the card says logged, with View today",p.locator("#home .hline").inner_text().startswith("✓ Logged") and p.locator('#home [data-hm="open"]').inner_text()=="View today",p.locator("#home").inner_text())
     # ---- Week ----
     p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(300)
-    ok("Week shows the day list and Edit plan, not the home card or history",vis(p,"#wlist","#ed2","#home","#more")==["#wlist","#ed2"])
+    ok("Week shows the day list and Edit plan, not the home card or history",vis(p,"#wlist","#home","#more")==["#wlist"])
     p.click(f'#wlist [data-d="{WED}"]');p.wait_for_timeout(400)
     ok("tapping a day opens just the workout: no strip, no week row",p.locator("#panel.open").count()==1 and p.locator("#week").is_hidden() and p.locator(".wk").is_hidden() and p.locator("#ttl").inner_text()=="Hill Hunter Run")
     p.click("#close");p.wait_for_timeout(300);p.click(f'#wlist [data-d="{MON}"]');p.wait_for_timeout(300);ok("another day: Back, then one tap",p.locator("#ttl").inner_text()=="Easy 5km")

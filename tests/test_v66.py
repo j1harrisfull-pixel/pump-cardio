@@ -18,17 +18,12 @@ with sync_playwright() as pw:
     ok("Done is green text, Today is an orange chip",col[0].startswith("rgb(22, 106, 49)") and col[1].endswith("rgb(255, 138, 61)") and col[1].startswith("rgb(17, 17, 17)"),col)
     ok("rest rows are quieter: dashed, no fill",p.evaluate("()=>{var s=getComputedStyle(document.querySelector('.wrow.rest'));return s.borderTopStyle=='dashed'&&s.backgroundColor=='rgba(0, 0, 0, 0)'}"))
     ok("a replaced day says what was done with instead of",p.locator(f'#wlist [data-d="{MON}"] small').inner_text()=="30 min · instead of Upper · Slow Is Strong")
-    ok("Edit plan is a labelled button under the list, the small Edit plan is gone",p.locator("#ed2").inner_text()=="Edit this week's plan" and rect(p,"#ed2")[1]>rect(p,'#wlist [data-d="%s"]'%SUN)[3] and p.locator("#ed").is_hidden())
+    ok("no Edit plan button: every row has a ... menu instead",p.locator("#ed2").count()==0 and p.locator("#ed").is_hidden() and p.locator("#wlist .wmore").count()==7)
     # swipe
     p.mouse.move(300,400);p.mouse.down();p.mouse.move(120,410,steps=6);p.mouse.up();p.wait_for_timeout(300)
     ok("swiping the list left shows next week (and does not open a day)",p.locator("#ttl").inner_text()=="Next week" and p.locator("#panel.open").count()==0 and p.locator("#wlab").inner_text()=="16 to 22 Nov",p.locator("#wlab").inner_text())
     p.mouse.move(120,400);p.mouse.down();p.mouse.move(300,410,steps=6);p.mouse.up();p.wait_for_timeout(300)
     ok("swiping right comes back",p.locator("#ttl").inner_text()=="This week")
-    # edit mode
-    p.click("#ed2");p.wait_for_timeout(250)
-    ok("edit mode: strip, Swap days and the one line; the list is hidden; Done shows",p.locator("#week").is_visible() and p.locator("#swd").is_visible() and p.locator("#ehint").inner_text()=="Tap a day to cycle it. Swap days moves two sessions." and p.locator("#wlist").is_hidden() and p.locator("#ed").inner_text()=="Done" and p.locator("#ed").is_visible())
-    p.click("#ed");p.wait_for_timeout(250)
-    ok("Done returns to the list",p.locator("#wlist").is_visible() and p.locator("#week").is_hidden() and p.locator("#ehint").is_hidden())
     p.click(f'#wlist [data-d="{THU}"]');p.wait_for_timeout(250);ok("a row still opens the day",p.locator("#panel.open").count()==1);c.close()
     # month boundary label
     c,p=tabs_app(b,"2026-11-30");p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(250);ok("the date range crosses a month",p.locator("#wlab").inner_text() in ("30 Nov to 6 Dec",),p.locator("#wlab").inner_text());c.close()

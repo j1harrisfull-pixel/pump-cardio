@@ -34,11 +34,7 @@ with sync_playwright() as pw:
     ok("History is newest date first",p.evaluate("()=>[].map.call(document.querySelectorAll('#hist .hnm'),function(e){return e.textContent})")==["A newest","B","C oldest"])
     p.locator("#hist .hmore").first.click();p.wait_for_timeout(250);p.click("#acs [data-del]");p.wait_for_timeout(300)
     ok("deleting the top entry removes that one",[e["name"] for e in ls(p,"wo_log")]==["B","C oldest"],[e["name"] for e in ls(p,"wo_log")]);c.close()
-    # edit plan ends when you leave Week
-    c,p=tabs_app(b,THU);p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(250);p.click("#ed2");p.wait_for_timeout(200)
-    p.click('#tabbar [data-tab="today"]');p.wait_for_timeout(250)
-    ok("leaving Week ends edit mode everywhere",not p.evaluate("()=>document.body.classList.contains('ed')") and p.locator("#ehint").is_hidden())
-    p.click('#tabbar [data-tab="week"]');p.wait_for_timeout(250);ok("and Week is back to the list",p.locator("#wlist").is_visible() and p.locator("#week").is_hidden())
+    c,p=tabs_app(b,THU)
     # today caption, short screen, idle dock pill, escape on the stop dialog
     ok("the Today ring says This week",p.locator("header .rcap").count()==1);p.click('#tabbar [data-tab="today"]');p.wait_for_timeout(200)
     ok("the ring caption is visible on Today",p.locator(".rcap").is_visible() and p.locator(".rcap").inner_text()=="This week");c.close()

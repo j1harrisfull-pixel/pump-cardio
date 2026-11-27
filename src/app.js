@@ -595,7 +595,7 @@ function srcOf(k){var m=LS.get("wo_daymap",{});return m&&typeof m=="object"&&typ
 function bkOf(k){return BK[srcOf(k)];}
 function qkOf(k){return QK[srcOf(k)];}
 function baseSid(k){var s=srcOf(k);return OVR[s]||PROG[s];}
-function sid(k){if(k<SD)return null;var o=LS.get("wo_plan",{})||{};if(k<=LEGACY_END)return LEG[o[k]||DEFP[k]||PAT[pd(k).getDay()]]||"rest0";var b=baseSid(k);if(!b)return "tbc";if(o[k]=="Rest")return "rest0";if(qOn(k)&&qkOf(k)&&SESS[qkOf(k)])return qkOf(k);return altOn(k)&&bkOf(k)&&SESS[bkOf(k)]?bkOf(k):b;}
+function sid(k){if(k<SD)return null;var o=LS.get("wo_plan",{})||{};if(k<=LEGACY_END)return LEG[o[k]||DEFP[k]||PAT[pd(k).getDay()]]||"rest0";var b=baseSid(k);if(!b)return "tbc";var dd=doOf(k);if(dd)return dd;if(o[k]=="Rest")return "rest0";if(qOn(k)&&qkOf(k)&&SESS[qkOf(k)])return qkOf(k);return altOn(k)&&bkOf(k)&&SESS[bkOf(k)]?bkOf(k):b;}
 function S_(k){var i=sid(k);if(!i)return null;var S=SESS[i];if(!(hasRI(S)&&riOn(k)))return S;var V=Object.create(S);V.base=S;V.isRun=1;V.name=(RIN[i]||[S.name+" (run)"])[0];V.short=(RIN[i]||[0,S.short])[1];V.safe=RIS[i]||S.safe;V.blocks=S.blocks.map(function(b){if(b.k=="fields")return Object.assign({},b,{dist:"Distance (km)"});return b.ri?Object.assign({},b,b.ri,{ri:null}):b;});return V;}
 function curType(k){var S=S_(k);if(!S)return null;if(S.quick)return "quick";return S.isRun?"run":(altOn(k)&&bkOf(k)&&sid(k)==bkOf(k)?"backup":"main");}
 function plan(k){var S=S_(k);return S?S.short:null;}
@@ -762,7 +762,7 @@ function tnorm(t){t=String(t||"").trim();if(!t)return "";var hd=/^(\d+)[.:](\d\d
  if(/^\d{4}$/.test(t)&&+t.slice(2)<60)return (+t.slice(0,2))+":"+t.slice(2);  // 3005 → 30:05 (the iPhone number pad has no colon key)
  var ds=/^(\d+)\.(\d\d)$/.exec(t);if(ds&&+ds[2]<60)return (+ds[1])+":"+ds[2];  // 29.40 → 29:40 (what a watch shows); 29.5 stays 29:30
  if(/^\d+(\.\d+)?$/.test(t)){var x=Math.round(+t*60);return Math.floor(x/60)+":"+String(x%60).padStart(2,"0");}return t;}
-function tdist(t,km){t=tnorm(t);var k=parseFloat(km)||0,m=/^(\d+):(\d\d)$/.exec(t);if(m&&k>=1&&k<100&&(+m[1]*60+ +m[2])/k<150)return (+m[1])+":"+m[2]+":00";return t;}  // pc-v75: 1:11 for 11.9 km is 1 h 11 min (mm:ss would be under 2:30/km)
+function tdist(t,km){t=tnorm(t);var k=parseFloat(km)||0,m=/^(\d+):(\d\d)$/.exec(t);if(m&&k>=1&&k<100&&(+m[1]*60+ +m[2])/k<150)return (+m[1])+":"+m[2]+":00";return t;}  // pc-v75: 1:11 for 11.9 km is 1 h 11 min (mm:ss would be an impossible pace)
 function tmin(t){var m=/^(\d+):(\d\d)(?::(\d\d))?$/.exec(tnorm(t));if(!m)return 0;return m[3]?+m[1]*60+ +m[2]+Math.round(+m[3]/60):+m[1]+Math.round(+m[2]/60);}
 function extraFor(d){var l=logs();for(var i=0;i<l.length;i++)if(l[i]&&l[i].date==d&&l[i].type=="extra")return i;return -1;}
 function runLine(e){var x=[];if(e.km)x.push(esc(e.km)+(e.sid=="row"&&!e.ri?" m":" km"));if(e.time)x.push(esc(tnorm(e.time)));if(e.effort)x.push(esc(e.effort));return x.join(" · ");}
@@ -893,21 +893,22 @@ function itemByGi(S,gi){var a=items(S);for(var i=0;i<a.length;i++)if(a[i].gi==gi
 function renderPanel(){var S=S_(sel),m=mode(sel);if(!S)return;$("acts").hidden=!!S.rest;$("rstw").hidden=!!S.rest;
 $("safe1").textContent=S.safe;document.querySelector(".safe .stop").hidden=!!S.tbc;$("panel").classList.toggle("ro",m=="future");
 var lg=!S.rest?logFor(sel,S.name):null,lab=sdl(sel);
-$("dnote").textContent=(m=="future"?"Planned · "+lab:m=="past"?(S.rest?"":lg?"Logged · ":extraFor(sel)>=0?"Extra logged · ":"Not logged · ")+lab:(lg?"Logged today":"Today"))+(lg&&lg.min?" · "+lg.min+" min":S.tot>0&&!S.tbc?" · "+(S.est?"≈ ":"")+Math.round(S.tot/60)+" min":"")+(srcOf(sel)!=sel?" · moved from "+sdl(srcOf(sel)).split(" ")[0]:"");
+$("dnote").textContent=(m=="future"?"Planned · "+lab:m=="past"?(S.rest?"":lg?"Logged · ":extraFor(sel)>=0?"Extra logged · ":"Not logged · ")+lab:(lg?"Logged today":"Today"))+(lg&&lg.min?" · "+lg.min+" min":S.tot>0&&!S.tbc?" · "+(S.est?"≈ ":"")+Math.round(S.tot/60)+" min":"")+(srcOf(sel)!=sel?" · Moved from "+sdl(srcOf(sel)).split(" ")[0]:"");
 $("fin").textContent=lg?"Update log":"Finish workout";
-var o=LS.get("wo_plan",{})||{},hasBk=!!(bkOf(sel)&&SESS[bkOf(sel)]&&o[sel]!="Rest"&&sel>LEGACY_END),on=altOn(sel);$("dctl").hidden=!(hasBk||m=="today"||m=="future")||!!S.tbc;
-var hasQ=!!(qkOf(sel)&&SESS[qkOf(sel)]&&o[sel]!="Rest"),qo=qOn(sel);$("qk").hidden=!hasQ;if(hasQ){$("qk").textContent=qo?"↩ Back to main: "+SESS[baseSid(sel)].name:"Quick option: "+SESS[qkOf(sel)].name;$("qk").classList.toggle("on",qo);$("dctl").hidden=false;}
+var o=LS.get("wo_plan",{})||{},hasBk=!!(bkOf(sel)&&SESS[bkOf(sel)]&&o[sel]!="Rest"&&sel>LEGACY_END&&!doOf(sel)),on=altOn(sel);$("dctl").hidden=!(hasBk||m=="today"||m=="future")||!!S.tbc;
+var hasQ=!!(qkOf(sel)&&SESS[qkOf(sel)]&&o[sel]!="Rest"&&!doOf(sel)),qo=qOn(sel);$("qk").hidden=!hasQ;if(hasQ){$("qk").textContent=qo?"↩ Back to main: "+SESS[baseSid(sel)].name:"Quick option: "+SESS[qkOf(sel)].name;$("qk").classList.toggle("on",qo);$("dctl").hidden=false;}
 $("alt").hidden=!hasBk;if(hasBk){on=on&&!qo;$("alt").textContent=on?"↩ Back to main: "+SESS[baseSid(sel)].name:"Use backup session: "+SESS[bkOf(sel)].name.replace("Backup · ","");$("alt").classList.toggle("on",on);}
 if(m=="today")wake();$("swap").hidden=!(m=="today"||m=="future")||!!S.tbc;$("swap").textContent=m=="today"?"Swap today's session":"Swap this session";var hr=hasRI(S);$("ri").hidden=!hr;if(hr){var ro=riOn(sel);$("ri").textContent=ro?"↩ Back to "+(sid(sel)=="row"?"row":"Assault Runner / walk"):"Run instead (outdoor run)";$("ri").classList.toggle("on",ro);if(hr)$("dctl").hidden=false;}
 // pc-v50: the rare options (backup, quick option, run instead, swap) sit behind one "Change session" button; the menu
 // stays open while one of them is active so "↩ Back to main" is always in reach (wo_chg=1 keeps it open, used by the tests)
-var anyOpt=["alt","qk","ri","swap"].some(function(i){return !$(i).hidden;}),act=altOn(sel)||qOn(sel)||(hr&&riOn(sel)),openM=!!(DCO[sel]||act||LS.get("wo_chg",0));
+var dm0=TABS?dayMenu(sel):[];$("mvb").hidden=dm0.indexOf("move")<0;$("rsb").hidden=!(dm0.indexOf("rest")>=0||dm0.indexOf("back")>=0);$("rsb").textContent=dm0.indexOf("back")>=0?"Back to "+((SESS[baseSid(sel)]||{}).name||"plan"):"Make this a rest day";$("dob").hidden=!(dm0.indexOf("do")>=0||dm0.indexOf("undo")>=0);$("dob").textContent=dm0.indexOf("undo")>=0?"Back to "+doLab(sel):"Do a different session today";if(!$("mvb").hidden||!$("rsb").hidden||!$("dob").hidden)$("dctl").hidden=false;
+var anyOpt=["alt","qk","ri","swap","mvb","rsb","dob"].some(function(i){return !$(i).hidden;}),act=altOn(sel)||qOn(sel)||(hr&&riOn(sel)),openM=!!(DCO[sel]||act||LS.get("wo_chg",0));
 $("chg").hidden=!anyOpt||!!act||!!LS.get("wo_chg",0);$("chg").textContent=DCO[sel]?"Hide session options":"Change session";$("chg").setAttribute("aria-expanded",openM?"true":"false");$("dcm").hidden=!openM;if(!anyOpt)$("dctl").hidden=true;
 renderSess();hist();}
 var DCO={};
 function subLog(k){var S=S_(k),lg=S&&!S.rest?logFor(k,S.name):null;return lg&&lg.sub?lg:null;}
 function stripLab(k){var lg=subLog(k);return lg&&lg.act&&ACTS[lg.act]?ACTS[lg.act]:plan(k);}
-function title(){var k=isOpen?sel:today,S=S_(k),sl=subLog(k);$("ttl").textContent=sl?sl.sub:S?S.name:"Pump + Cardio";var sb=$("sbt");if(sb)sb.textContent=$("ttl").textContent;$("date").textContent=pd(k).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(sl?" · instead of "+(sl.plan||S.name):"")+(TABS&&!isOpen&&TAB=="today"?" · "+dayStatus(k):"");}
+function title(){var k=isOpen?sel:today,S=S_(k),sl=subLog(k);$("ttl").textContent=sl?sl.sub:S?S.name:"Pump + Cardio";var sb=$("sbt");if(sb)sb.textContent=$("ttl").textContent;$("date").textContent=pd(k).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(sl?" · instead of "+(sl.plan||S.name):doLab(k)?" · instead of "+doLab(k):"")+(TABS&&!isOpen&&TAB=="today"?" · "+dayStatus(k):"");}
 function monday(){var d=pd(today),off=(d.getDay()+6)%7;return addDays(today,-off+weekOff*7);}
 function editable(k){return k>=today&&k>=SD&&(k<=LEGACY_END||!!baseSid(k));}
 function week(){var m=monday(),h="",done={};logs().forEach(function(e){if(e&&e.date&&!(e.oc=="skipped"&&!e.sub&&!e.km&&!e.time))done[e.date]=1;});
@@ -927,12 +928,12 @@ function wlist(m){var el=$("wlist");if(!el||!TABS)return;var h="",dots="",none=w
   if(md=="pre"){dots+='<span class="wd1 rest"><i></i><b>'+dl.charAt(0)+'</b></span>';continue;}
   var S=S_(k),lg=S&&!S.rest?logFor(k,S.name):null,sl=lg&&lg.sub?lg:null,sk=lg&&lg.oc=="skipped"&&!lg.sub,xi=extraFor(k),planned=!!(S&&!S.rest&&!S.tbc);
   var xs=dayActs(k),nx=xs.length+(lg&&!sk?1:0),st=lg?(sk?"Skipped":"✓ Done"):xs.length?"✓ "+actFig(xs[xs.length-1]):k==today?"Today":md=="past"&&planned?"Not logged":"";if(st&&nx>1&&st.charAt(0)=="✓")st+=" +"+(nx-1);var cl=lg&&!sk||xi>=0?"ok":sk?"sk":st=="Today"?"td":st?"nl":"";
-  var mv=srcOf(k)!=k?" · ⇄ moved from "+sdl(srcOf(k)).split(" ")[0]:"",sm="";
-  var lkm=lg&&!sk?kmS(lg.km):"";if(sl)sm='<small>'+(sl.min?sl.min+' min · ':'')+'instead of '+esc(sl.plan||S.name)+'</small>';else if(lg&&!sk)sm='<small>'+(lkm?lkm+' · ':'')+(lg.min?lg.min+' min':'logged')+mv+'</small>';else if(planned&&S.tot>0)sm='<small>'+(S.est?"≈ ":"")+Math.round(S.tot/60)+' min'+mv+'</small>';else if(mv)sm='<small>'+mv.slice(3)+'</small>';
+  var mv=srcOf(k)!=k?" · Moved from "+sdl(srcOf(k)).split(" ")[0]:"",dfl=doLab(k)?" · instead of "+esc(doLab(k)):"",sm="";
+  var lkm=lg&&!sk?kmS(lg.km):"";if(sl)sm='<small>'+(sl.min?sl.min+' min · ':'')+'instead of '+esc(sl.plan||S.name)+'</small>';else if(lg&&!sk)sm='<small>'+(lkm?lkm+' · ':'')+(lg.min?lg.min+' min':'logged')+(lg.plan&&!lg.sub?" · instead of "+esc(lg.plan):"")+mv+'</small>';else if(planned&&S.tot>0)sm='<small>'+(S.est?"≈ ":"")+Math.round(S.tot/60)+' min'+dfl+mv+'</small>';else if(mv)sm='<small>'+mv.slice(3)+'</small>';
   var dc=lg&&!sk||xi>=0?"done":sk?"skip":!S||S.rest||S.tbc?"rest":k==today?"today":md=="past"?"miss":"fut";
   dots+='<span class="wd1 '+dc+'"><i></i><b>'+dl.charAt(0)+'</b></span>';
-  h+='<button type="button" class="wrow'+(k==today?" today":"")+(S&&S.rest?" rest":"")+'" data-d="'+k+'"><span class="wd">'+dl+'<b>'+d.getDate()+'</b></span><span class="wn"><span class="wt">'+esc(sl?sl.sub:S?S.name:"–")+'</span>'+sm+'</span>'+(st?'<span class="ws '+cl+'">'+st+'</span>':'')+'</button>';}
- h='<div class="wdots" aria-hidden="true">'+dots+'</div>'+(none?'<div class="wnp"><b>Nothing planned for this week yet.</b> Ask Health &amp; Fitness for the week file, then Settings on the Today screen, Import week. You can still log any activity: tap a day.</div>':'')+h+'<button type="button" class="wedit" id="ed2">Edit this week\'s plan</button>';
+  h+='<div class="wrow'+(k==today?" today":"")+(S&&S.rest?" rest":"")+'" data-d="'+k+'"><button type="button" class="wmain"><span class="wd">'+dl+'<b>'+d.getDate()+'</b></span><span class="wn"><span class="wt">'+esc(sl?sl.sub:S?S.name:"–")+'</span>'+sm+'</span>'+(st?'<span class="ws '+cl+'">'+st+'</span>':'')+'</button>'+(dayMenu(k).length?'<button type="button" class="wmore" data-wm="'+k+'" aria-label="Actions for '+dl+'">'+DOTS+'</button>':'<span class="wmore z"></span>')+'</div>';}
+ h='<div class="wdots" aria-hidden="true">'+dots+'</div>'+(none?'<div class="wnp"><b>Nothing planned for this week yet.</b> Ask Health &amp; Fitness for the week file, then Settings on the Today screen, Import week. You can still log any activity: tap a day.</div>':'')+h+(weekChanged(wkDays(m))?'<button type="button" class="wedit" id="wreset">Reset week to plan</button>':'');
  if(el.__h!==h){el.innerHTML=h;el.__h=h;}
  if(TAB=="week"&&!isOpen){var sun=addDays(m,6),w=weekOff==0?weekRows(1)[0]:null;$("ttl").textContent=weekOff==0?"This week":weekOff==1?"Next week":weekOff==-1?"Last week":"Week of "+sdl(m).replace(/^\w+ /,"");
   $("date").textContent=w?(w.plw||w.dn?w.dn+" of "+w.plw+" sessions":"Nothing planned")+(w.runs?" · "+w.runs+" run"+(w.runs==1?"":"s")+" · "+w.km+" km":""):sdl(m)+" to "+sdl(sun);}}
@@ -971,6 +972,7 @@ function exportSummary(l){var out=["SUMMARY"],last={},wk={},subs=[],ocs={modifie
  var wks=Object.keys(wk).sort();if(wks.length){out.push("Runs by week:");wks.forEach(function(m){var q=wk[m];out.push("  w/c "+m+": "+q.n+" run"+(q.n==1?"":"s")+" · "+(Math.round(q.km*100)/100)+" km"+(q.min?" · "+q.min+" min":""));});}
  var dm=LS.get("wo_daymap",{})||{},sw=Object.keys(dm).filter(function(k){return typeof dm[k]=="string"&&dm[k]!=k;}).sort();if(sw.length)out.push("Swapped days: "+sw.map(function(k){var S=SESS[baseSid(k)];return sdl(k)+" ran "+sdl(dm[k])+"'s session"+(S?" ("+S.name+")":"");}).join("; "));
  if(subs.length)out.push("Different runs: "+subs.join("; "));
+ var difs=logs().filter(function(e){return e&&e.plan&&!e.sub&&e.type!="extra";}).map(function(e){return sdl(e.date)+" did "+(e.name||"a session")+" instead of "+e.plan;});if(difs.length)out.push("Different sessions: "+difs.join("; "));
  var oo=Object.keys(ocs).filter(function(k){return ocs[k].length;});if(oo.length)out.push("Outcomes: "+oo.map(function(k){return k+" "+ocs[k].join(", ");}).join(" · "));
  var fl=l.filter(function(e){return e&&+e.feel>0&&e.date>=addDays(today,-28);});if(fl.length)out.push("Feel (last 4 weeks): average "+(Math.round(fl.reduce(function(t,e){return t+ +e.feel;},0)/fl.length*10)/10)+"/10 over "+fl.length+" session"+(fl.length==1?"":"s"));
  var logged={};l.forEach(function(e){if(e&&e.date)logged[e.date]=1;});var from=addDays(monOf(today),-14),miss=Object.keys(PROG).filter(function(d){var S=SESS[baseSid(d)];return d<today&&d>=from&&d>LEGACY_END&&S&&!S.rest&&!logged[d];}).sort();
@@ -1015,7 +1017,7 @@ function nextPlanned(){for(var i=1;i<=14;i++){var k=addDays(today,i),S=mode(k)==
 function nextLine(){var n=nextPlanned();if(!n)return "";return (n.i==1?"Tomorrow":pd(n.k).toLocaleDateString("en-GB",{weekday:"long"}))+" · "+n.S.name+(n.S.tot>0?" · "+(n.S.est?"≈ ":"")+Math.round(n.S.tot/60)+" min":"");}
 function tomorrowLine(){var k=addDays(today,1),S=mode(k)=="pre"?null:S_(k);if(!S||S.tbc)return "Tomorrow: nothing planned yet";if(S.rest)return "Tomorrow: rest";return "Tomorrow: "+S.name+(S.tot>0?" · "+(S.est?"≈ ":"")+Math.round(S.tot/60)+" min":"");}
 function hsum(lg){var d=[];if(lg.sets!=null&&!(lg.sub&&!lg.sets))d.push(lg.sets+" of "+(lg.of||lg.sets)+" sets");if(lg.km)d.push(esc(lg.km)+" km");if(lg.time)d.push(esc(lg.time));if(lg.effort)d.push(esc(lg.effort));if(+lg.feel>0)d.push("felt "+esc(lg.feel)+"/10");
- return '<div class="hsum"><div class="hs1">'+esc(lg.sub||lg.name||"Session")+'</div>'+(lg.sub&&lg.plan?'<div class="hs0">instead of '+esc(lg.plan)+'</div>':'')+(d.length?'<div class="hs2">'+d.join(" · ")+'</div>':'')+'<div class="hs3">'+esc(tomorrowLine())+'</div></div>';}
+ return '<div class="hsum"><div class="hs1">'+esc(lg.sub||lg.name||"Session")+'</div>'+(lg.plan?'<div class="hs0">instead of '+esc(lg.plan)+'</div>':'')+(d.length?'<div class="hs2">'+d.join(" · ")+'</div>':'')+'<div class="hs3">'+esc(tomorrowLine())+'</div></div>';}
 function dayStatus(k){var S=S_(k);if(!S)return "";if(S.tbc)return "No plan yet";if(S.rest)return "Rest day";var s=P(k),r=R(k),lg=logFor(k,S.name),st=+LS.get("wo_runstart_"+k,0)||s.start||0,en=s.end&&s.end>=st?s.end:0;
  if(lg)return lg.oc=="skipped"&&!lg.sub?"Skipped":"Logged";if(r.sub||s.oc=="skipped")return "Not saved yet";if(st)return en?"Paused":"In progress";return "Not started";}
 function home(){var el=$("home");if(!el||!TABS)return;var S=mode(today)=="pre"?null:S_(today),h="";
@@ -1028,7 +1030,7 @@ function home(){var el=$("home");if(!el||!TABS)return;var S=mode(today)=="pre"?n
   else if(r.sub||s.oc=="skipped"){h+='<div class="hline">Marked as '+(r.sub?"something else":"skipped")+' · not saved yet</div><button type="button" class="btn" data-hm="open">Finish logging</button>';lks.push(lk("plan","Back to the plan"));}
   else if(st){h+='<div class="hline">'+(en?"Paused at "+hms(en-st):"In progress · started "+esc(new Date(st).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})))+' · '+sc.d+' of '+sc.t+' parts done</div>'+hprev(S,s)+'<button type="button" class="btn" data-hm="'+(en?"resume":"open")+'">Continue</button>';lks.push(lk("else","I did something else"));}
   else{h+='<div class="hline">'+(S.tot>0?(S.est?"≈ ":"")+Math.round(S.tot/60)+" min · ":"")+S.blocks.filter(function(b){return b.k=="timer"||b.k=="ex";}).length+' blocks'+(xi>=0?" · "+esc(logs()[xi].name||"activity")+" logged ✓":"")+'</div>'+hprev(S,s)+'<button type="button" class="btn" data-hm="start">Start session</button>';
-   if(hasRun(S))lks.push(lk("run","Log my run"));lks.push(lk("else","I did something else"));if(xi>=0)lks.push(lk("conv","It replaced this session"," cv"));}
+   if(hasRun(S))lks.push(lk("run","Log my run"));lks.push(lk("else","I did something else"));if(doOf(today))lks.push(lk("dback","Back to "+esc(doLab(today))));else if(!started(today)&&dayMenu(today).indexOf("do")>=0)lks.push(lk("dif","Do a different session"));if(xi>=0)lks.push(lk("conv","It replaced this session"," cv"));}
   if(lks.length)h+='<div class="hlinks">'+lks.join("")+'</div>';}
  var w=weekRows(1)[0];h+='<button type="button" class="hweek" data-hm="week">This week · '+(w.plw||w.dn?w.dn+' of '+w.plw+' sessions':'nothing planned')+(w.runs?' · '+w.km+' km':'')+' ›</button>';
  if(el.__h!==h){el.innerHTML=h;el.__h=h;}}
@@ -1049,6 +1051,61 @@ function swapBlock(k){if(curWeekDays().indexOf(k)<0)return "Only days in this we
 function swapDays(a,b){var m=LS.get("wo_daymap",{});if(!m||typeof m!="object")m={};var sa=srcOf(a),sb=srcOf(b);m[a]=sb;m[b]=sa;[a,b].forEach(function(k){if(m[k]==k)delete m[k];});LS.set("wo_daymap",m);}
 function weekSwapped(){return curWeekDays().some(function(k){return srcOf(k)!=k;});}
 function resetWeek(){var m=LS.get("wo_daymap",{});if(!m||typeof m!="object")m={};curWeekDays().forEach(function(k){delete m[k];});LS.set("wo_daymap",m);}
+// ---- pc-v79: moving sessions between days from one menu. Tapping a day only ever opens it. A day's menu (the ... on a Week
+// row, or Change session on the session screen) offers: Move to another day (swap), Make this a rest day (with Undo),
+// Do a different session today. wo_do {date: session id} makes that date show another session of the week without
+// touching the plan; Reset week to plan clears moves and rest changes. The legacy Edit plan mode stays only in the flat layout.
+var PLK=["wo_daymap","wo_plan","wo_alt","wo_ri","wo_quick","wo_do"],DMK=null;
+function wkDays(k){var m=monOf(k),o=[];for(var i=0;i<7;i++)o.push(addDays(m,i));return o;}
+function snapPlan(){var s={};PLK.forEach(function(n){s[n]=LS.get(n,null);});return s;}
+function restorePlan(s){PLK.forEach(function(n){if(s[n]==null)LS.del(n);else LS.set(n,s[n]);});all();}
+function planToast(msg,snap){toast(msg,{label:"Undo",fn:function(){restorePlan(snap);toast("Undone.");}});}
+function dn3(k){return sdl(k).split(" ")[0];}
+function nameOf(k){var S=S_(k);return S?S.name:"Rest";}
+function doOf(k){var d=LS.get("wo_do",{});return d&&typeof d=="object"&&typeof d[k]=="string"&&SESS[d[k]]?d[k]:null;}
+function doLab(k){if(!doOf(k))return "";var b=baseSid(k);return b&&SESS[b]?SESS[b].name:"";}
+function dayLock(k){if(logs().some(function(e){return e&&e.date==k&&e.type!="extra";}))return dn3(k)+" is already logged.";if(started(k))return dn3(k)+" already has sets ticked.";return "";}
+function moveTargetWhy(k,t){if(t==k)return "This is the day it is on.";if(t<today)return "That day is over.";if(t<SD||t<=LEGACY_END||!baseSid(t))return "No plan that day.";var w=dayLock(t);if(w)return w.replace(/\.$/,"");
+ if(k<today){var o=LS.get("wo_plan",{})||{},S=S_(t);if(S&&!S.rest&&o[t]!="Rest")return "That would put "+S.name+" on a day that is over.";}return "";}
+function dayMenu(k){var out=[];if(k<SD||k<=LEGACY_END)return out;var b=baseSid(k),S=b&&SESS[b];if(!S)return out;var o=LS.get("wo_plan",{})||{},isRest=o[k]=="Rest",lk=dayLock(k);if(lk)return out;
+ if(isRest)out.push("back");else{if(k>=today&&!S.rest&&!doOf(k))out.push("rest");if(!doOf(k)&&wkDays(k).some(function(t){return !moveTargetWhy(k,t);}))out.push("move");
+  if(k==today&&!doOf(k)&&doList().length)out.push("do");if(doOf(k))out.push("undo");}
+ return out;}
+function doList(){var out=[];wkDays(today).forEach(function(d){if(d==today||d<SD||d<=LEGACY_END)return;var b=baseSid(d),S=b&&SESS[b];if(!S||S.rest||S.tbc)return;out.push({d:d,id:b,S:S,done:!!logFor(d,S.name)});});return out;}
+function moveContent(a0,b0){swapDays(a0,b0);["wo_plan","wo_alt","wo_ri","wo_quick"].forEach(function(n){var o=LS.get(n,{});if(!o||typeof o!="object")o={};var va=o[a0],vb=o[b0];delete o[a0];delete o[b0];if(vb!=null)o[a0]=vb;if(va!=null)o[b0]=va;LS.set(n,o);});}
+function planDone(){$("dms").classList.remove("show");if(isOpen)closeP();else all();}
+function doMove(k,t){var snap=snapPlan(),n1=nameOf(k),n2=nameOf(t),rest2=!!(S_(t)&&S_(t).rest);moveContent(k,t);planDone();planToast("Moved "+n1+" to "+dn3(t)+"."+(rest2?"":" "+n2+" is now on "+dn3(k)+"."),snap);}
+function setRest(k,on){var snap=snapPlan(),o=LS.get("wo_plan",{})||{};if(on)o[k]="Rest";else delete o[k];LS.set("wo_plan",o);planDone();var S2=on?null:S_(k);planToast(on?dn3(k)+" is now a rest day.":dn3(k)+" is back to "+(S2?S2.name:"its session")+".",snap);}
+function setDo(k,id){var snap=snapPlan(),d=LS.get("wo_do",{})||{};if(id)d[k]=id;else delete d[k];LS.set("wo_do",d);
+ if(id){["wo_alt","wo_ri","wo_quick"].forEach(function(n){var q=LS.get(n,{});if(q&&q[k]){delete q[k];LS.set(n,q);}});var o=LS.get("wo_plan",{})||{};if(o[k]=="Rest"){delete o[k];LS.set("wo_plan",o);}}
+ planDone();var S3=S_(k);planToast(id?"Today is "+(S3?S3.name:"another session")+". Your plan for today is unchanged.":"Back to today's plan.",snap);}
+function weekChanged(days){var m=LS.get("wo_daymap",{})||{},o=LS.get("wo_plan",{})||{};return days.some(function(d){return (typeof m[d]=="string"&&m[d]!=d)||o[d]=="Rest";});}
+function resetWeekPlan(days){var snap=snapPlan(),m=LS.get("wo_daymap",{})||{},o=LS.get("wo_plan",{})||{},kept=0,seen={},lockd=function(d){return !!dayLock(d);};
+ days.forEach(function(d){if(seen[d]||typeof m[d]!="string"||m[d]==d)return;var cy=[d],x=m[d];seen[d]=1;while(x&&x!=d&&cy.indexOf(x)<0){cy.push(x);seen[x]=1;x=m[x];}
+  if(cy.some(lockd)){kept++;return;}cy.forEach(function(q){delete m[q];});});
+ days.forEach(function(d){if(o[d]=="Rest"&&!lockd(d))delete o[d];});
+ LS.set("wo_daymap",m);LS.set("wo_plan",o);all();planToast("Week back to plan."+(kept?" "+kept+" moved day"+(kept==1?"":"s")+" kept because they are already done.":""),snap);}
+function dmOpen(v,k,t){DMK=k;var S=S_(k),h="",menu=dayMenu(k),btn=function(a1,txt,cls,x){return '<button type="button" class="btn '+(cls||"ghost")+'" data-dm="'+a1+'"'+(x||"")+'>'+txt+'</button>';};
+ if(v=="menu"){$("dm_t").textContent=dn3(k)+" · "+nameOf(k);$("dm_d").textContent=sdl(k);
+  if(menu.indexOf("move")>=0)h+=btn("move","Move to another day");
+  if(menu.indexOf("rest")>=0)h+=btn("rest","Make this a rest day");
+  if(menu.indexOf("back")>=0){var b0=baseSid(k);h+=btn("back","Back to "+(b0&&SESS[b0]?esc(SESS[b0].name):"plan"));}
+  if(menu.indexOf("do")>=0)h+=btn("do","Do a different session today");
+  if(menu.indexOf("undo")>=0)h+=btn("undo","Back to "+esc(doLab(k)));
+  if(!h)h='<p class="swd">'+esc(dayLock(k)||"Nothing to change on this day.")+'</p>';}
+ else if(v=="move"){$("dm_t").textContent="Move "+nameOf(k)+" to…";$("dm_d").textContent="Pick a day. Days that are over or already done can't be used.";
+  wkDays(k).forEach(function(d){var why=moveTargetWhy(k,d),dd=pd(d),S2=S_(d);h+='<button type="button" class="dmrow" data-dm="to" data-t="'+d+'"'+(why?' disabled':'')+'><span class="wd">'+dd.toLocaleDateString("en-GB",{weekday:"short"})+'<b>'+dd.getDate()+'</b></span><span class="wn">'+esc(S2?S2.name:"–")+'<small>'+esc(why||(S2&&S2.rest?"Rest day":(S2&&S2.tot>0?(S2.est?"≈ ":"")+Math.round(S2.tot/60)+" min":"")))+'</small></span></button>';});}
+ else if(v=="swap"){$("dm_t").textContent="Swap with "+nameOf(t)+"?";$("dm_d").textContent=nameOf(k)+" goes to "+dn3(t)+". "+nameOf(t)+" goes to "+dn3(k)+".";h=btn("swap","Swap "+dn3(k)+" and "+dn3(t),"",' data-t="'+t+'"')+btn("move","Pick another day");}
+ else if(v=="do"){$("dm_t").textContent="Do a different session today";$("dm_d").textContent="Pick one from this week. Your plan for today stays as it is.";
+  doList().forEach(function(x){var dd=pd(x.d);h+='<button type="button" class="dmrow" data-dm="pick" data-id="'+x.id+'"><span class="wd">'+dd.toLocaleDateString("en-GB",{weekday:"short"})+'<b>'+dd.getDate()+'</b></span><span class="wn">'+esc(x.S.name)+'<small>'+(x.done?"Done already":(x.S.tot>0?(x.S.est?"≈ ":"")+Math.round(x.S.tot/60)+" min":""))+'</small></span></button>';});
+  if(!h)h='<p class="swd">There is no other session this week.</p>';}
+ $("dm_b").innerHTML=h;$("dms").classList.add("show");}
+$("dms").addEventListener("click",function(e){if(e.target===this||e.target.closest(".dmx")){$("dms").classList.remove("show");return;}var b=e.target.closest("[data-dm]");if(!b||b.disabled)return;var a1=b.dataset.dm,k=DMK,t=b.dataset.t;
+ if(a1=="move")dmOpen("move",k);else if(a1=="to"){var S4=S_(t);if(S4&&!S4.rest)dmOpen("swap",k,t);else doMove(k,t);}else if(a1=="swap")doMove(k,t);
+ else if(a1=="rest")setRest(k,true);else if(a1=="back")setRest(k,false);else if(a1=="do")dmOpen("do",k);else if(a1=="pick")setDo(k,b.dataset.id);else if(a1=="undo")setDo(k,null);});
+$("mvb").onclick=function(){dmOpen("move",sel);};
+$("rsb").onclick=function(){setRest(sel,dayMenu(sel).indexOf("back")<0);};
+$("dob").onclick=function(){if(doOf(sel))setDo(sel,null);else dmOpen("do",sel);};
 function swUI(){var on=editing&&weekOff==0;$("swr").hidden=!on;if(!on){swapping=false;swA=null;}$("swd").textContent=swapping?"Cancel swap":"Swap days";$("swd").classList.toggle("on",swapping);$("swreset").hidden=!(on&&weekSwapped());$("swh").textContent=swapping?(swA?"Now tap the day to swap with "+sdl(swA).split(" ")[0]+".":"Tap the first day."):"";}
 function pickSwap(k){var why=swapBlock(k);if(why){$("swh").textContent=why;return;}if(!swA){swA=k;week();return;}if(k==swA){swA=null;week();return;}var a=swA;swapDays(a,k);swA=null;swapping=false;all();$("swh").textContent="Swapped "+sdl(a).split(" ")[0]+" and "+sdl(k).split(" ")[0]+". Swap them again to undo.";}
 // pc-v77: a tap in Edit plan says what it did ("Thu set to rest. Tap again to undo"), and a past day this week that was set to rest can be switched back
@@ -1199,7 +1256,7 @@ if(!hasRun(S)&&r.sub){var at9=r.at||((r.d||r.t)?"run":"other");e.sub=actLabel(r)
 if(hasRun(S)&&r.sub){e.act=r.at||"run";e.sub=(r.sl||"").trim()||(e.act!="run"?actLabel(r):"a different run");var others=S.blocks.some(function(b){b=VB(b);if(b.k=="timer"&&!b.counter&&!/warm|cool/i.test(b.h||""))return sdone(d,b.id);if(b.k=="ex")return b.items.some(function(it){for(var q=0;q<b.n;q++)if(s.t[it.gi+"_"+q])return true;return false;});return false;});e.plan=others||S.blocks.some(function(b){return b.k=="fields";})?planOf(S):S.name;x.push("did "+e.sub+" instead of "+e.plan);}
 if(s.oc){e.oc=s.oc;if(!(e.sub&&s.oc=="modified"))x.push(s.oc=="planned"?"as planned":s.oc);}
 var bkd=[],bkn=0;S.blocks.forEach(function(b){b=VB(b);if(b.k!="timer"&&b.k!="ex")return;bkn++;if(blockDone(b,s))bkd.push(b.k=="timer"?b.name:(b.h||"").replace(/^[A-C] · /,"")+": "+b.items.map(function(it){return nm(it.x);}).join(" + "));});if(bkn){e.bk={d:bkd,n:bkn};if(bkd.length<bkn&&bkn>1)x.push(bkd.length+" of "+bkn+" blocks done");}if(!e.notes&&s.nt){e.notes=s.nt;}
-if(S.blocks.some(function(b){return VB(b).counter;})){e.breaks=r.b;if(r.b)x.push(r.b+" walk break"+(r.b==1?"":"s"));}if(s.sc&&Object.keys(s.sc).length)e.sc=s.sc;e.type=curType(d);e.sid=sid(d);if(S.isRun){e.ri=1;x.push("run instead");}else delete e.ri;if(old&&old.custom&&old.type==e.type){e.name=old.name;e.custom=1;}else if(old&&old.name&&old.name!=name&&isName(old.name,name))e.name=old.name;
+if(S.blocks.some(function(b){return VB(b).counter;})){e.breaks=r.b;if(r.b)x.push(r.b+" walk break"+(r.b==1?"":"s"));}if(s.sc&&Object.keys(s.sc).length)e.sc=s.sc;e.type=curType(d);e.sid=sid(d);var dpl=doLab(d);if(dpl&&!e.plan)e.plan=dpl;if(S.isRun){e.ri=1;x.push("run instead");}else delete e.ri;if(old&&old.custom&&old.type==e.type){e.name=old.name;e.custom=1;}else if(old&&old.name&&old.name!=name&&isName(old.name,name))e.name=old.name;
 if(e.sub&&e.bk&&!e.bk.d.length)x=x.filter(function(l){return !/sets ticked$|blocks done$/.test(l);});  // the session was replaced: no "0 of 20 sets" noise
 if(!x.length)x.push(score(d).d+" of "+score(d).t+" parts done");
 var stopped=s.end&&s.end>=st0?s.end:0;if(st0&&d==today&&!stopped){s.end=Date.now();LS.set("wo_"+d,s);}
@@ -1225,7 +1282,7 @@ if(T&&(!T.segs||!T.t0))stopT();if(T){lastI=-2;wake();}
 all();loop();
 // installed on the Home Screen: open straight on today's session (a browser tab keeps the week view)
 if(TABS){lockLab(false);$("prev").innerHTML=ic(IP.back,22);$("next").innerHTML=ic(IP.fwd,22);$("tback").innerHTML=ic(IP.back,18)+" Back";$("tnext").innerHTML="Next "+ic(IP.fwd,18);$("snd").innerHTML=ic(IP.snd,18)+" Sound off: tap to turn on";document.addEventListener("click",function(e){var tb=e.target.closest("#tabbar [data-tab]");if(tb){setTab(tb.dataset.tab);return;}
-  var hm=e.target.closest("#home [data-hm]");if(hm){var w=hm.dataset.hm;if(w=="week"){setTab("week");return;}
+  var hm=e.target.closest("#home [data-hm]");if(hm){var w=hm.dataset.hm;if(w=="dif"){dmOpen("do",today);return;}if(w=="dback"){setDo(today,null);return;}if(w=="week"){setTab("week");return;}
    if(w=="start"){var s=P(today);if(!s.start&&!LS.get("wo_runstart_"+today,0)){s.start=Date.now();delete s.end;LS.set("wo_"+today,s);unlock();}}
    if(w=="else"){var s2=P(today),r2=R(today);r2.sub=1;s2.oc="modified";LS.set("wo_"+today,s2);LS.set("wo_run_"+today,r2);delete SCY[today];}
    if(w=="plan"){var s3=P(today),r3=R(today);r3.sub=0;s3.oc="";LS.set("wo_"+today,s3);LS.set("wo_run_"+today,r3);all();return;}
@@ -1233,7 +1290,8 @@ if(TABS){lockLab(false);$("prev").innerHTML=ic(IP.back,22);$("next").innerHTML=i
    if(w=="run"||w=="conv"||w=="else")delete SCY[today];
    if(!(isOpen&&sel==today))openDay(today);if(w=="run")place(today,"actual");else if(w=="conv")place(today,"#xconv");else if(w=="else"||w=="start"||w=="peek")window.scrollTo(0,0);return;}
   if(e.target.closest("#cog")){$("sets").classList.add("show");return;}
-  if(e.target.closest("#ed2")){$("ed").click();return;}
+  if(e.target.closest("#wreset")){resetWeekPlan(wkDays(monday()));return;}
+  var wm=e.target.closest("#wlist [data-wm]");if(wm){dmOpen("menu",wm.dataset.wm);return;}
   var wr=e.target.closest("#wlist [data-d]");if(wr){if(WSW){WSW=false;return;}openDay(wr.dataset.d);return;}});
  $("sets").addEventListener("click",function(e){if(e.target===this||e.target.closest(".swx"))this.classList.remove("show");});
  // settings and the weeks list live in the settings sheet
