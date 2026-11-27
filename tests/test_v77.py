@@ -1,3 +1,4 @@
+# (v78: seeds wo_fix78 so the one-off clear is skipped; Thu/Fri sessions swapped in the week file.)
 # pc-v77: in Edit this week's plan a tap that sets a day to rest says so ("Thu set to rest. Tap again to undo."), a second tap
 # restores it ("Thu is back to …"), and a past day this week that was set to rest can be switched back. Other past days stay locked.
 from playwright.sync_api import sync_playwright
@@ -11,15 +12,15 @@ def name(p,d): return p.locator(f'#wlist .wrow[data-d="{d}"] .wt').inner_text().
 with sync_playwright() as pw:
     b=launch(pw)
     # Thu 26 set to rest the day before, now Fri 27 (the state on James's phone)
-    c,p=tabs(b,"2026-11-27",{"wo_plan":{"2026-11-26":"Rest","2026-11-27":"Rest"}})
+    c,p=tabs(b,"2026-11-27",{"wo_plan":{"2026-11-26":"Rest","2026-11-27":"Rest"},"wo_fix78":1})
     ok("both days start as rest",name(p,"2026-11-26")=="Rest day" and name(p,"2026-11-27")=="Rest day")
     p.click('#week button.day[data-d="2026-11-26"]');p.wait_for_timeout(200)
-    ok("past Thu set to rest can be switched back",name(p,"2026-11-26")=="Lower · Step-Up Staircase" and "2026-11-26" not in (ls(p,"wo_plan") or {}),ls(p,"wo_plan"))
-    ok("message says it is back","Thu is back to Lower · Step-Up Staircase" in toast(p),toast(p))
+    ok("past Thu set to rest can be switched back",name(p,"2026-11-26")=="Recovery · Legs + Spine Reset" and "2026-11-26" not in (ls(p,"wo_plan") or {}),ls(p,"wo_plan"))
+    ok("message says it is back","Thu is back to Recovery · Legs + Spine Reset" in toast(p),toast(p))
     p.click('#week button.day[data-d="2026-11-26"]');p.wait_for_timeout(200)
-    ok("a past day that is not rest stays locked (no second change)",name(p,"2026-11-26")=="Lower · Step-Up Staircase" and "2026-11-26" not in (ls(p,"wo_plan") or {}))
+    ok("a past day that is not rest stays locked (no second change)",name(p,"2026-11-26")=="Recovery · Legs + Spine Reset" and "2026-11-26" not in (ls(p,"wo_plan") or {}))
     p.click('#week button.day[data-d="2026-11-27"]');p.wait_for_timeout(200)
-    ok("today back from rest",name(p,"2026-11-27")=="Recovery · Legs + Spine Reset" and "Fri is back to" in toast(p),toast(p))
+    ok("today back from rest",name(p,"2026-11-27")=="Lower · Step-Up Staircase" and "Fri is back to" in toast(p),toast(p))
     p.click('#week button.day[data-d="2026-11-28"]');p.wait_for_timeout(200)
     ok("a tap that sets a day to rest says so","Sat set to rest. Tap again to undo." in toast(p) and name(p,"2026-11-28")=="Rest day",toast(p))
     p.screenshot(path="test-output/v77-msg.png")
@@ -29,7 +30,7 @@ with sync_playwright() as pw:
     ok("an ordinary past day can't be set to rest","2026-11-24" not in (ls(p,"wo_plan") or {}) and name(p,"2026-11-24")=="Tempo Triple")
     c.close()
     # a past day in an earlier week stays locked even if it was rest
-    c,p=tabs(b,"2026-11-27",{"wo_plan":{"2026-11-19":"Rest"}})
+    c,p=tabs(b,"2026-11-27",{"wo_plan":{"2026-11-19":"Rest"},"wo_fix78":1})
     p.evaluate("()=>{}");p.click("#prev");p.wait_for_timeout(200)
     if p.locator('#week button.day[data-d="2026-11-19"]').count(): p.click('#week button.day[data-d="2026-11-19"]');p.wait_for_timeout(200)
     ok("last week's rest day stays as it was",(ls(p,"wo_plan") or {}).get("2026-11-19")=="Rest")

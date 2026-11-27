@@ -5,8 +5,8 @@
 import json, os, re
 from playwright.sync_api import sync_playwright
 from lib import *
-W7={"2026-11-23":("upe2311","bk2311"),"2026-11-24":("fls2411","bk2411"),"2026-11-25":("mob2511","bk2511"),"2026-11-26":("lov2611","bk2611"),
-    "2026-11-27":("mob2711","bk2711"),"2026-11-28":("kbh2811","bk2811"),"2026-11-29":("wlk2911","bk2911")}
+W7={"2026-11-23":("upe2311","bk2311"),"2026-11-24":("fls2411","bk2411"),"2026-11-25":("mob2511","bk2511"),"2026-11-26":("mob2711","bk2711"),
+    "2026-11-27":("lov2611","bk2611"),"2026-11-28":("kbh2811","bk2811"),"2026-11-29":("wlk2911","bk2911")}
 D=os.path.join(os.path.dirname(__file__),"..","weeks")
 WK=json.load(open(os.path.join(D,"2026-11-23.json")));W5=json.load(open(os.path.join(D,"2026-11-09.json")));W6=json.load(open(os.path.join(D,"2026-11-16.json")))
 TRAIN=["upe2311","fls2411","lov2611","kbh2811","wlk2911"]
@@ -39,15 +39,15 @@ with sync_playwright() as pw:
     ok("carry ladder climbs 20 → 50 m and 4 → 10 sumo deadlifts over four 2:00 rungs",lad["h"]=="Every 2:00 × 4" and len(lad["cycle"])==4 and lad["cycle"][0].startswith("Farmer's carry 20 m") and lad["cycle"][3].endswith("×10"))
     ok("every training day has a 'Beat this' challenge",all("Beat this" in json.dumps(WK["sess"][k],ensure_ascii=False) for k in TRAIN))
     ok("no hard effort, no paces",not re.search(r"\bhard\b|RPE [89]|min/km|km/h|\bbrisk\b|\bjog\b",json.dumps(WK,ensure_ascii=False).replace('"JOG"','')))
-    ok("Wed and Fri are optional recovery days",S["mob2511"]["rest"] and S["mob2711"]["rest"])
+    ok("Wed and Thu (moved from Fri in v78) are optional recovery days",S["mob2511"]["rest"] and S["mob2711"]["rest"])
     ok("training sessions 35–46 min, Tuesday tempo 47–52 min",all((47*60<=S[k]["tot"]<=52*60 if k=="fls2411" else 35*60<=S[k]["tot"]<=46*60) for k in TRAIN),{k:S[k]["tot"] for k in TRAIN})
     t=p.locator("#panel").inner_text()
     ok("Monday: stop-signs line and Beat this visible","sudden or severe headache" in t and "Beat this: more rounds" in t)
     ok("Monday density block shown with its round",all(s in t for s in ["Density block 8:00","hammer curl ×8 each side, incline push-up ×6, wall slide ×8"]),t[:1500])
     ok("Monday density block is an AMRAP (round counter and score)",p.evaluate("()=>{var b=__how.SESS.upe2311.blocks.filter(function(x){return x.id=='u23dn'})[0];return !!b&&b.amrap==1&&b.segs.length==1&&b.segs[0][1]==480;}"))
     c.close()
-    c,p=view(b,"2026-11-26");t=p.locator("#panel").inner_text()
-    ok("Thursday: carry ladder and hip airplane shown, stop signs","Carry ladder" in t and "hip airplane" in t.lower() and "sudden or severe headache" in t,t[:1500])
+    c,p=view(b,"2026-11-27");t=p.locator("#panel").inner_text()
+    ok("Friday (moved from Thu in v78): carry ladder and hip airplane shown, stop signs","Carry ladder" in t and "hip airplane" in t.lower() and "sudden or severe headache" in t,t[:1500])
     c.close()
     c,p=view(b,"2026-11-28");t=p.locator("#panel").inner_text()
     ok("Saturday: bell circuit then gentle hills","Press + squat bell circuit" in t and "Gentle hills 5 × 0:45 / 1:45" in t,t[:1500])
