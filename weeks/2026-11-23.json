@@ -905,7 +905,7 @@
    ]
   },
   "bk2711": {
-   "name": "Backup · Easy Row 12 (Fri 27)",
+   "name": "Backup · Easy Row 12 (Thu 26)",
    "short": "Row",
    "g0": 100,
    "safe": "Recovery day. Very light rowing, nasal breathing. Easy pace, RPE 3–4.",
@@ -1249,12 +1249,12 @@
    "backup": "bk2511"
   },
   "2026-11-26": {
-   "main": "lov2611",
-   "backup": "bk2611"
-  },
-  "2026-11-27": {
    "main": "mob2711",
    "backup": "bk2711"
+  },
+  "2026-11-27": {
+   "main": "lov2611",
+   "backup": "bk2611"
   },
   "2026-11-28": {
    "main": "kbh2811",

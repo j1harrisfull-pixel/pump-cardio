@@ -1216,7 +1216,10 @@ $("rst").onclick=function(){var d=sel,S=S_(d);if(mode(d)=="future"||!S)return;if
 document.addEventListener("visibilitychange",function(){if(document.visibilityState=="visible"){unlock();if(T||RT||wantWake())wake();checkDay();loop();}});
 function checkDay(){var n=ymd(new Date());if(n!=today){today=n;weekOff=0;all();}}
 setInterval(checkDay,30000);
-migrate();(function(){var l=LS.get("wo_log",[]);if(!Array.isArray(l))return;var ch=false;l.forEach(function(e){if(!e||!e.km||!e.time)return;var t2=tdist(e.time,e.km);if(t2!=e.time){e.time=t2;if(e.type=="extra"||e.min<=1)e.min=tmin(t2);ch=true;}});if(ch)LS.set("wo_log",l);})();  // pc-v75: runs saved as 1:11 for 11.9 km become 1:11:00
+migrate();
+// pc-v78 one-off: Fri 27 Nov now carries the Lower session (week file). Clear the old Edit plan rest flags and day swaps for Thu 26 / Fri 27 once, so the new plan shows. Logs are untouched.
+(function(){if(LS.get("wo_fix78",0))return;var o=LS.get("wo_plan",{}),m=LS.get("wo_daymap",{});if(!o||typeof o!="object")o={};if(!m||typeof m!="object")m={};var co=0,cm=0;["2026-11-26","2026-11-27"].forEach(function(k){if(k in o){delete o[k];co=1;}var t=m[k];if(t){delete m[k];cm=1;if(m[t]==k)delete m[t];}});if(co)LS.set("wo_plan",o);if(cm)LS.set("wo_daymap",m);LS.set("wo_fix78",1);})();
+(function(){var l=LS.get("wo_log",[]);if(!Array.isArray(l))return;var ch=false;l.forEach(function(e){if(!e||!e.km||!e.time)return;var t2=tdist(e.time,e.km);if(t2!=e.time){e.time=t2;if(e.type=="extra"||e.min<=1)e.min=tmin(t2);ch=true;}});if(ch)LS.set("wo_log",l);})();  // pc-v75: runs saved as 1:11 for 11.9 km become 1:11:00
 if(T&&(!T.segs||!T.t0))stopT();if(T){lastI=-2;wake();}
 (function(){var f=LS.get("wo_flash",null);if(f&&f.week){LS.del("wo_flash");if(TABS)TAB="week";weekOff=Math.round((pd(f.week)-pd(monOf(today)))/604800000);toast(f.msg||"Saved");}})();
 all();loop();
